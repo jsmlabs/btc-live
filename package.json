@@ -7,9 +7,10 @@
   "scripts": {
     "clean": "node scripts/clean.mjs",
     "test": "node --test tests/*.test.mjs",
+    "test:integrity": "node --test tests/integrity/*.test.mjs",
     "build": "node scripts/build.mjs",
     "package": "node scripts/package.mjs",
-    "verify": "npm run test && npm run build && npm run package"
+    "verify": "npm run test && npm run build && npm run test:integrity && npm run package"
   },
   "engines": {
     "node": ">=20.0.0"

@@ -29,3 +29,19 @@ jobs:
 
       - name: Verify
         run: npm run verify
+
+      - name: Upload Chromium package
+        uses: actions/upload-artifact@v4
+        with:
+          name: btc-live-chromium
+          path: btc-live-chromium-v*.zip
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Firefox package
+        uses: actions/upload-artifact@v4
+        with:
+          name: btc-live-firefox
+          path: btc-live-firefox-v*.zip
+          if-no-files-found: error
+          retention-days: 14

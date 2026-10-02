@@ -1,0 +1,79 @@
+name: Bug report
+description: Report a reproducible problem in BTC Live
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Please provide enough detail to reproduce it reliably.
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Google Chrome
+        - Microsoft Edge
+        - Brave
+        - Mozilla Firefox
+        - Other Chromium-based browser
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: browser-version
+    attributes:
+      label: Browser version
+      placeholder: "Example: Chrome 154.0.x"
+    validations:
+      required: true
+
+  - type: input
+    id: extension-version
+    attributes:
+      label: BTC Live version
+      placeholder: "Example: 1.0.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open BTC Live
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors
+      description: Paste relevant popup console errors if available.
+      render: shell
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots, network conditions, or anything else that may help.

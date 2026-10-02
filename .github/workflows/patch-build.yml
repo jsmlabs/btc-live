@@ -1,0 +1,98 @@
+name: Manual Patch Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      expected_version:
+        description: "Expected BTC Live patch version (must match package.json and remain in 1.0.x)"
+        required: true
+        default: "1.0.0"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  patch-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout selected ref
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate patch version
+        shell: bash
+        env:
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
+        run: |
+          set -euo pipefail
+
+          PACKAGE_VERSION="$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version")"
+
+          if [[ ! "$EXPECTED_VERSION" =~ ^1\.0\.[0-9]+$ ]]; then
+            echo "Expected version must match 1.0.x, got: $EXPECTED_VERSION" >&2
+            exit 1
+          fi
+
+          if [[ "$PACKAGE_VERSION" != "$EXPECTED_VERSION" ]]; then
+            echo "Version mismatch: package.json=$PACKAGE_VERSION expected=$EXPECTED_VERSION" >&2
+            exit 1
+          fi
+
+          echo "Validated patch version: $PACKAGE_VERSION"
+
+      - name: Verify release candidate
+        run: npm run verify
+
+      - name: Generate SHA-256 checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum btc-live-chromium-v*.zip btc-live-firefox-v*.zip > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Write build metadata
+        shell: bash
+        env:
+          EXPECTED_VERSION: ${{ inputs.expected_version }}
+        run: |
+          set -euo pipefail
+          {
+            echo "version=$EXPECTED_VERSION"
+            echo "commit=$GITHUB_SHA"
+            echo "repository=$GITHUB_REPOSITORY"
+            echo "workflow_run=$GITHUB_RUN_ID"
+          } > BUILD_METADATA.txt
+          cat BUILD_METADATA.txt
+
+      - name: Upload Chromium package
+        uses: actions/upload-artifact@v4
+        with:
+          name: btc-live-chromium-v${{ inputs.expected_version }}
+          path: btc-live-chromium-v${{ inputs.expected_version }}.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Firefox package
+        uses: actions/upload-artifact@v4
+        with:
+          name: btc-live-firefox-v${{ inputs.expected_version }}
+          path: btc-live-firefox-v${{ inputs.expected_version }}.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload verification metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: btc-live-verification-v${{ inputs.expected_version }}
+          path: |
+            SHA256SUMS.txt
+            BUILD_METADATA.txt
+          if-no-files-found: error
+          retention-days: 30

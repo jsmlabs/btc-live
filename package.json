@@ -1,0 +1,18 @@
+{
+  "name": "btc-live-browser-extension",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Minimal Bitcoin live price browser extension powered by Binance Spot public market data.",
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "build": "node scripts/build.mjs",
+    "package": "node scripts/package.mjs",
+    "verify": "npm run test && npm run build && npm run package"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "license": "MIT"
+}

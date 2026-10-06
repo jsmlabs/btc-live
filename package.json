@@ -1,18 +1,16 @@
 {
-  "name": "btc-live-browser-extension",
-  "version": "1.0.0",
+  "name": "btc-live-chromium",
+  "version": "1.13.0",
   "private": true,
   "type": "module",
-  "description": "Minimal Bitcoin live price browser extension powered by Binance Spot public market data.",
+  "description": "Development and verification tooling for the BTC Live Chromium extension.",
   "scripts": {
-    "clean": "node scripts/clean.mjs",
-    "test": "node --test tests/*.test.mjs",
-    "build": "node scripts/build.mjs",
-    "package": "node scripts/package.mjs",
-    "verify": "npm run test && npm run build && npm run package"
+    "test": "node --test tests/*.test.js",
+    "verify": "node scripts/verify.mjs && npm test",
+    "build:store": "node scripts/build-store.mjs",
+    "release:check": "npm run verify && npm run build:store"
   },
   "engines": {
-    "node": ">=20.0.0"
-  },
-  "license": "MIT"
+    "node": ">=20"
+  }
 }

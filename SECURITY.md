@@ -1,31 +1,48 @@
 # Security Policy
 
-## Security Model
+## Security model
 
-BTC Live follows a minimal-permission, local-first architecture.
+BTC Live follows a minimal-permission, local-first Manifest V3 architecture.
 
 Security invariants:
 
 - HTTPS/WSS only
 - no remote executable JavaScript
-- no `eval()` or equivalent dynamic code execution
-- no Binance credentials or API keys
-- no user account data
+- no `eval()`, `new Function()`, or equivalent dynamic code execution
+- no inline scripts or inline event handlers
 - no content scripts
 - no arbitrary page injection
-- no telemetry or advertising SDKs
-- validation of all external market-data payloads before state updates
+- no Binance credentials or API keys
+- no user account data
+- no analytics, telemetry, advertising, or tracking SDKs
+- zero runtime package dependencies
+- validation of external market-data payloads before state updates
+- explicit store runtime allowlist
 
-## External Data
+## External data
 
-Binance responses are treated as untrusted external input. Invalid symbols, non-finite numbers, impossible bid/ask relationships, negative values, and implausible timestamps are rejected.
+Binance responses and WebSocket events are treated as untrusted external input. Runtime validation covers symbols, finite numeric values, order-book relationships, timestamps, sequencing metadata, OHLCV relationships, and kline interval boundaries.
 
-Invalid data never replaces the last valid market state.
+Invalid or stale data cannot silently replace newer validated market state.
 
 ## Permissions
 
-V1 requests only the browser `storage` permission and the Binance REST host permission required for the public market snapshot.
+BTC Live v1.13.0 requests exactly:
 
-## Reporting a Security Issue
+- `storage`
+- `notifications`
+- `alarms`
 
-Do not publish a suspected vulnerability with exploit details before it can be reviewed. Report the affected version, reproduction steps, impact, and any relevant browser information through the project's private security-reporting channel when one is configured.
+Host permission:
+
+- `https://api.binance.com/*`
+
+The background service worker exists only to support persistent market-alert scheduling and does not introduce additional host access.
+
+## Dependency policy
+
+The extension has no runtime npm dependencies. Development verification uses only Node.js built-ins and repository source files.
+
+## Reporting a security issue
+
+Do not publish a suspected vulnerability with exploit details before it can be reviewed. Include the affected version, browser/version, reproduction steps, expected behavior, actual behavior, and impact when reporting a security issue through the repository's private security-reporting channel if enabled.

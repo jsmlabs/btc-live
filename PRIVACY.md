@@ -1,12 +1,13 @@
 # Privacy Policy
 
-**Effective version:** 1.0.0
+**Effective version:** 1.13.0  
+**Effective date:** 2026-10-06
 
-BTC Live is designed to operate without collecting personal user data.
+BTC Live is designed to operate without collecting personal user data or using a project-operated backend.
 
-## Data Collection
+## Data collection
 
-BTC Live does not collect, store, sell, rent, profile, or transmit personal user information.
+BTC Live does not collect, sell, rent, profile, or transmit personal user information to the project developer.
 
 The extension does not use:
 
@@ -14,32 +15,43 @@ The extension does not use:
 - authentication
 - analytics
 - advertising networks
-- telemetry
+- telemetry services
 - fingerprinting
 - tracking cookies
 - browsing-history collection
 - page-content collection
+- wallet access
+- Binance account access
+- API keys
 
-## Local Storage
+## Local extension storage
 
-BTC Live stores only the following interface preferences locally through the browser extension storage API:
+BTC Live stores extension state locally through Chromium extension storage. Depending on enabled features, this can include:
 
-- whether Bid / Ask is shown
-- whether 24h Volume is shown
-- whether Price Animation is enabled
+- display preferences
+- chart preferences
+- notification preferences
+- configured BTC price-alert targets and labels
+- alert trigger/re-arm state
+- a bounded local alert history
+- temporary connection/session diagnostics
 
-These preferences are not transmitted to BTC Live infrastructure because BTC Live has no backend infrastructure.
+This data is used only to provide extension functionality and is not sent to project infrastructure.
 
-## External Network Requests
+## Browser notifications
 
-The extension connects directly to Binance public market-data services to retrieve BTCUSDT Spot market information.
+If browser notifications are enabled, BTC Live uses Chromium's native notification API. Notification content is generated locally from the extension's current market state and configured alert rules.
+
+## External network requests
+
+BTC Live connects directly to Binance public Spot market-data services for BTCUSDT data. This includes public REST and WebSocket endpoints used for live monitoring, chart data, recovery, and background alert checks.
 
 No Binance account or API key is required.
 
-## Financial Information
+## Financial information
 
-BTC Live displays public market data only. It does not access exchange balances, orders, positions, payment information, wallets, or financial account credentials.
+BTC Live displays public market data only. It does not access exchange balances, orders, positions, payment information, wallets, or financial account credentials, and it does not execute trades.
 
 ## Changes
 
-If a future version introduces functionality that changes this privacy model, the policy and requested permissions must be updated before release.
+If a future release changes this privacy model, this policy and the extension's permission disclosures must be updated before release.

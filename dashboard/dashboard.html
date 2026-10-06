@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>BTC Live Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <main id="dashboardShell" class="dashboard-shell" data-density="comfortable" aria-label="BTC Live dashboard">
+    <header class="topbar">
+      <div class="brand-block">
+        <img src="../icons/icon48.png" width="38" height="38" alt="">
+        <div>
+          <div class="eyebrow">BTC LIVE</div>
+          <div class="brand-title">Bitcoin Market Dashboard</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div id="dashboardStatusPill" class="status-pill" data-tone="neutral" role="status" aria-live="polite" aria-atomic="true">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="dashboardStatusText">INITIAL</span>
+        </div>
+        <button id="dashboardRetryButton" class="button secondary" type="button" hidden>Retry now</button>
+      </div>
+    </header>
+
+    <section class="hero-grid" aria-label="Bitcoin market overview">
+      <article class="hero-card">
+        <div class="hero-heading">
+          <div>
+            <div class="eyebrow muted">BTC / USDT</div>
+            <div class="price-row">
+              <strong id="dashboardPrice" class="hero-price">—</strong>
+              <span class="quote">USDT</span>
+            </div>
+            <div id="dashboardChangeLine" class="change-line" data-tone="neutral">
+              <span id="dashboardChange">—</span>
+              <span>•</span>
+              <span id="dashboardChangePercent">—</span>
+              <span class="period">24H</span>
+            </div>
+          </div>
+          <div class="hero-meta">
+            <span id="dashboardSource">BINANCE SPOT</span>
+            <span id="dashboardFreshness">Waiting for validated market data</span>
+          </div>
+        </div>
+        <div id="dashboardStateMessage" class="state-message" hidden aria-live="polite"></div>
+      </article>
+
+      <article class="health-card" aria-label="Live feed health">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow muted">LIVE DATA</div>
+            <h2>Feed Health</h2>
+          </div>
+        </div>
+        <div class="health-grid">
+          <div class="health-item">
+            <div class="health-top"><span>PRICE FEED</span><strong id="dashboardPriceHealth" data-health="waiting">WAITING</strong></div>
+            <div id="dashboardPriceSource" class="health-source">Waiting</div>
+            <div id="dashboardPriceAge" class="health-age">Waiting</div>
+          </div>
+          <div class="health-item">
+            <div class="health-top"><span>24H STATS</span><strong id="dashboardStatsHealth" data-health="waiting">WAITING</strong></div>
+            <div id="dashboardStatsSource" class="health-source">Waiting</div>
+            <div id="dashboardStatsAge" class="health-age">Waiting</div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="metric-grid" aria-label="24 hour Bitcoin statistics">
+      <article class="metric-card"><span class="metric-label">24H OPEN</span><strong id="dashboardOpen">—</strong></article>
+      <article class="metric-card"><span class="metric-label">24H HIGH</span><strong id="dashboardHigh">—</strong></article>
+      <article class="metric-card"><span class="metric-label">24H LOW</span><strong id="dashboardLow">—</strong></article>
+      <article id="dashboardVolumeCard" class="metric-card"><span class="metric-label">24H VOLUME</span><strong id="dashboardVolume">—</strong></article>
+    </section>
+
+    <section class="chart-section" aria-label="Live Bitcoin chart">
+      <article class="panel chart-panel">
+        <div class="chart-header">
+          <div>
+            <div class="eyebrow muted">LIVE MARKET</div>
+            <h2>BTCUSDT Chart</h2>
+          </div>
+          <div class="chart-toolbar" aria-label="Chart controls">
+            <div class="segmented" aria-label="Chart interval">
+              <button id="dashboardChartInterval1m" class="chart-control" type="button" aria-pressed="false">1m</button>
+              <button id="dashboardChartInterval5m" class="chart-control" type="button" aria-pressed="true">5m</button>
+              <button id="dashboardChartInterval15m" class="chart-control" type="button" aria-pressed="false">15m</button>
+            </div>
+            <div class="segmented" aria-label="Chart style">
+              <button id="dashboardChartCandles" class="chart-control" type="button" aria-pressed="true">Candles</button>
+              <button id="dashboardChartLine" class="chart-control" type="button" aria-pressed="false">Line</button>
+            </div>
+            <label class="chart-toggle"><span>Volume</span><input id="dashboardChartVolume" type="checkbox" checked></label>
+          </div>
+        </div>
+
+        <div class="chart-level-strip" aria-label="Chart reference levels">
+          <div><span>LIVE</span><strong id="dashboardChartLevelCurrent">—</strong></div>
+          <div><span>24H OPEN</span><strong id="dashboardChartLevelOpen">—</strong></div>
+          <div><span>24H HIGH</span><strong id="dashboardChartLevelHigh">—</strong></div>
+          <div><span>24H LOW</span><strong id="dashboardChartLevelLow">—</strong></div>
+        </div>
+
+        <div class="chart-stage">
+          <svg id="dashboardChartSvg" class="market-chart" viewBox="0 0 1000 360" role="img" aria-label="Bitcoin chart loading"></svg>
+        </div>
+
+        <div class="chart-footer">
+          <span id="dashboardChartStatus" data-state="idle">Waiting</span>
+          <button id="dashboardChartRetry" class="button secondary" type="button" hidden>Retry chart</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <div class="market-column">
+        <article id="dashboardRangeCard" class="panel range-panel" aria-label="24 hour range position">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow muted">PRICE LOCATION</div>
+              <h2>24H Range Position</h2>
+            </div>
+            <strong id="dashboardRangePosition" class="range-value">—</strong>
+          </div>
+          <div id="dashboardRangeTrack" class="range-track" data-empty="true" role="progressbar" aria-label="Current price position in the 24 hour range" aria-valuemin="0" aria-valuemax="100" aria-valuetext="Waiting for 24 hour range data">
+            <span class="range-fill"></span>
+            <span class="range-marker"></span>
+          </div>
+          <div class="range-scale"><span>24H LOW</span><span>24H HIGH</span></div>
+        </article>
+
+        <article id="dashboardBidAskCard" class="panel" aria-label="Best bid ask and spread">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow muted">MICROSTRUCTURE</div>
+              <h2>Top of Book</h2>
+            </div>
+          </div>
+          <div class="book-grid">
+            <div><span class="metric-label">BEST BID</span><strong id="dashboardBid">—</strong></div>
+            <div><span class="metric-label">BEST ASK</span><strong id="dashboardAsk">—</strong></div>
+            <div><span class="metric-label">SPREAD</span><strong id="dashboardSpread">—</strong><small id="dashboardSpreadPercent">—</small></div>
+          </div>
+        </article>
+      </div>
+
+      <aside class="side-column">
+        <article class="panel diagnostics-panel" aria-label="Connection diagnostics">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow muted">SESSION</div>
+              <h2>Connection Diagnostics</h2>
+            </div>
+          </div>
+          <dl class="diagnostics-grid">
+            <div><dt>Connection</dt><dd id="dashboardDiagConnection">INITIAL</dd></div>
+            <div><dt>Session</dt><dd id="dashboardDiagSession">&lt;1m</dd></div>
+            <div><dt>Reconnects</dt><dd id="dashboardDiagReconnects">0</dd></div>
+            <div><dt>Backoff</dt><dd id="dashboardDiagBackoff">Idle</dd></div>
+            <div><dt>Last connect</dt><dd id="dashboardDiagLastConnect">Never</dd></div>
+            <div class="wide"><dt>Last disconnect</dt><dd id="dashboardDiagLastDisconnect">None</dd></div>
+          </dl>
+          <button id="dashboardResetDiagnostics" class="button tertiary" type="button">Reset diagnostics</button>
+        </article>
+
+        <article class="panel alert-manager-panel" aria-label="Price target alerts">
+          <div class="panel-header"><div><div class="eyebrow muted">ALERTS</div><h2>Price Targets</h2></div><span id="dashboardTargetCount" class="alert-count">0/0 active</span></div>
+          <form id="dashboardTargetForm" class="alert-target-form">
+            <select id="dashboardTargetDirection" aria-label="Target direction"><option value="above">Above</option><option value="below">Below</option></select>
+            <input id="dashboardTargetPrice" type="number" min="100" max="10000000" step="0.01" inputmode="decimal" placeholder="Price" aria-label="Target price in USDT" required>
+            <input id="dashboardTargetLabel" type="text" maxlength="48" placeholder="Label (optional)" aria-label="Target label">
+            <button class="button tertiary" type="submit">Add target</button>
+          </form>
+          <div id="dashboardTargetFeedback" class="alert-feedback" role="status" aria-live="polite"></div>
+          <ul id="dashboardTargetList" class="alert-target-list" aria-label="Configured price targets"></ul>
+        </article>
+
+        <article class="panel alert-history-panel" aria-label="Alert history">
+          <div class="panel-header"><div><div class="eyebrow muted">EVENTS</div><h2>Alert History</h2></div><span id="dashboardHistoryCount" class="alert-count">0 events</span></div>
+          <ul id="dashboardHistoryList" class="alert-history-list" aria-label="Alert history events"></ul>
+          <button id="dashboardClearHistory" class="button tertiary" type="button">Clear history</button>
+        </article>
+
+        <article class="panel settings-panel" aria-label="Dashboard settings">
+          <div class="panel-header">
+            <div>
+              <div class="eyebrow muted">LOCAL</div>
+              <h2>Display Settings</h2>
+            </div>
+          </div>
+          <div class="settings-list">
+            <label class="setting-row"><span><strong>Compact Layout</strong><small>Reduce spacing across popup and dashboard.</small></span><input id="dashboardSettingCompact" type="checkbox"></label>
+            <label class="setting-row"><span><strong>Show Bid / Ask</strong><small>Display best bid, ask and spread.</small></span><input id="dashboardSettingBidAsk" type="checkbox"></label>
+            <label class="setting-row"><span><strong>Show 24h Volume</strong><small>Display rolling quote volume.</small></span><input id="dashboardSettingVolume" type="checkbox"></label>
+            <label class="setting-row"><span><strong>Show 24h Range</strong><small>Display price position inside the 24h range.</small></span><input id="dashboardSettingRange" type="checkbox"></label>
+            <label class="setting-row"><span><strong>Price Animation</strong><small>Flash when a newer price arrives.</small></span><input id="dashboardSettingAnimation" type="checkbox"></label>
+            <label class="setting-row"><span><strong>Browser Notifications</strong><small>Master switch for native BTC Live alerts.</small></span><input id="dashboardSettingNotifications" type="checkbox"></label>
+            <label class="setting-row"><span><strong>Background Alerts</strong><small>Check price alerts periodically even when all BTC Live views are closed.</small></span><input id="dashboardSettingBackgroundAlerts" type="checkbox"></label>
+            <label class="setting-row"><span><strong>Price Move Alerts</strong><small>Notify after BTC moves by the configured threshold.</small></span><input id="dashboardSettingNotifyPrice" type="checkbox"></label>
+            <label class="setting-row setting-row-control"><span><strong>Price Move Threshold</strong><small>Movement from the last notification anchor.</small></span><select id="dashboardSettingPriceThreshold" aria-label="Price move notification threshold"><option value="0.1">0.1%</option><option value="0.25">0.25%</option><option value="0.5">0.5%</option><option value="1">1.0%</option><option value="2">2.0%</option><option value="5">5.0%</option></select></label>
+            <label class="setting-row setting-row-control"><span><strong>Alert Cooldown</strong><small>Minimum interval between repeated alert events.</small></span><select id="dashboardSettingNotificationCooldown" aria-label="Notification cooldown"><option value="60">1 min</option><option value="300">5 min</option><option value="900">15 min</option><option value="1800">30 min</option><option value="3600">60 min</option></select></label>
+            <label class="setting-row"><span><strong>Connection Alerts</strong><small>Notify on stale/offline data and recovery.</small></span><input id="dashboardSettingNotifyConnection" type="checkbox"></label>
+          </div>
+          <div class="settings-actions-inline"><button id="dashboardTestNotification" class="button tertiary" type="button">Test notification</button>
+          <button id="dashboardResetSettings" class="button tertiary" type="button">Reset defaults</button></div>
+        </article>
+      </aside>
+    </section>
+
+    <footer class="dashboard-footer">
+      <span>BTC LIVE · V1.13.0</span>
+      <span>Binance Spot · Local settings · No tracking</span>
+    </footer>
+  </main>
+  <script type="module" src="dashboard.js"></script>
+</body>
+</html>

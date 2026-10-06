@@ -1,85 +1,62 @@
-# BTC Live v1.0.0 - Release Checklist
+# BTC Live v1.13.0 - Release Checklist
 
-## Code Freeze
+## Source and verification
 
-- [x] V1 feature scope frozen
-- [x] English-only user-facing UI
-- [x] Manifest V3 builds generated
-- [x] Chromium live market-data path verified locally
-- [x] No backend
-- [x] No API key
-- [x] No analytics or tracking
-- [x] No runtime third-party dependencies
-- [x] Privacy and security documentation present
+- [x] Manifest version is `1.13.0`
+- [x] Package version is `1.13.0`
+- [x] English-only user-facing extension UI
+- [x] `npm run verify` passes
+- [x] 96/96 deterministic tests pass
+- [x] `npm run release:check` passes
+- [x] Store build contains exactly 35 allowlisted runtime files
+- [x] No runtime npm dependencies
+- [x] No account, API key, analytics, advertising, or tracking
+- [x] Binance public market data is the only external data source
 
-## Branding Before Public Submission
+## Permissions
 
-- [ ] Replace development icon with final distinctive BTC Live icon
-- [ ] Export 16x16, 32x32, 48x48, and 128x128 package icons
-- [ ] Create Chrome 440x280 small promo tile
-- [ ] Optionally create Chrome 1400x560 marquee tile
-- [ ] Capture 3 polished 1280x800 Chrome screenshots
+- [x] `storage` is required for local extension state
+- [x] `notifications` is required for native browser alerts
+- [x] `alarms` is required for persistent background alert scheduling
+- [x] Host permission is limited to `https://api.binance.com/*`
+- [x] No content scripts
+- [x] No web-accessible resources
 
-## Store Metadata
+## v1.13.0 alert-manager regression
 
-- [x] Product name: BTC Live
-- [x] Primary language: English
-- [x] Short description prepared
-- [x] Long description prepared
-- [x] Feature summary prepared
-- [x] Permission explanation prepared
-- [x] Binance attribution / non-affiliation copy prepared
-- [x] Privacy statement prepared
+- [x] Multi-target `Above` / `Below` alerts persist independently
+- [x] Optional target labels are supported
+- [x] Enable/disable and remove operations persist
+- [x] Targets re-arm only after price crosses back over the configured level
+- [x] v1.12.0 single targets migrate once without recreating intentionally deleted targets
+- [x] Multi-target jumps produce at most one native target notification per snapshot
+- [x] Additional crossed targets are marked triggered and recorded as suppressed
+- [x] Alert history is bounded to 100 entries
+- [x] Alert history can be cleared without modifying targets/settings
+- [x] Background scheduling reconciles settings and target-store changes
 
-## URLs Required for Public Stores
+## Documentation
 
-- [ ] Public privacy policy URL
-- [ ] Public support URL or repository issues URL
-- [ ] Public homepage or repository URL, if used
+- [x] README updated for v1.13.0 architecture
+- [x] CHANGELOG updated
+- [x] Privacy policy updated
+- [x] Security policy updated
+- [x] Store listing updated
+- [x] GitHub release notes updated
+- [x] QA checklist updated
 
-## Chrome Web Store
+## Store submission
 
-- [ ] Developer account ready
-- [ ] 2-Step Verification enabled as required by Chrome Web Store developer policies
-- [ ] Upload `btc-live-chromium-v1.0.0.zip`
-- [ ] Complete privacy disclosures so they exactly match extension behavior
-- [ ] Upload icon
-- [ ] Upload at least one screenshot, recommended 3
-- [ ] Upload small promo tile
-- [ ] Select category
+- [ ] Re-capture screenshots that accurately show the current popup/dashboard and alert manager
+- [ ] Confirm final store icon and promotional artwork
+- [ ] Upload the v1.13.0 Chromium store ZIP
+- [ ] Confirm store privacy disclosures exactly match current permissions and behavior
+- [ ] Add public privacy/support URLs
 - [ ] Submit for review
 
-## Microsoft Edge Add-ons
+## GitHub release
 
-- [ ] Microsoft developer account ready
-- [ ] Upload Chromium ZIP
-- [ ] Upload required logo and small promotional tile
-- [ ] Add accurate screenshots
-- [ ] Add privacy policy URL
-- [ ] Submit for certification
-
-## Firefox Add-ons
-
-- [ ] Mozilla account ready
-- [ ] Upload `btc-live-firefox-v1.0.0.zip`
-- [ ] Confirm current AMO metadata requirements
-- [ ] Confirm privacy/data-collection declaration matches actual behavior
-- [ ] Add icon and screenshots
-- [ ] Submit for review/signing
-
-## GitHub Release
-
-- [ ] Create repository if not already public
-- [ ] Commit final release source
-- [ ] Tag `v1.0.0`
-- [ ] Publish GitHub release using `GITHUB_RELEASE.md`
-- [ ] Attach Chromium ZIP
-- [ ] Attach Firefox ZIP
-- [ ] Link privacy policy and security policy
-
-## Post-Release
-
-- [ ] Record store listing URLs
-- [ ] Record submitted package hashes
-- [ ] Record review outcomes or requested changes
-- [ ] Only issue v1.0.1 for verified defects, not feature expansion
+- [ ] Tag `v1.13.0`
+- [ ] Publish release notes from `GITHUB_RELEASE.md`
+- [ ] Attach the Chromium store ZIP
+- [ ] Record package SHA-256

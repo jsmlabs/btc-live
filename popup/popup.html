@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>BTC Live</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main id="appShell" class="app-shell" data-density="comfortable" aria-label="BTC Live market data">
+    <section id="mainView" class="view">
+      <header class="header">
+        <div class="asset-identity">
+          <div class="asset-mark" aria-hidden="true"><img src="../icons/icon32.png" alt=""></div>
+          <div>
+            <div class="eyebrow">BITCOIN</div>
+            <div class="pair">BTC / USDT</div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <div id="statusPill" class="status-pill" data-tone="neutral" role="status" aria-live="polite" aria-atomic="true">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span id="statusText">INITIAL</span>
+          </div>
+          <button id="dashboardButton" class="icon-button" type="button" aria-label="Open dashboard" title="Open dashboard">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="4" y="4" width="6" height="6" rx="1"/>
+              <rect x="14" y="4" width="6" height="6" rx="1"/>
+              <rect x="4" y="14" width="6" height="6" rx="1"/>
+              <rect x="14" y="14" width="6" height="6" rx="1"/>
+            </svg>
+          </button>
+          <button id="settingsButton" class="icon-button" type="button" aria-label="Open settings" title="Settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 8.4A3.6 3.6 0 1 0 12 15.6 3.6 3.6 0 0 0 12 8.4Zm8 3.6-.1-1.2 1.8-1.4-2-3.4-2.3.9a8 8 0 0 0-2-1.2L15 3.2h-4l-.4 2.5a8 8 0 0 0-2 1.2L6.3 6l-2 3.4 1.8 1.4L6 12l.1 1.2-1.8 1.4 2 3.4 2.3-.9a8 8 0 0 0 2 1.2l.4 2.5h4l.4-2.5a8 8 0 0 0 2-1.2l2.3.9 2-3.4-1.8-1.4L20 12Z"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="price-block" aria-label="Current Bitcoin price">
+        <div class="price-row">
+          <div id="currentPrice" class="current-price">—</div>
+          <div class="quote-asset">USDT</div>
+        </div>
+        <div id="changeLine" class="change-line" data-tone="neutral">
+          <span id="priceChange">—</span>
+          <span class="separator">•</span>
+          <span id="priceChangePercent">—</span>
+          <span class="period">24H</span>
+        </div>
+      </section>
+
+      <div class="state-row">
+        <div id="stateMessage" class="state-message" hidden aria-live="polite"></div>
+        <button id="retryButton" class="retry-button" type="button" hidden>Retry now</button>
+      </div>
+
+      <section class="stats-grid" aria-label="24 hour market statistics">
+        <article class="metric-card">
+          <span class="metric-label">24H OPEN</span>
+          <strong id="open24h" class="metric-value">—</strong>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">24H HIGH</span>
+          <strong id="high24h" class="metric-value">—</strong>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">24H LOW</span>
+          <strong id="low24h" class="metric-value">—</strong>
+        </article>
+      </section>
+
+      <section id="rangeSection" class="range-card" aria-label="Position inside the 24 hour price range">
+        <div class="range-heading">
+          <span class="metric-label">24H RANGE POSITION</span>
+          <strong id="rangePosition" class="range-position">—</strong>
+        </div>
+        <div id="rangeTrack" class="range-track" data-empty="true" role="progressbar" aria-label="Current price position in the 24 hour range" aria-valuemin="0" aria-valuemax="100" aria-valuetext="Waiting for 24 hour range data">
+          <span class="range-fill"></span>
+          <span class="range-marker"></span>
+        </div>
+        <div class="range-scale" aria-hidden="true">
+          <span>LOW</span>
+          <span>HIGH</span>
+        </div>
+      </section>
+
+      <section id="bidAskSection" class="market-row" aria-label="Best bid and ask">
+        <div class="market-cell">
+          <span class="metric-label">BID</span>
+          <strong id="bidPrice" class="market-value">—</strong>
+        </div>
+        <div class="market-cell">
+          <span class="metric-label">ASK</span>
+          <strong id="askPrice" class="market-value">—</strong>
+        </div>
+        <div class="market-cell compact">
+          <span class="metric-label">SPREAD</span>
+          <strong id="spread" class="market-value">—</strong>
+          <span id="spreadPercent" class="market-subvalue">—</span>
+        </div>
+      </section>
+
+      <section id="volumeSection" class="volume-row" aria-label="24 hour quote volume">
+        <span class="metric-label">24H VOLUME</span>
+        <strong id="volume24h" class="volume-value">—</strong>
+      </section>
+
+      <footer class="footer">
+        <span id="dataSource">BINANCE SPOT</span>
+        <span id="lastUpdate">Waiting for data</span>
+      </footer>
+    </section>
+
+    <section id="settingsView" class="view settings-view" hidden aria-label="Settings">
+      <header class="settings-header">
+        <div>
+          <div class="eyebrow">BTC LIVE</div>
+          <h1>Settings</h1>
+        </div>
+        <button id="closeSettingsButton" class="icon-button" type="button" aria-label="Close settings" title="Close settings">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.8 6.8 17.2 17.2M17.2 6.8 6.8 17.2"/></svg>
+        </button>
+      </header>
+
+      <div class="settings-list">
+        <label class="setting-row">
+          <span>
+            <strong>Compact Layout</strong>
+            <small>Reduce spacing for a denser monitoring view.</small>
+          </span>
+          <input id="settingCompact" type="checkbox">
+        </label>
+
+        <label class="setting-row">
+          <span>
+            <strong>Show Bid / Ask</strong>
+            <small>Display best bid, best ask and spread.</small>
+          </span>
+          <input id="settingBidAsk" type="checkbox">
+        </label>
+
+        <label class="setting-row">
+          <span>
+            <strong>Show 24h Volume</strong>
+            <small>Display rolling quote volume in USDT.</small>
+          </span>
+          <input id="settingVolume" type="checkbox">
+        </label>
+
+        <label class="setting-row">
+          <span>
+            <strong>Show 24h Range</strong>
+            <small>Show where the current price sits between the daily low and high.</small>
+          </span>
+          <input id="settingRange" type="checkbox">
+        </label>
+
+        <label class="setting-row">
+          <span>
+            <strong>Price Animation</strong>
+            <small>Flash briefly when the latest price changes.</small>
+          </span>
+          <input id="settingAnimation" type="checkbox">
+        </label>
+
+        <label class="setting-row">
+          <span>
+            <strong>Browser Notifications</strong>
+            <small>Master switch for native BTC Live alerts.</small>
+          </span>
+          <input id="settingNotifications" type="checkbox">
+        </label>
+
+        <label class="setting-row">
+          <span>
+            <strong>Background Alerts</strong>
+            <small>Check price alerts periodically even when BTC Live is closed.</small>
+          </span>
+          <input id="settingBackgroundAlerts" type="checkbox">
+        </label>
+
+        <label class="setting-row">
+          <span>
+            <strong>Price Move Alerts</strong>
+            <small>Notify after BTC moves by the configured threshold.</small>
+          </span>
+          <input id="settingNotifyPrice" type="checkbox">
+        </label>
+
+        <label class="setting-row setting-row-control">
+          <span>
+            <strong>Price Move Threshold</strong>
+            <small>Movement from the last notification anchor.</small>
+          </span>
+          <select id="settingPriceThreshold" aria-label="Price move notification threshold">
+            <option value="0.1">0.1%</option>
+            <option value="0.25">0.25%</option>
+            <option value="0.5">0.5%</option>
+            <option value="1">1.0%</option>
+            <option value="2">2.0%</option>
+            <option value="5">5.0%</option>
+          </select>
+        </label>
+
+        <section class="alert-center" aria-label="Price target alerts">
+          <div class="alert-center-heading">
+            <div><strong>Price Targets</strong><small>Multiple independent above/below alerts with automatic re-arming.</small></div>
+            <span id="settingTargetCount" class="alert-count">0/0 active</span>
+          </div>
+          <form id="settingTargetForm" class="alert-target-form">
+            <select id="settingTargetDirection" aria-label="Target direction"><option value="above">Above</option><option value="below">Below</option></select>
+            <input id="settingTargetPrice" type="number" min="100" max="10000000" step="0.01" inputmode="decimal" placeholder="Price" aria-label="Target price in USDT" required>
+            <input id="settingTargetLabel" type="text" maxlength="48" placeholder="Label (optional)" aria-label="Target label">
+            <button class="secondary-button" type="submit">Add target</button>
+          </form>
+          <div id="settingTargetFeedback" class="alert-feedback" role="status" aria-live="polite"></div>
+          <ul id="settingTargetList" class="alert-target-list" aria-label="Configured price targets"></ul>
+        </section>
+
+        <label class="setting-row setting-row-control">
+          <span>
+            <strong>Alert Cooldown</strong>
+            <small>Minimum interval between repeated alert events.</small>
+          </span>
+          <select id="settingNotificationCooldown" aria-label="Notification cooldown">
+            <option value="60">1 min</option>
+            <option value="300">5 min</option>
+            <option value="900">15 min</option>
+            <option value="1800">30 min</option>
+            <option value="3600">60 min</option>
+          </select>
+        </label>
+
+        <label class="setting-row">
+          <span>
+            <strong>Connection Alerts</strong>
+            <small>Notify when data becomes stale/offline and when it recovers.</small>
+          </span>
+          <input id="settingNotifyConnection" type="checkbox">
+        </label>
+      </div>
+
+      <section class="alert-center" aria-label="Alert history">
+        <div class="alert-center-heading">
+          <div><strong>Alert History</strong><small>Latest sent, suppressed and failed alert events.</small></div>
+          <span id="settingHistoryCount" class="alert-count">0 events</span>
+        </div>
+        <ul id="settingHistoryList" class="alert-history-list" aria-label="Alert history events"></ul>
+        <button id="settingClearHistory" class="secondary-button compact-button" type="button">Clear history</button>
+      </section>
+
+      <section class="diagnostics-card" aria-label="Connection diagnostics">
+        <div class="diagnostics-heading">Connection diagnostics</div>
+        <dl class="diagnostics-grid">
+          <div><dt>Connection</dt><dd id="diagConnection">INITIAL</dd></div>
+          <div><dt>Session</dt><dd id="diagSession">&lt;1m</dd></div>
+          <div><dt>Price feed</dt><dd id="diagPriceFeed">WAITING</dd></div>
+          <div><dt>24h stats</dt><dd id="diagStatsFeed">WAITING</dd></div>
+          <div><dt>Reconnects</dt><dd id="diagReconnectCount">0</dd></div>
+          <div><dt>Backoff</dt><dd id="diagBackoff">Idle</dd></div>
+          <div><dt>Last connect</dt><dd id="diagLastConnect">Never</dd></div>
+          <div class="diagnostic-wide"><dt>Last disconnect</dt><dd id="diagLastDisconnect">None</dd></div>
+        </dl>
+      </section>
+
+      <div class="privacy-note">
+        <strong>Private by design</strong>
+        <span>No account, tracking, analytics or API key.</span>
+      </div>
+
+      <div class="settings-actions">
+        <button id="testNotificationButton" class="secondary-button" type="button">Test notification</button>
+        <button id="resetSettingsButton" class="secondary-button" type="button">Reset defaults</button>
+        <button id="resetDiagnosticsButton" class="secondary-button" type="button">Reset diagnostics</button>
+      </div>
+
+      <footer class="footer settings-footer">
+        <span>BTC LIVE · V1.13.0</span>
+        <span>Local settings only</span>
+      </footer>
+    </section>
+  </main>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

@@ -1,117 +1,57 @@
 # BTC Live - Store Asset Plan
 
-## Brand Direction
+## Brand direction
 
 The store identity should match the extension UI:
 
 - near-black background
 - white primary mark
-- restrained green only for live-status accents
+- restrained status accents
 - geometric, technical, minimal
-- no coins, rockets, candlesticks, gradients, or casino-style crypto imagery
+- no casino-style crypto imagery
 - no Binance logo
 - no claim of Binance affiliation
 
-The current development icon should be replaced before public submission with a distinctive BTC Live brand mark that remains recognizable at 16 px.
+## Package icons
 
-## Required Extension Icons
+Required PNG sizes:
 
-Package assets:
+- 16x16
+- 32x32
+- 48x48
+- 128x128
 
-- 16x16 PNG
-- 32x32 PNG
-- 48x48 PNG
-- 128x128 PNG
+## Chromium store assets
 
-The 128x128 icon is also suitable as the Chrome Web Store icon. Chrome requires a store icon and at least one screenshot. The Chrome listing documentation specifies a 128x128 store icon, 1280x800 screenshots, and a 440x280 small promotional tile.
+Prepare current screenshots that reflect v1.13.0 behavior rather than the original v1.0.0 popup.
 
-## Chrome Web Store
+Recommended set:
 
-Prepare:
+1. **Popup market view** - current price, market context, and connection status.
+2. **Dashboard and chart** - full monitoring dashboard with chart and diagnostics.
+3. **Alert manager** - multiple Above/Below price targets and alert-history UI.
+4. **Privacy / settings** - local settings and the absence of account/API-key requirements.
 
-- Store icon: 128x128 PNG
-- Screenshots: 1280x800 PNG/JPEG, 3 recommended for this product, maximum 5
-- Small promo tile: 440x280 PNG/JPEG
-- Marquee promo tile: 1400x560 PNG/JPEG, optional
+Suggested screenshot size: 1280x800 where accepted by the target store.
 
-### Screenshot 1 - Core Market View
+Small promotional tile: 440x280 for Chrome Web Store where required.
 
-Show the real popup in LIVE state.
-
-Overlay copy:
-
-`Bitcoin market data. One click. No noise.`
-
-Secondary copy:
-
-`Live BTCUSDT Spot price with essential 24-hour market context.`
-
-### Screenshot 2 - Essential Market Context
-
-Show the popup with price, 24H high/low, bid/ask, spread, and quote volume visible.
-
-Overlay copy:
-
-`The numbers that matter.`
-
-Secondary copy:
-
-`Price, 24H change, high, low, bid, ask, spread, and volume.`
-
-### Screenshot 3 - Privacy / Simplicity
-
-Show popup plus settings view or a clean branded composition.
-
-Overlay copy:
-
-`Private by default.`
-
-Secondary copy:
-
-`No account. No API key. No tracking. No ads.`
-
-## Microsoft Edge Add-ons
-
-Prepare:
-
-- extension ZIP
-- extension logo
-- small promotional tile
-- at least one clear, accurate screenshot
-- privacy policy URL
-- listing copy
-
-Reuse the same visual system as the Chrome listing, but export files specifically for the Edge submission fields rather than assuming every Chrome dimension maps directly to Edge.
-
-## Firefox Add-ons
-
-Prepare:
-
-- Firefox ZIP build
-- listing name and English description
-- icon
-- screenshots showing actual extension behavior
-- privacy information consistent with the manifest data-collection declaration and PRIVACY.md
-
-Use the same source screenshots where accepted, but submit only dimensions and formats accepted by the current AMO form at submission time.
-
-## Screenshot Rules
+## Screenshot rules
 
 All store screenshots must:
 
-- reflect the actual shipped UI
-- use real extension behavior rather than fabricated functionality
+- reflect actual shipped v1.13.0 behavior
+- avoid fabricated market values or unsupported features
 - avoid implying trading or order execution
 - avoid implying Binance endorsement
 - avoid fake reviews, performance claims, or investment outcomes
-- remain legible when shown as a reduced store preview
+- remain legible as reduced store previews
 
-## Final Brand Asset Acceptance Criteria
+## Acceptance criteria
 
-- unique silhouette
-- readable at 16x16
-- visually consistent at 128x128
-- works on dark and light browser chrome
+- current UI shown, not obsolete v1.0.0 screenshots
+- unique project branding
+- icon remains readable at 16x16
 - no third-party protected logo usage
 - no tiny text inside the icon
-- no unnecessary detail
+- no unnecessary visual complexity

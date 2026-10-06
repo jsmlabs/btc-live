@@ -1,10 +1,10 @@
 # BTC Live - Store Listing
 
-## Product Name
+## Product name
 
 BTC Live
 
-## Primary Language
+## Primary language
 
 English
 
@@ -12,32 +12,40 @@ English
 
 Tools
 
-## Short Description
+## Short description
 
-Live BTCUSDT price and essential 24-hour Binance Spot market data in one clean, private browser popup.
+Live BTCUSDT market data, charting, and configurable browser alerts in a private Chromium extension.
 
-## Long Description
+## Long description
 
-BTC Live gives you fast access to the current Bitcoin Spot price and essential BTCUSDT market data directly from your browser toolbar.
+BTC Live provides fast access to BTCUSDT Spot market data from Binance directly in your browser.
 
-Open the extension to see the latest executed BTCUSDT trade price together with rolling 24-hour change, high, low, quote volume, best bid, best ask, spread, connection status, and update freshness.
+Use the compact popup for a quick market check or open the full dashboard for persistent monitoring, chart context, connection diagnostics, and configurable alerts.
 
-### Focused by design
+### Market monitoring
 
-BTC Live is intentionally small and direct. It does not try to replace a trading terminal or charting platform.
+- Live BTCUSDT last-trade price
+- Rolling 24-hour change, open, high, low, and quote volume
+- Best bid, best ask, spread, and 24-hour range position
+- Clear LIVE, DEGRADED, STALE, RECONNECTING, and OFFLINE states
+- Lightweight live chart with 1m, 5m, and 15m intervals
 
-- Real-time BTCUSDT Spot price
-- Rolling 24-hour market statistics
-- Best bid, best ask, and spread
-- Clear LIVE, STALE, RECONNECTING, and OFFLINE states
-- Compact dark-mode interface
-- Local display preferences
+### Alerts
 
-### Privacy-first
+- Native Chromium notifications
+- Persistent background price monitoring
+- Percentage price-move alerts
+- Multiple independent `Above` and `Below` BTC price targets
+- Optional target labels
+- Automatic re-arm behavior after recrossing a target
+- Local alert history with sent, suppressed, and failed outcomes
+- Configurable alert cooldown
+
+### Privacy-first architecture
 
 BTC Live does not require:
 
-- an account
+- a user account
 - a Binance login
 - an API key
 - wallet access
@@ -47,49 +55,28 @@ BTC Live does not require:
 - tracking
 - a custom backend
 
-Only local display preferences are stored on your device.
+Extension settings, targets, history, and diagnostics remain in local browser extension storage.
 
 ### Market data
 
 BTC Live connects directly to public Binance Spot market-data services for BTCUSDT data.
 
-Market data provided by Binance. BTC Live is not affiliated with or endorsed by Binance.
+Market data provided by Binance. BTC Live is independent and is not affiliated with or endorsed by Binance.
 
-## Feature Summary
-
-- Live BTCUSDT Spot price
-- 24-hour price change
-- 24-hour high and low
-- 24-hour quote volume
-- Best bid and ask
-- Spread
-- Connection freshness status
-- Automatic reconnect handling
-- Minimal dark-mode interface
-- Local-only settings
-- No account or API key
-- No analytics or tracking
-
-## Privacy Summary
-
-BTC Live does not collect, sell, or transmit personal user data. It communicates with Binance public market-data services only to provide the extension's disclosed market-data functionality. Local display preferences remain on the user's device.
-
-## Permission Explanation
+## Permission explanations
 
 ### Storage
 
-Used only to save local display preferences such as whether Bid / Ask, 24-hour volume, and price animations are shown.
+Used to save local display settings, chart preferences, alert targets, alert history, notification preferences, and temporary diagnostics.
+
+### Notifications
+
+Used to display user-configured native browser alerts.
+
+### Alarms
+
+Used to schedule background checks required for persistent price alerts while popup/dashboard views are closed.
 
 ### Binance host access
 
 Used only to retrieve public BTCUSDT Spot market data from Binance.
-
-## Support Copy
-
-If BTC Live cannot reach Binance, the extension keeps the last valid market state visible and clearly marks the data as stale, reconnecting, or offline.
-
-## Attribution
-
-Market data provided by Binance.
-
-BTC Live is an independent browser extension and is not affiliated with or endorsed by Binance.

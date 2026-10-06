@@ -21,13 +21,13 @@ Security invariants:
 
 ## External data
 
-Binance responses and WebSocket events are treated as untrusted external input. Runtime validation covers symbols, finite numeric values, order-book relationships, timestamps, sequencing metadata, OHLCV relationships, and kline interval boundaries.
+Binance USDⓈ-M Futures REST responses and WebSocket events are treated as untrusted external input. Runtime validation covers symbols, finite numeric values, order-book relationships, timestamps, sequencing metadata, OHLCV relationships, and kline interval boundaries.
 
-Invalid or stale data cannot silently replace newer validated market state.
+Ticker statistics and top-of-book updates use independent ordering/state ownership so invalid or stale data cannot silently replace newer validated market state.
 
 ## Permissions
 
-BTC Live v1.13.0 requests exactly:
+BTC Live v1.14.0 requests exactly:
 
 - `storage`
 - `notifications`
@@ -35,7 +35,12 @@ BTC Live v1.13.0 requests exactly:
 
 Host permission:
 
-- `https://api.binance.com/*`
+- `https://fapi.binance.com/*`
+
+Extension-page CSP permits connections only to:
+
+- `https://fapi.binance.com`
+- `wss://fstream.binance.com`
 
 The background service worker exists only to support persistent market-alert scheduling and does not introduce additional host access.
 

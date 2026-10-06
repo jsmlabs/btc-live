@@ -19,12 +19,18 @@ const TICKER_FIELDS = Object.freeze([
   'low24h',
   'baseVolume24h',
   'quoteVolume24h',
-  'bidPrice',
-  'askPrice',
   'lastTickerTradeId',
   'lastTickerAt',
   'lastTickerReceivedAt',
   'tickerSource'
+]);
+
+const BOOK_FIELDS = Object.freeze([
+  'bidPrice',
+  'askPrice',
+  'lastBookAt',
+  'lastBookReceivedAt',
+  'bookSource'
 ]);
 
 const PRICE_SOURCE_PRIORITY = Object.freeze({
@@ -58,6 +64,9 @@ export function createInitialMarketState() {
     lastTickerTradeId: null,
     lastTickerAt: null,
     lastTickerReceivedAt: null,
+    lastBookAt: null,
+    lastBookReceivedAt: null,
+    bookSource: null,
     lastPriceTradeId: null,
     lastPriceEventAt: null,
     lastPriceReceivedAt: null,
@@ -80,11 +89,18 @@ export function applySnapshot(state, snapshot, { preservePrice = false } = {}) {
     snapshotTradeId
   );
   const preserveLiveTicker = state.tickerSource === 'WEBSOCKET' && tickerOrder >= 0;
+  const snapshotBookAt = finiteOrNull(snapshot.lastBookAt);
+  const currentBookAt = finiteOrNull(state.lastBookAt);
+  const preserveLiveBook = state.bookSource === 'WEBSOCKET' && currentBookAt !== null &&
+    (snapshotBookAt === null || currentBookAt >= snapshotBookAt);
 
-  let next = { ...state, ...snapshot, tickerSource: 'REST' };
+  let next = { ...state, ...snapshot, tickerSource: 'REST', bookSource: snapshot.bookSource ?? 'REST' };
 
   if (preserveLiveTicker) {
     for (const field of TICKER_FIELDS) next[field] = state[field];
+  }
+  if (preserveLiveBook) {
+    for (const field of BOOK_FIELDS) next[field] = state[field];
   }
 
   const snapshotPriceOrder = comparePriceOrder(state, {
@@ -189,6 +205,21 @@ export function applyTicker(state, ticker) {
   });
 }
 
+export function applyBookTicker(state, book) {
+  const eventAt = finiteOrNull(book.lastBookAt);
+  const currentAt = finiteOrNull(state.lastBookAt);
+  if (eventAt === null || (currentAt !== null && eventAt <= currentAt)) return state;
+
+  const { source: _incomingSource, ...bookFields } = book;
+  return withDerivedValues({
+    ...state,
+    ...bookFields,
+    bookSource: 'WEBSOCKET',
+    lastValidUpdateAt: maxFinite(state.lastValidUpdateAt, book.lastValidUpdateAt),
+    errorMessage: null
+  });
+}
+
 export function withStatus(state, connectionStatus, errorMessage = null) {
   return { ...state, connectionStatus, errorMessage };
 }
@@ -217,7 +248,7 @@ export function deriveFreshnessStatus(state, now = Date.now()) {
 }
 
 export function latestExchangeEventAt(state) {
-  return maxFinite(state.lastTradeAt, state.lastTickerAt);
+  return maxFinite(maxFinite(state.lastTradeAt, state.lastTickerAt), state.lastBookAt);
 }
 
 export function priceEventAgeMs(state, now = Date.now()) {
@@ -234,27 +265,37 @@ function feedStatus(age, staleAfterMs) {
 }
 
 function comparePriceOrder(state, incoming) {
-  const currentTradeId = safeIntegerOrNull(state.lastPriceTradeId);
-  const incomingTradeId = safeIntegerOrNull(incoming.tradeId);
-
-  if (currentTradeId !== null && incomingTradeId !== null && currentTradeId !== incomingTradeId) {
-    return incomingTradeId > currentTradeId ? 1 : -1;
-  }
-
   const currentAt = finiteOrNull(state.lastPriceEventAt);
   const incomingAt = finiteOrNull(incoming.eventAt);
   if (currentAt !== null && incomingAt !== null && currentAt !== incomingAt) {
     return incomingAt > currentAt ? 1 : -1;
   }
-
   if (currentAt === null && incomingAt !== null) return 1;
   if (currentAt !== null && incomingAt === null) return -1;
-  if (currentTradeId === null && incomingTradeId !== null) return 1;
-  if (currentTradeId !== null && incomingTradeId === null) return -1;
+
+  const currentTradeId = safeIntegerOrNull(state.lastPriceTradeId);
+  const incomingTradeId = safeIntegerOrNull(incoming.tradeId);
+  const currentSequenceKind = priceSequenceKind(state.priceSource);
+  const incomingSequenceKind = priceSequenceKind(incoming.source);
+  if (
+    currentSequenceKind !== null &&
+    currentSequenceKind === incomingSequenceKind &&
+    currentTradeId !== null &&
+    incomingTradeId !== null &&
+    currentTradeId !== incomingTradeId
+  ) {
+    return incomingTradeId > currentTradeId ? 1 : -1;
+  }
 
   const currentPriority = PRICE_SOURCE_PRIORITY[state.priceSource] ?? 0;
   const incomingPriority = PRICE_SOURCE_PRIORITY[incoming.source] ?? 0;
   return Math.sign(incomingPriority - currentPriority);
+}
+
+function priceSequenceKind(source) {
+  if (source === 'TRADE') return 'AGG_TRADE';
+  if (source === 'TICKER' || source === 'REST') return 'RAW_TRADE';
+  return null;
 }
 
 function compareTickerOrder(currentAtValue, currentTradeIdValue, incomingAtValue, incomingTradeIdValue) {

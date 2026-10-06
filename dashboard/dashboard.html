@@ -43,7 +43,7 @@
             </div>
           </div>
           <div class="hero-meta">
-            <span id="dashboardSource">BINANCE SPOT</span>
+            <span id="dashboardSource">BINANCE FUTURES</span>
             <span id="dashboardFreshness">Waiting for validated market data</span>
           </div>
         </div>
@@ -148,6 +148,12 @@
             <div><span class="metric-label">SPREAD</span><strong id="dashboardSpread">—</strong><small id="dashboardSpreadPercent">—</small></div>
           </div>
         </article>
+
+        <article class="panel alert-history-panel" aria-label="Alert history">
+          <div class="panel-header"><div><div class="eyebrow muted">EVENTS</div><h2>Alert History</h2></div><span id="dashboardHistoryCount" class="alert-count">0 events</span></div>
+          <ul id="dashboardHistoryList" class="alert-history-list" aria-label="Alert history events"></ul>
+          <button id="dashboardClearHistory" class="button tertiary" type="button">Clear history</button>
+        </article>
       </div>
 
       <aside class="side-column">
@@ -181,41 +187,38 @@
           <ul id="dashboardTargetList" class="alert-target-list" aria-label="Configured price targets"></ul>
         </article>
 
-        <article class="panel alert-history-panel" aria-label="Alert history">
-          <div class="panel-header"><div><div class="eyebrow muted">EVENTS</div><h2>Alert History</h2></div><span id="dashboardHistoryCount" class="alert-count">0 events</span></div>
-          <ul id="dashboardHistoryList" class="alert-history-list" aria-label="Alert history events"></ul>
-          <button id="dashboardClearHistory" class="button tertiary" type="button">Clear history</button>
-        </article>
-
-        <article class="panel settings-panel" aria-label="Dashboard settings">
-          <div class="panel-header">
-            <div>
-              <div class="eyebrow muted">LOCAL</div>
-              <h2>Display Settings</h2>
-            </div>
-          </div>
-          <div class="settings-list">
-            <label class="setting-row"><span><strong>Compact Layout</strong><small>Reduce spacing across popup and dashboard.</small></span><input id="dashboardSettingCompact" type="checkbox"></label>
-            <label class="setting-row"><span><strong>Show Bid / Ask</strong><small>Display best bid, ask and spread.</small></span><input id="dashboardSettingBidAsk" type="checkbox"></label>
-            <label class="setting-row"><span><strong>Show 24h Volume</strong><small>Display rolling quote volume.</small></span><input id="dashboardSettingVolume" type="checkbox"></label>
-            <label class="setting-row"><span><strong>Show 24h Range</strong><small>Display price position inside the 24h range.</small></span><input id="dashboardSettingRange" type="checkbox"></label>
-            <label class="setting-row"><span><strong>Price Animation</strong><small>Flash when a newer price arrives.</small></span><input id="dashboardSettingAnimation" type="checkbox"></label>
-            <label class="setting-row"><span><strong>Browser Notifications</strong><small>Master switch for native BTC Live alerts.</small></span><input id="dashboardSettingNotifications" type="checkbox"></label>
-            <label class="setting-row"><span><strong>Background Alerts</strong><small>Check price alerts periodically even when all BTC Live views are closed.</small></span><input id="dashboardSettingBackgroundAlerts" type="checkbox"></label>
-            <label class="setting-row"><span><strong>Price Move Alerts</strong><small>Notify after BTC moves by the configured threshold.</small></span><input id="dashboardSettingNotifyPrice" type="checkbox"></label>
-            <label class="setting-row setting-row-control"><span><strong>Price Move Threshold</strong><small>Movement from the last notification anchor.</small></span><select id="dashboardSettingPriceThreshold" aria-label="Price move notification threshold"><option value="0.1">0.1%</option><option value="0.25">0.25%</option><option value="0.5">0.5%</option><option value="1">1.0%</option><option value="2">2.0%</option><option value="5">5.0%</option></select></label>
-            <label class="setting-row setting-row-control"><span><strong>Alert Cooldown</strong><small>Minimum interval between repeated alert events.</small></span><select id="dashboardSettingNotificationCooldown" aria-label="Notification cooldown"><option value="60">1 min</option><option value="300">5 min</option><option value="900">15 min</option><option value="1800">30 min</option><option value="3600">60 min</option></select></label>
-            <label class="setting-row"><span><strong>Connection Alerts</strong><small>Notify on stale/offline data and recovery.</small></span><input id="dashboardSettingNotifyConnection" type="checkbox"></label>
-          </div>
-          <div class="settings-actions-inline"><button id="dashboardTestNotification" class="button tertiary" type="button">Test notification</button>
-          <button id="dashboardResetSettings" class="button tertiary" type="button">Reset defaults</button></div>
-        </article>
       </aside>
     </section>
 
+    <section class="settings-section" aria-label="Local dashboard settings">
+      <article class="panel settings-panel" aria-label="Dashboard settings">
+        <div class="panel-header">
+          <div>
+            <div class="eyebrow muted">LOCAL</div>
+            <h2>Display Settings</h2>
+          </div>
+        </div>
+        <div class="settings-list">
+          <label class="setting-row"><span><strong>Compact Layout</strong><small>Reduce spacing across popup and dashboard.</small></span><input id="dashboardSettingCompact" type="checkbox"></label>
+          <label class="setting-row"><span><strong>Show Bid / Ask</strong><small>Display best bid, ask and spread.</small></span><input id="dashboardSettingBidAsk" type="checkbox"></label>
+          <label class="setting-row"><span><strong>Show 24h Volume</strong><small>Display rolling quote volume.</small></span><input id="dashboardSettingVolume" type="checkbox"></label>
+          <label class="setting-row"><span><strong>Show 24h Range</strong><small>Display price position inside the 24h range.</small></span><input id="dashboardSettingRange" type="checkbox"></label>
+          <label class="setting-row"><span><strong>Price Animation</strong><small>Flash when a newer price arrives.</small></span><input id="dashboardSettingAnimation" type="checkbox"></label>
+          <label class="setting-row"><span><strong>Browser Notifications</strong><small>Master switch for native BTC Live alerts.</small></span><input id="dashboardSettingNotifications" type="checkbox"></label>
+          <label class="setting-row"><span><strong>Background Alerts</strong><small>Check price alerts periodically even when all BTC Live views are closed.</small></span><input id="dashboardSettingBackgroundAlerts" type="checkbox"></label>
+          <label class="setting-row"><span><strong>Price Move Alerts</strong><small>Notify after BTC moves by the configured threshold.</small></span><input id="dashboardSettingNotifyPrice" type="checkbox"></label>
+          <label class="setting-row setting-row-control"><span><strong>Price Move Threshold</strong><small>Movement from the last notification anchor.</small></span><select id="dashboardSettingPriceThreshold" aria-label="Price move notification threshold"><option value="0.1">0.1%</option><option value="0.25">0.25%</option><option value="0.5">0.5%</option><option value="1">1.0%</option><option value="2">2.0%</option><option value="5">5.0%</option></select></label>
+          <label class="setting-row setting-row-control"><span><strong>Alert Cooldown</strong><small>Minimum interval between repeated alert events.</small></span><select id="dashboardSettingNotificationCooldown" aria-label="Notification cooldown"><option value="60">1 min</option><option value="300">5 min</option><option value="900">15 min</option><option value="1800">30 min</option><option value="3600">60 min</option></select></label>
+          <label class="setting-row"><span><strong>Connection Alerts</strong><small>Notify on stale/offline data and recovery.</small></span><input id="dashboardSettingNotifyConnection" type="checkbox"></label>
+        </div>
+        <div class="settings-actions-inline"><button id="dashboardTestNotification" class="button tertiary" type="button">Test notification</button>
+        <button id="dashboardResetSettings" class="button tertiary" type="button">Reset defaults</button></div>
+      </article>
+    </section>
+
     <footer class="dashboard-footer">
-      <span>BTC LIVE · V1.13.0</span>
-      <span>Binance Spot · Local settings · No tracking</span>
+      <span>BTC LIVE · V1.14.0</span>
+      <span>Binance USDⓈ-M Futures · Local settings · No tracking</span>
     </footer>
   </main>
   <script type="module" src="dashboard.js"></script>

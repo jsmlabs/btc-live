@@ -180,3 +180,54 @@ test('explicit target alert takes priority over percent move alert in the same s
   assert.equal(calls[0].id, 'btc-live-target-target-1');
   assert.equal(persisted.anchorPrice, 101);
 });
+
+test('notification manager contains price-move notification failures and records them', async () => {
+  const history = [];
+  const warnings = [];
+  let persisted = { anchorPrice: 100, lastPriceNotificationAt: 0, lastConnectionStatus: 'LIVE' };
+  const manager = createNotificationManager({
+    now: () => 1_000_000,
+    minProcessIntervalMs: 0,
+    notify: async () => { throw new Error('notification unavailable'); },
+    loadState: async () => ({ ...persisted }),
+    saveState: async (value) => { persisted = { ...value }; return value; },
+    appendHistory: async (entry) => { history.push(entry); return entry; },
+    onWarning: (...args) => warnings.push(args)
+  });
+  const settings = { ...DEFAULT_SETTINGS, notificationsEnabled: true, notifyConnectionIssues: false, notificationCooldownSeconds: 15 };
+
+  await manager.observe({ settings, state: { currentPrice: 101, connectionStatus: 'LIVE' } });
+
+  assert.equal(persisted.anchorPrice, 100);
+  assert.equal(history.length, 1);
+  assert.equal(history[0].type, 'price_move');
+  assert.equal(history[0].status, 'failed');
+  assert.equal(history[0].reason, 'notification_error');
+  assert.equal(warnings.length, 1);
+});
+
+test('notification manager contains connection notification failures while advancing observed status', async () => {
+  const history = [];
+  const warnings = [];
+  let persisted = { anchorPrice: 100, lastConnectionStatus: 'LIVE', lastConnectionNotificationAt: 0 };
+  const manager = createNotificationManager({
+    now: () => 1_000_000,
+    minProcessIntervalMs: 0,
+    notify: async () => { throw new Error('notification unavailable'); },
+    loadState: async () => ({ ...persisted }),
+    saveState: async (value) => { persisted = { ...value }; return value; },
+    appendHistory: async (entry) => { history.push(entry); return entry; },
+    onWarning: (...args) => warnings.push(args)
+  });
+  const settings = { ...DEFAULT_SETTINGS, notificationsEnabled: true, notifyPriceMove: false, notifyConnectionIssues: true, notificationCooldownSeconds: 15 };
+
+  await manager.observe({ settings, state: { currentPrice: 100, connectionStatus: 'STALE', errorMessage: 'Price feed is stale.' } });
+
+  assert.equal(persisted.lastConnectionStatus, 'STALE');
+  assert.equal(persisted.lastConnectionNotificationAt, 0);
+  assert.equal(history.length, 1);
+  assert.equal(history[0].type, 'connection');
+  assert.equal(history[0].status, 'failed');
+  assert.equal(history[0].reason, 'notification_error');
+  assert.equal(warnings.length, 1);
+});

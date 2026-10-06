@@ -3,7 +3,7 @@ export const DEFAULT_KLINE_INTERVAL = '5m';
 export const DEFAULT_KLINE_LIMIT = 120;
 export const KLINE_REFRESH_MS = 30_000;
 
-const REST_URL = 'https://api.binance.com/api/v3/klines';
+const REST_URL = 'https://fapi.binance.com/fapi/v1/klines';
 const DEFAULT_TIMEOUT_MS = 5000;
 
 const INTERVAL_MS = Object.freeze({

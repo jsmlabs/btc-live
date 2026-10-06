@@ -50,7 +50,8 @@ test('fetchBtcKlines requests the selected BTCUSDT interval and validates respon
   };
 
   const candles = await fetchBtcKlines({ interval: '15m', limit: 60 });
-  assert.equal(requestedUrl.pathname, '/api/v3/klines');
+  assert.equal(requestedUrl.hostname, 'fapi.binance.com');
+  assert.equal(requestedUrl.pathname, '/fapi/v1/klines');
   assert.equal(requestedUrl.searchParams.get('symbol'), 'BTCUSDT');
   assert.equal(requestedUrl.searchParams.get('interval'), '15m');
   assert.equal(requestedUrl.searchParams.get('limit'), '60');

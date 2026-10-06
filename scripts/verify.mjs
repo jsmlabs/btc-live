@@ -45,7 +45,8 @@ assert.match(readme, new RegExp(`v${escapedVersion}`, 'i'));
 assert.match(changelog, new RegExp(`## ${escapedVersion}\\b`));
 assert.match(qa, new RegExp(`v${escapedVersion}`, 'i'));
 assert.deepEqual(manifest.permissions, ['storage', 'notifications', 'alarms']);
-assert.deepEqual(manifest.host_permissions, ['https://api.binance.com/*']);
+assert.deepEqual(manifest.host_permissions, ['https://fapi.binance.com/*']);
+assert.match(manifest.content_security_policy.extension_pages, /connect-src https:\/\/fapi\.binance\.com wss:\/\/fstream\.binance\.com/);
 assert.deepEqual(packageJson.dependencies ?? {}, {});
 assert.equal(/unsafe-eval|unsafe-inline/i.test(JSON.stringify(manifest.content_security_policy)), false);
 
@@ -83,6 +84,13 @@ async function walk(dir) {
 }
 for (const dir of ['app','popup','dashboard','market','storage','ui','utils']) await walk(path.join(root, dir));
 const source = (await Promise.all(sourceFiles.map(f => readFile(f, 'utf8')))).join('\n');
+const networkSurface = `${JSON.stringify(manifest)}\n${source}`;
+assert.equal(networkSurface.includes('https://api.binance.com'), false, 'Legacy Binance Spot REST endpoint detected');
+assert.equal(networkSurface.includes('wss://stream.binance.com'), false, 'Legacy Binance Spot WebSocket endpoint detected');
+assert.match(source, /https:\/\/fapi\.binance\.com\/fapi\/v1\/ticker\/24hr/);
+assert.match(source, /https:\/\/fapi\.binance\.com\/fapi\/v1\/klines/);
+assert.match(source, /wss:\/\/fstream\.binance\.com\/market\/stream/);
+assert.match(source, /wss:\/\/fstream\.binance\.com\/public\/stream/);
 assert.equal(/\beval\s*\(|new\s+Function\s*\(|\.innerHTML\s*=/.test(source), false, 'Unsafe dynamic code or HTML assignment detected');
 for (const file of sourceFiles) {
   const text = await readFile(file, 'utf8');

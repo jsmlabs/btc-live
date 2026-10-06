@@ -14,21 +14,21 @@ Tools
 
 ## Short description
 
-Live BTCUSDT market data, charting, and configurable browser alerts in a private Chromium extension.
+Live BTCUSDT Futures market data, charting, and configurable browser alerts in a private Chromium extension.
 
 ## Long description
 
-BTC Live provides fast access to BTCUSDT Spot market data from Binance directly in your browser.
+BTC Live provides fast access to public BTCUSDT USDⓈ-M Futures market data from Binance directly in your browser.
 
 Use the compact popup for a quick market check or open the full dashboard for persistent monitoring, chart context, connection diagnostics, and configurable alerts.
 
 ### Market monitoring
 
-- Live BTCUSDT last-trade price
+- Live BTCUSDT Futures aggregate-trade price
 - Rolling 24-hour change, open, high, low, and quote volume
 - Best bid, best ask, spread, and 24-hour range position
 - Clear LIVE, DEGRADED, STALE, RECONNECTING, and OFFLINE states
-- Lightweight live chart with 1m, 5m, and 15m intervals
+- Lightweight live chart with 1m, 5m, and 15m Futures klines
 
 ### Alerts
 
@@ -59,7 +59,7 @@ Extension settings, targets, history, and diagnostics remain in local browser ex
 
 ### Market data
 
-BTC Live connects directly to public Binance Spot market-data services for BTCUSDT data.
+BTC Live connects directly to public Binance USDⓈ-M Futures market-data services for BTCUSDT data.
 
 Market data provided by Binance. BTC Live is independent and is not affiliated with or endorsed by Binance.
 
@@ -79,4 +79,4 @@ Used to schedule background checks required for persistent price alerts while po
 
 ### Binance host access
 
-Used only to retrieve public BTCUSDT Spot market data from Binance.
+Used only to retrieve public BTCUSDT USDⓈ-M Futures market data from Binance.

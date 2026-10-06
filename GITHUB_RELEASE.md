@@ -1,19 +1,18 @@
-# BTC Live v1.13.0
+# BTC Live v1.14.0
 
-BTC Live v1.13.0 adds a persistent multi-target price-alert manager and local alert history on top of the existing Chromium Manifest V3 market-monitoring, dashboard, chart, and notification architecture.
+BTC Live v1.14.0 migrates the complete BTCUSDT market-data path from Binance Spot to Binance USDⓈ-M Futures while preserving the existing alert, dashboard, chart, settings, diagnostics, and local-storage contracts.
 
 ## Highlights
 
-- Multi-target BTC price alerts with independent `Above` / `Below` direction
-- Optional labels and per-target enable/disable controls
-- Deterministic trigger and re-arm state per target
-- Automatic migration from v1.12.0 single price targets
-- Local alert history for sent, suppressed, and failed events
-- Alert source and target context for diagnostics
-- Deterministic handling when one market move crosses multiple targets
-- Persistent background checks through an MV3 service worker and Chromium alarms
-- Shared popup/dashboard market runtime and settings synchronization
-- 96 deterministic automated tests
+- BTCUSDT USDⓈ-M Futures as the only market-data source
+- Futures aggregate trades for live price updates
+- Futures 24h ticker for rolling market statistics
+- Dedicated Futures `bookTicker` stream and REST fallback for best bid, best ask, and spread
+- Futures klines for dashboard chart reconciliation
+- Separate ordering for ticker statistics and top-of-book state
+- Guards against accidental restoration of legacy Spot REST/WebSocket endpoints
+- Existing multi-target alerts and background monitoring preserved
+- 106 deterministic automated tests
 - 35-file explicit store runtime allowlist
 - Zero runtime dependencies
 
@@ -22,7 +21,8 @@ BTC Live v1.13.0 adds a persistent multi-target price-alert manager and local al
 - `storage`
 - `notifications`
 - `alarms`
-- Binance public Spot REST host access only
+- Binance USDⓈ-M Futures REST host access: `https://fapi.binance.com/*`
+- Binance USDⓈ-M Futures WebSocket access through CSP: `wss://fstream.binance.com`
 
 ## Privacy
 
@@ -37,14 +37,14 @@ npm run release:check
 Expected result:
 
 ```text
-96 / 96 tests passing
-35 runtime files in dist/btc-live-chromium-v1.13.0-store
+106 / 106 tests passing
+35 runtime files in dist/btc-live-chromium-v1.14.0-store
 ```
 
 ## Package
 
-- `btc-live-chromium-v1.13.0.zip` - Chromium-based browsers
+- `btc-live-chromium-v1.14.0-store.zip` - Chromium-based browsers
 
 ## Data source
 
-Market data is provided by Binance public Spot market-data services. BTC Live is independent and is not affiliated with or endorsed by Binance.
+Market data is provided by Binance public USDⓈ-M Futures market-data services for BTCUSDT. BTC Live is independent and is not affiliated with or endorsed by Binance.

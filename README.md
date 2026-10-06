@@ -1,130 +1,95 @@
 # BTC Live
 
-BTC Live is a lightweight Chromium Manifest V3 extension for monitoring BTCUSDT Spot market data from Binance with a compact popup, a full dashboard, a live chart, and persistent browser alerts.
+BTC Live is a lightweight Chromium Manifest V3 extension for monitoring BTCUSDT using Binance USDⓈ-M Futures public market data.
 
-## Current release: v1.13.0
+## v1.14.0
 
-### Highlights
+- Migrates the complete BTC market-data path from Binance Spot to Binance USDⓈ-M Futures (`BTCUSDT`).
+- Uses Futures aggregate trades for live price updates and the Futures 24h ticker for market statistics.
+- Keeps Top of Book and spread data accurate through the dedicated Futures `bookTicker` stream and REST fallback.
+- Migrates dashboard chart reconciliation to Futures klines so chart candles and live price originate from the same market.
+- Updates extension host permissions/CSP to the Futures-only Binance endpoints and adds verification guards against accidental Spot endpoint regressions.
+- Preserves the existing alert, settings, diagnostics, storage and UI contracts with zero runtime dependencies.
 
-- Live BTCUSDT last-trade price from Binance Spot WebSocket streams
-- Rolling 24h change, open, high, low, quote volume, bid, ask, spread, and range position
-- Explicit `LIVE`, `DEGRADED`, `STALE`, `RECONNECTING`, and `OFFLINE` states
-- Shared popup/dashboard runtime with deterministic reconnect and freshness handling
-- Lightweight BTCUSDT chart with 1m, 5m, and 15m intervals, candle/line modes, volume, and reference levels
-- Native Chromium notifications for price moves and connection state changes
-- Persistent background alerts through an MV3 service worker and `chrome.alarms`
-- Multi-target `Above` / `Below` BTC price alert manager with labels, enable/disable controls, re-arming, and migration from v1.12.0 single targets
-- Local alert history for sent, suppressed, and failed events, capped at 100 entries
-- Local-only settings and diagnostics
-- Zero runtime package dependencies
-- No account, API key, analytics, tracking, advertising, or custom backend
+## v1.13.4
 
-## Architecture
+- Removes the remaining wide-screen dead zones by letting the market and diagnostics/alert columns flow independently instead of sharing row heights.
+- Moves Alert History and Display Settings into a dedicated lower utility grid for a cleaner, more balanced workstation composition.
+- Caps the desktop workspace at 1840px and bounds chart height so ultrawide displays stay dense and readable rather than stretched.
+- Refines panel hierarchy, typography and surface contrast while preserving responsive tablet/mobile layouts.
+- Keeps all existing dashboard controls, IDs, market logic, alert behavior, storage contracts and permissions unchanged.
 
-BTC Live separates market data, state, alerting, storage, rendering, and background scheduling into small ES modules.
+## v1.13.1
 
-```text
-app/         shared runtime, chart runtime, notifications, background alert controller
-background/  Manifest V3 service worker
-market/      Binance REST/WebSocket clients, validation, connection and market state
-storage/     settings, chart preferences, diagnostics, alert targets, alert history
-ui/          popup/dashboard rendering, chart rendering, alert center
-popup/       compact toolbar popup
-dashboard/   full-page monitoring dashboard
-utils/       formatting, timing, deterministic backoff
-tests/       Node.js regression suite
-scripts/     verification and explicit store packaging
-```
+- Adds a persistent multi-target alert manager with independent `Above` / `Below` BTC price targets, labels, enable/disable controls and automatic re-arming.
+- Migrates existing v1.12.0 single Above/Below targets into the new target store without losing alert intent.
+- Adds local alert history for sent, suppressed and failed alert events, capped at 100 entries with clear-history controls in popup and dashboard.
+- Records alert source (`popup`, `dashboard`, `background`) and target context for diagnostics.
+- Handles multi-target jumps deterministically: one native alert is prioritized while other simultaneously reached targets are marked triggered and recorded as suppressed instead of firing late.
+- Keeps the existing Manifest V3 permission surface and zero runtime dependencies.
 
-Market-data responsibilities:
+## v1.12.0
 
-- `btcusdt@trade`: authoritative last-trade updates
-- `btcusdt@ticker`: rolling 24h statistics and book context
-- `GET /api/v3/ticker/24hr?symbol=BTCUSDT`: initialization, recovery, and background alert checks
-- Binance Spot klines: chart initialization and periodic reconciliation
+- Adds absolute BTC price-target alerts for `Above` and `Below` USDT levels in popup and dashboard.
+- Target alerts re-arm only after price moves back across the configured level, preventing repeated notifications while price remains beyond a target.
+- Adds configurable 1 / 5 / 15 / 30 / 60 minute alert cooldown controls.
+- Gives explicit price targets priority over generic percentage-move alerts when both conditions become true in the same snapshot.
+- Background scheduling now remains active when any price-alert mode is enabled, not only percentage-move alerts.
+- Coalesces overlapping service-worker checks so concurrent alarm/settings events cannot trigger duplicate REST requests.
+- Keeps Manifest V3, the same Binance-only host permission, zero runtime dependencies and the existing permission set.
 
-External payloads are validated before they can update application state.
+## v1.11.0
 
-## Permissions
+- Adds an MV3 background service worker and Chromium `alarms` scheduling for persistent BTC price alerts when popup and dashboard are closed.
+- Adds a `Background Alerts` setting; background checks run only when notifications, background alerts and price-move alerts are enabled.
+- Reuses the same validated Binance REST snapshot and notification anchor/cooldown state as active views.
+- Serializes notification state with the Web Locks API when available and refreshes persisted state before evaluation to reduce cross-context duplicate alerts.
+- Keeps connection-health notifications tied to active live views; the background poller does not convert transient REST failures into connection alerts.
+- Disables dependent notification controls when the master notification switch is off.
+- Keeps zero runtime dependencies and adds only the `alarms` permission required for persistent scheduling.
 
-BTC Live requests exactly these extension permissions:
+## v1.10.0
 
-- `storage`: persist local settings, alert targets/history, chart preferences, and session diagnostics
-- `notifications`: display native Chromium notifications
-- `alarms`: schedule persistent background alert checks
+- Adds native Chromium notifications for BTC price moves and market-data connection issues.
+- Adds configurable price thresholds, connection/recovery alerts and shared cooldown/deduplication state.
+- Notifications are opt-in and operate while the popup or dashboard is active; no persistent background worker is introduced.
+- Adds a full-page extension dashboard at `dashboard/dashboard.html` for persistent desktop monitoring.
+- Adds an `Open Dashboard` control to the popup while preserving the popup as the fast compact view.
+- Extracts market lifecycle, reconnect, freshness, settings and diagnostics behavior into one shared runtime used by both popup and dashboard.
+- Adds dashboard feed-health, market statistics, range, top-of-book, diagnostics and display-settings panels.
+- Synchronizes display settings between open popup and dashboard views through the existing local storage key.
+- Keeps Manifest V3, the existing Binance public endpoints, `storage` and `notifications` as the only extension permissions and zero runtime dependencies.
 
-Host permission:
+## Development verification
 
-- `https://api.binance.com/*`: Binance public Spot REST market data
-
-The extension has no content scripts and does not request access to browsing history, page contents, cookies, bookmarks, downloads, tabs, wallets, exchange accounts, or credentials.
-
-## Development
-
-Requirements:
-
-- Node.js 20 or newer
-- A Chromium-based desktop browser for manual extension testing
-
-Run deterministic verification:
+Requires Node.js 20 or newer.
 
 ```bash
 npm run verify
 ```
 
-Run the full release check and build a clean store directory:
+For a full release check and clean store directory:
 
 ```bash
 npm run release:check
 ```
 
-The store build is written to:
+The generated extension is written to `dist/btc-live-chromium-v1.14.0-store`.
 
-```text
-dist/btc-live-chromium-v1.13.0-store/
-```
+## Privacy and permissions
 
-The release pipeline currently verifies 96 deterministic tests plus manifest, DOM, import, permission, CSP, icon, and explicit runtime-allowlist invariants.
+BTC Live stores display preferences locally and temporary connection diagnostics in browser-session storage and connects only to Binance public market-data endpoints. It does not use an account, analytics, tracking, API keys or runtime dependencies.
 
-## Load unpacked
+## v1.9.0 chart checkpoint retained in v1.14.0
 
-1. Run `npm run release:check`.
-2. Open `chrome://extensions` or the equivalent Chromium extensions page.
-3. Enable **Developer mode**.
-4. Choose **Load unpacked**.
-5. Select `dist/btc-live-chromium-v1.13.0-store`.
+The dashboard now includes a lightweight BTCUSDT live chart without external runtime dependencies.
 
-For development, the repository root can also be loaded directly because development-only files are not referenced by the manifest.
+- 1m / 5m / 15m intervals
+- Candlestick and line modes
+- Optional volume bars
+- Live price updates from the shared BTC market runtime
+- Periodic Binance USDⓈ-M Futures kline reconciliation
+- Live, 24h open, 24h high and 24h low reference levels
+- Dashboard-local persistent chart preferences
 
-## Privacy
-
-BTC Live does not collect or transmit personal user data to project infrastructure. It has no backend. Local extension state stays in browser extension storage. Network traffic is limited to disclosed Binance public market-data endpoints required for the extension's market-monitoring features.
-
-See [PRIVACY.md](PRIVACY.md).
-
-## Security
-
-- Manifest V3
-- HTTPS/WSS only
-- No remote executable JavaScript
-- No `eval()` or equivalent dynamic execution
-- No inline scripts or inline event handlers
-- No content scripts
-- No API keys or secrets
-- Strict external-data validation
-- Explicit fail-closed store runtime allowlist
-- Zero runtime dependencies
-
-See [SECURITY.md](SECURITY.md) and [HARDENING.md](HARDENING.md).
-
-## Quality assurance
-
-See [QA.md](QA.md) for the manual regression checklist.
-
-## Market-data attribution
-
-Market data is provided by Binance public Spot market-data services. BTC Live is an independent project and is not affiliated with or endorsed by Binance.
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+Steps 2-6 of the v1.9.0 product scope are intentionally not included in this checkpoint.

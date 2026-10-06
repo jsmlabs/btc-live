@@ -5,6 +5,7 @@ import {
   CONNECTION_STATUS,
   FEED_STATUS,
   STALE_AFTER_MS,
+  applyBookTicker,
   applySnapshot,
   applyTicker,
   applyTrade,
@@ -66,6 +67,7 @@ export function createBtcLiveRuntime({
   let staleSince = null;
   let disposed = false;
   let started = false;
+  let startPromise = null;
   let restController = null;
   let freshnessTimer = null;
   let connectedAt = null;
@@ -82,11 +84,19 @@ export function createBtcLiveRuntime({
 
   const emit = () => onChange(snapshot());
 
-  async function start() {
-    if (disposed) throw new Error('BTC Live runtime has been disposed');
-    if (started) return snapshot();
-    started = true;
+  function start() {
+    if (disposed) return Promise.reject(new Error('BTC Live runtime has been disposed'));
+    if (startPromise) return startPromise;
+    if (started) return Promise.resolve(snapshot());
 
+    started = true;
+    startPromise = initialize().finally(() => {
+      startPromise = null;
+    });
+    return startPromise;
+  }
+
+  async function initialize() {
     const [loadedSettings, loadedDiagnostics] = await Promise.allSettled([
       loadSettingsValue(),
       loadDiagnosticsValue()
@@ -94,7 +104,7 @@ export function createBtcLiveRuntime({
 
     if (disposed) return snapshot();
 
-    if (loadedSettings.status === 'fulfilled') settings = loadedSettings.value;
+    if (loadedSettings.status === 'fulfilled') settings = sanitizeSettings(loadedSettings.value);
     else onWarning('BTC Live settings could not be loaded', loadedSettings.reason);
 
     if (loadedDiagnostics.status === 'fulfilled') diagnostics = loadedDiagnostics.value;
@@ -185,6 +195,14 @@ export function createBtcLiveRuntime({
           if (nextState === state) return;
           markMarketData();
           armTickerDataTimeout(generation, nextSocket);
+          state = applyHealthConnection(nextState);
+          emit();
+        },
+        onBookTicker(book) {
+          if (!isCurrentSocket(generation, nextSocket)) return;
+          const nextState = applyBookTicker(state, book);
+          if (nextState === state) return;
+          markMarketData();
           state = applyHealthConnection(nextState);
           emit();
         },

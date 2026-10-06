@@ -1,6 +1,55 @@
-# Changelog
+## 1.14.0 - 2026-10-06
 
-All notable changes to BTC Live are documented here.
+### Changed
+- Migrated BTCUSDT REST snapshots, live trades, 24h ticker statistics and chart klines from Binance Spot to Binance USDⓈ-M Futures.
+- Replaced Spot `trade` events with Futures `aggTrade` events for the live price path.
+- Split Futures WebSocket ingestion across the current market-data route for aggregate trades/24h ticker and the public route for `bookTicker`.
+
+### Improved
+- Preserved Top of Book and spread metrics by sourcing bid/ask independently from the Futures book-ticker feed instead of assuming those fields exist on the Futures 24h ticker.
+- Added independent ordering/state ownership for book updates so stale REST snapshots cannot overwrite newer live Futures bid/ask values.
+- Added Futures endpoint, validation and regression coverage, including guards against restoring legacy Spot network endpoints.
+
+### Compatibility
+- Keeps existing settings, alert stores, diagnostics, DOM IDs, notification behavior and zero-runtime-dependency architecture unchanged.
+- Network access remains Binance-only and is narrowed to the USDⓈ-M Futures REST/WebSocket endpoints.
+
+## 1.13.4 - 2026-10-06
+
+### Fixed
+- Removed the wide-screen vertical dead zones caused by coupling short market cards to taller diagnostics/alert cards in shared CSS Grid rows.
+- Restored independent market and utility stacks so 24H Range, Top of Book, Connection Diagnostics and Price Targets flow without artificial row-height gaps.
+- Moved Alert History and Display Settings into a dedicated lower utility grid, preserving all existing element IDs and behavior while improving visual balance.
+- Bounded the live chart height on large displays so ultrawide width no longer makes the chart disproportionately tall.
+
+### Improved
+- Reduced the dashboard workspace cap from 2200px to 1840px for stronger information density and more readable typography on large/ultrawide displays.
+- Increased panel/header legibility, refined surface contrast and shadow depth, and retained responsive single-column behavior on narrow widths.
+- Display Settings remains two-column on wide screens and collapses cleanly at smaller breakpoints.
+
+### Compatibility
+- No market-data logic, alert logic, storage schema, permissions, runtime contracts or dashboard element IDs changed.
+
+## 1.13.2 - 2026-10-06
+
+### Fixed
+- Removed the overly narrow 1440px desktop dashboard cap that produced excessive unused space on wide and ultrawide displays.
+- Rebalanced the lower dashboard into a 12-column desktop composition so the long settings/alerts sidebar no longer leaves a large empty market column.
+- Arranged dashboard settings in two columns on wide screens to reduce unnecessary vertical height while retaining existing responsive layouts below 1180px.
+
+### Compatibility
+- Preserves all existing dashboard element IDs, settings behavior, alert behavior, permissions and runtime contracts.
+
+## 1.13.1 - 2026-10-06
+
+### Fixed
+- Contained native-notification failures for percentage-move and connection alerts so a rejected Chromium notification request cannot abort snapshot processing.
+- Persist failed percentage-move and connection notification attempts in alert history with explicit failure reasons, matching target-alert failure handling.
+- Made runtime startup concurrency-safe: simultaneous `start()` callers now share and await the same initialization instead of receiving a partially initialized snapshot.
+- Sanitized settings returned by injected/custom load adapters before they can enter runtime state.
+
+### Verification
+- Expanded deterministic regression coverage from 96 to 100 tests.
 
 ## 1.13.0 - 2026-10-06
 
@@ -75,6 +124,8 @@ All notable changes to BTC Live are documented here.
 - Made popup/dashboard teardown explicitly idempotent across page lifecycle events.
 - Expanded release verification for semantic versions, document language/viewport metadata and unexpected extension execution surfaces.
 - Expanded regression coverage from 73 to 76 deterministic tests.
+
+# Changelog
 
 ## 1.8.0 - 2026-10-06
 

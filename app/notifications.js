@@ -235,8 +235,17 @@ export function createNotificationManager({
         const sign = priceResult.changePercent > 0 ? '+' : '';
         const title = `BTC moved ${priceResult.direction}`;
         const message = `${sign}${priceResult.changePercent.toFixed(2)}% to ${formatPrice(priceResult.currentPrice)} USDT since the last alert anchor.`;
-        const sent = await notify({ id: 'btc-live-price-move', title, message });
-        if (sent !== false) {
+        let sent = false;
+        try {
+          sent = await notify({ id: 'btc-live-price-move', title, message }) !== false;
+        } catch (error) {
+          await safeAppendHistory({
+            id: `price-move-${at}`, at, type: 'price_move', status: 'failed', source,
+            title, message, currentPrice, direction: priceResult.direction, reason: 'notification_error'
+          });
+          onWarning('BTC Live price-move notification failed', error);
+        }
+        if (sent) {
           state.anchorPrice = priceResult.currentPrice;
           state.lastPriceNotificationAt = at;
           changed = true;
@@ -258,8 +267,17 @@ export function createNotificationManager({
       if ((isIssue || recovered) && at - state.lastConnectionNotificationAt >= cooldownMs) {
         const title = recovered ? 'BTC Live connection restored' : `BTC Live ${status.toLowerCase()}`;
         const message = recovered ? 'Validated live market data is available again.' : connectionMessage(status, market.errorMessage);
-        const sent = await notify({ id: 'btc-live-connection', title, message });
-        if (sent !== false) {
+        let sent = false;
+        try {
+          sent = await notify({ id: 'btc-live-connection', title, message }) !== false;
+        } catch (error) {
+          await safeAppendHistory({
+            id: `connection-${at}`, at, type: 'connection', status: 'failed', source,
+            title, message, currentPrice, reason: 'notification_error'
+          });
+          onWarning('BTC Live connection notification failed', error);
+        }
+        if (sent) {
           state.lastConnectionNotificationAt = at;
           changed = true;
           await safeAppendHistory({

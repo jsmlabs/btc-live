@@ -1,4 +1,4 @@
-# BTC Live v1.13.0 manual QA
+# BTC Live v1.14.0 manual QA
 
 Use this checklist after loading the project directory through `chrome://extensions` with Developer mode enabled.
 
@@ -12,6 +12,11 @@ Use this checklist after loading the project directory through `chrome://extensi
 - Reset defaults from the dashboard restores display settings without clearing session diagnostics.
 - Reset diagnostics from the dashboard clears session telemetry without changing display settings.
 - Dashboard layout remains usable at desktop, tablet-width and narrow browser widths with no horizontal overflow.
+- At wide/ultrawide widths (including approximately 3440px physical-width displays), the dashboard remains centered and dense without excessive edge-to-content distance or stretched typography.
+- Range and Top of Book flow independently from Connection Diagnostics and Price Targets; taller cards in one column must not create vertical dead zones in the other column.
+- Alert History and Display Settings render in a separate lower utility grid; Display Settings uses two columns on wide screens.
+- The chart height is bounded on wide/ultrawide displays and does not scale indefinitely with page width.
+- At and below 1180px CSS width, settings collapse to one list while the main content remains two-column where space allows; at and below 960px the dashboard becomes a single column.
 - Dashboard range progress exposes numeric `aria-valuenow` only when valid range data exists.
 
 - Popup opens without console errors.
@@ -50,7 +55,7 @@ Use this checklist after loading the project directory through `chrome://extensi
 - If 24h ticker updates stop while trades continue, the extension reports degradation and reconnects rather than leaving bid/ask, range and volume silently stale.
 - Delayed exchange events older than the freshness threshold cause `STALE` even if they were only just received locally.
 - With reduced-motion enabled at OS/browser level, transitions and flashes are effectively suppressed.
-- `npm run release:check` passes and creates exactly the declared 35 runtime files in `dist/btc-live-chromium-v1.13.0-store`.
+- `npm run release:check` passes and creates exactly the declared 35 runtime files in `dist/btc-live-chromium-v1.14.0-store`.
 - No account, API key, analytics, tracking request or unexpected host permission is present.
 
 ## v1.9.0 Step 1 chart checks
@@ -110,7 +115,7 @@ Use this checklist after loading the project directory through `chrome://extensi
 - [ ] Concurrent background invocations share one in-flight REST check rather than issuing duplicate requests.
 - [ ] Popup and dashboard target controls remain synchronized through local storage.
 
-## v1.13.0 alert manager checks
+## v1.13.4 alert manager checks
 
 - [ ] Existing enabled v1.12.0 Above/Below targets appear once in the new target manager after upgrade.
 - [ ] Add multiple Above and Below targets with optional labels from popup and dashboard.

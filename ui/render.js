@@ -95,10 +95,10 @@ export function renderMarket(state, settings, now = Date.now(), { nextRetryAt = 
 }
 
 function sourceLabel(state) {
-  if (state.priceSource === 'REST') return 'REST SNAPSHOT';
-  if (state.priceSource === 'TRADE') return 'LIVE · TRADE';
-  if (state.priceSource === 'TICKER') return 'LIVE · TICKER';
-  return 'BINANCE SPOT';
+  if (state.priceSource === 'REST') return 'FUTURES · REST';
+  if (state.priceSource === 'TRADE') return 'FUTURES · TRADE';
+  if (state.priceSource === 'TICKER') return 'FUTURES · TICKER';
+  return 'BINANCE FUTURES';
 }
 
 function freshnessLabel(state, now) {

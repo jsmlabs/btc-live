@@ -1,7 +1,27 @@
-import { normalizeRestTicker } from './validators.js';
+import { normalizeRestBookTicker, normalizeRestTicker } from './validators.js';
 
-const REST_URL = 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT';
+export const FUTURES_REST_BASE_URL = 'https://fapi.binance.com';
+const TICKER_URL = 'https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT';
+const BOOK_TICKER_URL = 'https://fapi.binance.com/fapi/v1/ticker/bookTicker?symbol=BTCUSDT';
 const DEFAULT_TIMEOUT_MS = 5000;
+
+async function fetchJson(url, signal, label) {
+  const response = await fetch(url, {
+    method: 'GET',
+    cache: 'no-store',
+    credentials: 'omit',
+    signal,
+    headers: { Accept: 'application/json' }
+  });
+
+  if (!response.ok) {
+    const error = new Error(`Binance Futures ${label} request failed with HTTP ${response.status}`);
+    error.status = response.status;
+    throw error;
+  }
+
+  return response.json();
+}
 
 export async function fetchBtcSnapshot({ timeoutMs = DEFAULT_TIMEOUT_MS, signal } = {}) {
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
@@ -19,24 +39,23 @@ export async function fetchBtcSnapshot({ timeoutMs = DEFAULT_TIMEOUT_MS, signal 
   );
 
   try {
-    const response = await fetch(REST_URL, {
-      method: 'GET',
-      cache: 'no-store',
-      credentials: 'omit',
-      signal: controller.signal,
-      headers: { Accept: 'application/json' }
-    });
+    const [tickerPayload, bookPayload] = await Promise.all([
+      fetchJson(TICKER_URL, controller.signal, '24h ticker'),
+      fetchJson(BOOK_TICKER_URL, controller.signal, 'book ticker')
+    ]);
+    const receivedAt = Date.now();
+    const ticker = normalizeRestTicker(tickerPayload, receivedAt);
+    const book = normalizeRestBookTicker(bookPayload, receivedAt);
+    if (!ticker || !book) throw new Error('Binance Futures REST response failed validation');
 
-    if (!response.ok) {
-      const error = new Error(`Binance REST request failed with HTTP ${response.status}`);
-      error.status = response.status;
-      throw error;
-    }
-
-    const payload = await response.json();
-    const normalized = normalizeRestTicker(payload);
-    if (!normalized) throw new Error('Binance REST response failed validation');
-    return normalized;
+    return {
+      ...ticker,
+      ...book,
+      source: 'REST',
+      tickerSource: 'REST',
+      bookSource: 'REST',
+      lastValidUpdateAt: receivedAt
+    };
   } finally {
     clearTimeout(timeoutId);
     signal?.removeEventListener('abort', abortFromCaller);

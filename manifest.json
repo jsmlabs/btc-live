@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "BTC Live",
   "short_name": "BTC Live",
-  "description": "Private, lightweight Bitcoin live price monitor powered by Binance Spot market data.",
-  "version": "1.13.0",
+  "description": "Private, lightweight Bitcoin live price monitor powered by Binance USDⓈ-M Futures market data.",
+  "version": "1.14.0",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -25,10 +25,10 @@
     "alarms"
   ],
   "host_permissions": [
-    "https://api.binance.com/*"
+    "https://fapi.binance.com/*"
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://api.binance.com wss://stream.binance.com:443"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://fapi.binance.com wss://fstream.binance.com"
   },
   "background": {
     "service_worker": "background/service-worker.js",

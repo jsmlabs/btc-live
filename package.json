@@ -1,6 +1,6 @@
 {
   "name": "btc-live-chromium",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "private": true,
   "type": "module",
   "description": "Development and verification tooling for the BTC Live Chromium extension.",

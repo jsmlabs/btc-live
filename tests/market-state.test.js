@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   CONNECTION_STATUS,
   STALE_AFTER_MS,
+  applyBookTicker,
   applySnapshot,
   applyTicker,
   applyTrade,
@@ -33,20 +34,26 @@ test('snapshot can preserve a fresher websocket price', () => {
   assert.equal(state.source, 'WEBSOCKET');
 });
 
-test('older REST snapshots do not overwrite newer live ticker fields', () => {
-  const live = applyTicker(createInitialMarketState(), {
+test('older REST snapshots do not overwrite newer live ticker or book fields', () => {
+  const tickerLive = applyTicker(createInitialMarketState(), {
     currentPrice: 105, priceChange24h: 5, priceChangePercent24h: 5,
     open24h: 100, low24h: 90, high24h: 110, baseVolume24h: 10, quoteVolume24h: 1000,
-    bidPrice: 104.9, askPrice: 105.1, lastTickerAt: 2000, lastValidUpdateAt: 2100, source: 'WEBSOCKET'
+    lastTickerAt: 2000, lastValidUpdateAt: 2100, source: 'WEBSOCKET'
+  });
+  const live = applyBookTicker(tickerLive, {
+    bidPrice: 104.9, askPrice: 105.1, lastBookAt: 2050,
+    lastBookReceivedAt: 2051, lastValidUpdateAt: 2100, bookSource: 'WEBSOCKET'
   });
   const merged = applySnapshot(live, {
     currentPrice: 99, priceChange24h: 1, priceChangePercent24h: 1,
     open24h: 98, low24h: 80, high24h: 101, baseVolume24h: 5, quoteVolume24h: 500,
-    bidPrice: 98.9, askPrice: 99.1, lastTickerAt: 1900, lastValidUpdateAt: 2200, source: 'REST'
+    bidPrice: 98.9, askPrice: 99.1, lastTickerAt: 1900, lastBookAt: 1950,
+    lastValidUpdateAt: 2200, source: 'REST', bookSource: 'REST'
   });
   assert.equal(merged.currentPrice, 105);
   assert.equal(merged.high24h, 110);
   assert.equal(merged.bidPrice, 104.9);
+  assert.equal(merged.bookSource, 'WEBSOCKET');
   assert.equal(merged.source, 'WEBSOCKET');
 });
 
@@ -86,6 +93,18 @@ test('out-of-order ticker snapshots are ignored', () => {
   const stale = applyTicker(current, {
     currentPrice: 80, high24h: 90, low24h: 70, bidPrice: 79, askPrice: 81,
     lastTickerAt: 1999, lastValidUpdateAt: 3000, source: 'WEBSOCKET'
+  });
+  assert.strictEqual(stale, current);
+});
+
+test('out-of-order book ticker updates are ignored independently from ticker statistics', () => {
+  const current = applyBookTicker(createInitialMarketState(), {
+    bidPrice: 99.9, askPrice: 100.1, lastBookAt: 2000,
+    lastBookReceivedAt: 2001, lastValidUpdateAt: 2001, bookSource: 'WEBSOCKET'
+  });
+  const stale = applyBookTicker(current, {
+    bidPrice: 90, askPrice: 91, lastBookAt: 1999,
+    lastBookReceivedAt: 3000, lastValidUpdateAt: 3000, bookSource: 'WEBSOCKET'
   });
   assert.strictEqual(stale, current);
 });
@@ -152,23 +171,29 @@ test('equal-timestamp REST snapshot cannot replace a live websocket price', () =
   assert.equal(merged.source, 'WEBSOCKET');
 });
 
-test('equal-timestamp websocket ticker fields beat an equal REST snapshot', () => {
-  const live = applyTicker(createInitialMarketState(), {
+test('equal-timestamp websocket ticker and book fields beat an equal REST snapshot', () => {
+  const tickerLive = applyTicker(createInitialMarketState(), {
     currentPrice: 105, priceChange24h: 5, priceChangePercent24h: 5,
     open24h: 100, low24h: 90, high24h: 110, baseVolume24h: 10, quoteVolume24h: 1000,
-    bidPrice: 104.9, askPrice: 105.1, lastTickerTradeId: 500,
-    lastTickerAt: 2000, lastTickerReceivedAt: 2001, lastValidUpdateAt: 2001, source: 'WEBSOCKET'
+    lastTickerTradeId: 500, lastTickerAt: 2000, lastTickerReceivedAt: 2001,
+    lastValidUpdateAt: 2001, source: 'WEBSOCKET'
+  });
+  const live = applyBookTicker(tickerLive, {
+    bidPrice: 104.9, askPrice: 105.1, lastBookAt: 2000,
+    lastBookReceivedAt: 2001, lastValidUpdateAt: 2001, bookSource: 'WEBSOCKET'
   });
   const merged = applySnapshot(live, {
     currentPrice: 99, priceChange24h: 1, priceChangePercent24h: 1,
     open24h: 98, low24h: 80, high24h: 101, baseVolume24h: 5, quoteVolume24h: 500,
     bidPrice: 98.9, askPrice: 99.1, lastTickerTradeId: 500,
-    lastTickerAt: 2000, lastTickerReceivedAt: 2010, lastValidUpdateAt: 2010, source: 'REST'
+    lastTickerAt: 2000, lastBookAt: 2000, lastTickerReceivedAt: 2010,
+    lastBookReceivedAt: 2010, lastValidUpdateAt: 2010, source: 'REST', bookSource: 'REST'
   });
 
   assert.equal(merged.high24h, 110);
   assert.equal(merged.bidPrice, 104.9);
   assert.equal(merged.tickerSource, 'WEBSOCKET');
+  assert.equal(merged.bookSource, 'WEBSOCKET');
 });
 
 test('same-millisecond ticker sequence advances when its last trade id increases', () => {
@@ -188,7 +213,7 @@ test('same-millisecond ticker sequence advances when its last trade id increases
   assert.equal(second.lastTickerTradeId, 101);
 });
 
-test('ticker price can supersede a trade in the same millisecond when it includes a newer trade id', () => {
+test('aggregate trade keeps priority over ticker at the same millisecond because Futures ids are different domains', () => {
   const traded = applyTrade({ ...createInitialMarketState(), currentPrice: 100 }, {
     currentPrice: 101, lastTradeId: 100, lastTradeAt: 2000,
     lastTradeReceivedAt: 2001, lastValidUpdateAt: 2001, source: 'WEBSOCKET'
@@ -199,12 +224,12 @@ test('ticker price can supersede a trade in the same millisecond when it include
     lastValidUpdateAt: 2002, source: 'WEBSOCKET'
   });
 
-  assert.equal(ticked.currentPrice, 102);
-  assert.equal(ticked.priceSource, 'TICKER');
-  assert.equal(ticked.lastPriceTradeId, 101);
+  assert.equal(ticked.currentPrice, 101);
+  assert.equal(ticked.priceSource, 'TRADE');
+  assert.equal(ticked.lastPriceTradeId, 100);
 });
 
-test('REST price cannot supersede a newer trade id even with a later close timestamp', () => {
+test('Futures aggregate-trade ids are not compared against raw ticker trade ids', () => {
   const traded = applyTrade({ ...createInitialMarketState(), currentPrice: 100 }, {
     currentPrice: 102, lastTradeId: 200, lastTradeAt: 2000,
     lastTradeReceivedAt: 2001, lastValidUpdateAt: 2001, source: 'WEBSOCKET'
@@ -215,9 +240,9 @@ test('REST price cannot supersede a newer trade id even with a later close times
     lastTickerAt: 2500, lastTickerReceivedAt: 2501, lastValidUpdateAt: 2501, source: 'REST'
   });
 
-  assert.equal(merged.currentPrice, 102);
-  assert.equal(merged.priceSource, 'TRADE');
-  assert.equal(merged.lastPriceTradeId, 200);
+  assert.equal(merged.currentPrice, 99);
+  assert.equal(merged.priceSource, 'REST');
+  assert.equal(merged.lastPriceTradeId, 199);
 });
 
 test('freshness uses exchange price time even when receipt time is recent', () => {

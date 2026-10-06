@@ -1,59 +1,41 @@
-# BTC Live Hardening Notes
+# v1.9.0 Step 1 Hardening Pass
 
-BTC Live uses a fail-closed, validation-first approach for market data, local persistence, background scheduling, and release packaging.
+This pass preserves the existing Manifest V3 architecture, permissions, Binance-only network surface, public-data model, and user-facing feature set while strengthening validation and deterministic runtime behavior.
 
-## Current v1.13.0 invariants
+## Changes
 
-- Manifest V3 only
-- permissions exactly `storage`, `notifications`, and `alarms`
-- Binance public Spot REST is the only host permission
-- no content scripts
-- no web-accessible resources
-- no remote UI assets or executable JavaScript
-- no inline scripts or event handlers
-- no dynamic code execution
-- zero runtime dependencies
-- all external market payloads validated before state updates
-- explicit runtime store allowlist
+- Sanitize optimistic settings before rendering and sanitize persistence results before accepting them back into runtime state.
+- Validate chart runtime limit, refresh cadence, data adapters, and timing adapters before side effects occur.
+- Validate Binance kline interval alignment and close-time boundaries before chart data is accepted.
+- Make popup and dashboard teardown explicitly idempotent across page lifecycle events.
+- Expand static release verification for semantic version syntax, English document language, viewport metadata, and unexpected extension execution surfaces.
+- Add regression tests for settings sanitization, invalid chart runtime configuration, and malformed kline interval boundaries.
 
-## Runtime hardening
+## Verification
 
-- Market updates use Binance timestamps and trade sequencing to reject stale, duplicate, or lower-sequence data.
-- Connection state transitions are centralized and deterministic.
-- Price and 24h-stat freshness are evaluated independently.
-- Reconnect behavior uses bounded deterministic backoff.
-- Runtime startup and teardown are idempotent.
-- Settings and diagnostics writes are serialized to prevent stale async writes from overwriting newer state.
-- Chart runtime configuration fails before network/timer side effects when invalid.
-- Binance kline OHLCV and interval boundaries are validated.
+- `npm run verify`: 76/76 tests passing.
+- `npm run release:check`: passing.
+- Store build: 29 explicitly allowlisted runtime files.
+- Runtime dependencies: none.
+- Extension permission: `storage` only.
+- Host permission: `https://fapi.binance.com/*` only.
 
-## Notification and background hardening
 
-- Notification preferences are sanitized before use.
-- Shared notification state is refreshed before evaluation to reduce cross-context duplication.
-- Web Locks are used when available to serialize relevant cross-context mutations.
-- Background checks are coalesced so overlapping triggers share one in-flight request.
-- Background failures are contained and do not create false connection-health notifications.
-- Periodic alarms are reconciled from desired settings/target state.
+## v1.13.0 Alert Manager Hardening
 
-## v1.13.0 alert-manager hardening
+- Separates alert targets and alert history from general settings storage.
+- Migrates legacy v1.12.0 absolute targets only when the new target key does not yet exist, so an intentionally empty target list remains empty.
+- Caps target count at 50 and alert history at 100 events.
+- Sanitizes persisted target/history rows before use.
+- Serializes target mutations and history appends with Web Locks when available.
+- Marks all simultaneously reached targets triggered while delivering at most one native target notification for the market snapshot.
+- Reconciles background scheduling when either settings or target storage changes.
+- Adds deterministic regression coverage for migration, history bounds, multi-target priority, suppression and independent re-arming.
 
-- Alert targets and alert history are isolated from general settings storage.
-- Legacy v1.12.0 absolute targets migrate only when the new target store does not yet exist.
-- Target count is capped at 50.
-- Alert history is capped at 100 events.
-- Persisted target/history rows are sanitized before use.
-- Target mutations and history appends are serialized with Web Locks when available.
-- All simultaneously reached targets transition to triggered state while at most one native target notification is delivered for a market snapshot.
-- Non-delivered simultaneous target events are recorded as `SUPPRESSED` rather than being emitted later.
-- Background scheduling reconciles when either settings or target storage changes.
+## v1.14.0 Futures Source Hardening
 
-## Release verification
-
-`npm run release:check` performs static verification, the deterministic Node.js test suite, and explicit store packaging.
-
-Current release baseline:
-
-- 96/96 tests passing
-- 35 explicitly allowlisted runtime files
-- zero runtime dependencies
+- Restricts REST access to `https://fapi.binance.com/*` and WebSocket access to `wss://fstream.binance.com`.
+- Uses Futures 24h ticker and book-ticker REST responses as separate validated inputs before composing a snapshot.
+- Uses Futures aggregate-trade/ticker and book-ticker streams with independent validation and ordering.
+- Prevents stale REST book snapshots from replacing newer live bid/ask state.
+- Release verification rejects legacy Binance Spot REST/WebSocket endpoint literals in runtime JavaScript and the manifest.

@@ -52,8 +52,6 @@ export function normalizeRestTicker(payload, now = Date.now()) {
   const lowPrice = toFiniteNumber(payload.lowPrice);
   const baseVolume = toFiniteNumber(payload.volume);
   const quoteVolume = toFiniteNumber(payload.quoteVolume);
-  const bidPrice = toFiniteNumber(payload.bidPrice);
-  const askPrice = toFiniteNumber(payload.askPrice);
   const closeTime = toFiniteNumber(payload.closeTime);
   const lastTradeId = toSafeInteger(payload.lastId);
 
@@ -64,7 +62,6 @@ export function normalizeRestTicker(payload, now = Date.now()) {
   if (!isValidRange(lowPrice, highPrice)) return null;
   if (!isPriceInsideRange(lastPrice, lowPrice, highPrice) || !isPriceInsideRange(openPrice, lowPrice, highPrice)) return null;
   if (baseVolume === null || quoteVolume === null || baseVolume < 0 || quoteVolume < 0) return null;
-  if (!isValidBook(bidPrice, askPrice)) return null;
   if (closeTime === null || !isRecentTimestamp(closeTime, now, MAX_REST_EVENT_AGE_MS)) return null;
   if (lastTradeId === null || lastTradeId < 0) return null;
 
@@ -78,8 +75,6 @@ export function normalizeRestTicker(payload, now = Date.now()) {
     low24h: lowPrice,
     baseVolume24h: baseVolume,
     quoteVolume24h: quoteVolume,
-    bidPrice,
-    askPrice,
     lastTickerTradeId: lastTradeId,
     lastTickerAt: closeTime,
     lastTickerReceivedAt: now,
@@ -88,11 +83,32 @@ export function normalizeRestTicker(payload, now = Date.now()) {
   };
 }
 
+export function normalizeRestBookTicker(payload, now = Date.now()) {
+  if (!payload || payload.symbol !== SYMBOL) return null;
+
+  const bidPrice = toFiniteNumber(payload.bidPrice);
+  const askPrice = toFiniteNumber(payload.askPrice);
+  const eventTime = toFiniteNumber(payload.time);
+
+  if (!isValidBook(bidPrice, askPrice)) return null;
+  if (eventTime === null || !isRecentTimestamp(eventTime, now, MAX_REST_EVENT_AGE_MS)) return null;
+
+  return {
+    symbol: SYMBOL,
+    bidPrice,
+    askPrice,
+    lastBookAt: eventTime,
+    lastBookReceivedAt: now,
+    lastValidUpdateAt: now,
+    bookSource: 'REST'
+  };
+}
+
 export function normalizeTradeEvent(payload, now = Date.now()) {
-  if (!payload || payload.e !== 'trade' || payload.s !== SYMBOL) return null;
+  if (!payload || payload.e !== 'aggTrade' || payload.s !== SYMBOL) return null;
 
   const price = toFiniteNumber(payload.p);
-  const tradeId = toSafeInteger(payload.t);
+  const tradeId = toSafeInteger(payload.a);
   const tradeTime = toFiniteNumber(payload.T);
 
   if (price === null || price <= 0) return null;
@@ -121,8 +137,6 @@ export function normalizeTickerEvent(payload, now = Date.now()) {
   const lowPrice = toFiniteNumber(payload.l);
   const baseVolume = toFiniteNumber(payload.v);
   const quoteVolume = toFiniteNumber(payload.q);
-  const bidPrice = toFiniteNumber(payload.b);
-  const askPrice = toFiniteNumber(payload.a);
   const eventTime = toFiniteNumber(payload.E);
   const lastTradeId = toSafeInteger(payload.L);
 
@@ -133,7 +147,6 @@ export function normalizeTickerEvent(payload, now = Date.now()) {
   if (!isValidRange(lowPrice, highPrice)) return null;
   if (!isPriceInsideRange(currentPrice, lowPrice, highPrice) || !isPriceInsideRange(openPrice, lowPrice, highPrice)) return null;
   if (baseVolume === null || quoteVolume === null || baseVolume < 0 || quoteVolume < 0) return null;
-  if (!isValidBook(bidPrice, askPrice)) return null;
   if (eventTime === null || !isRecentTimestamp(eventTime, now, MAX_WEBSOCKET_EVENT_AGE_MS)) return null;
   if (lastTradeId === null || lastTradeId < 0) return null;
 
@@ -147,12 +160,31 @@ export function normalizeTickerEvent(payload, now = Date.now()) {
     low24h: lowPrice,
     baseVolume24h: baseVolume,
     quoteVolume24h: quoteVolume,
-    bidPrice,
-    askPrice,
     lastTickerTradeId: lastTradeId,
     lastTickerAt: eventTime,
     lastTickerReceivedAt: now,
     lastValidUpdateAt: now,
     source: 'WEBSOCKET'
+  };
+}
+
+export function normalizeBookTickerEvent(payload, now = Date.now()) {
+  if (!payload || payload.e !== 'bookTicker' || payload.s !== SYMBOL) return null;
+
+  const bidPrice = toFiniteNumber(payload.b);
+  const askPrice = toFiniteNumber(payload.a);
+  const eventTime = toFiniteNumber(payload.E);
+
+  if (!isValidBook(bidPrice, askPrice)) return null;
+  if (eventTime === null || !isRecentTimestamp(eventTime, now, MAX_WEBSOCKET_EVENT_AGE_MS)) return null;
+
+  return {
+    symbol: SYMBOL,
+    bidPrice,
+    askPrice,
+    lastBookAt: eventTime,
+    lastBookReceivedAt: now,
+    lastValidUpdateAt: now,
+    bookSource: 'WEBSOCKET'
   };
 }

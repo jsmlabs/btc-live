@@ -63,6 +63,7 @@ test('shared runtime initializes once and exposes the same state contract to any
   await Promise.resolve();
   await Promise.resolve();
   assert.equal(typeof socketCallbacks.onTrade, 'function');
+  assert.equal(typeof socketCallbacks.onBookTicker, 'function');
   assert.equal(runtime.snapshot().settings.compactLayout, true);
   assert.equal(runtime.snapshot().state.currentPrice, 100_000);
   assert.ok(renders.length >= 2);
@@ -78,6 +79,18 @@ test('shared runtime initializes once and exposes the same state contract to any
   });
   assert.equal(runtime.snapshot().state.currentPrice, 100_100);
   assert.equal(runtime.snapshot().state.priceSource, 'TRADE');
+
+  socketCallbacks.onBookTicker({
+    bidPrice: 100_099,
+    askPrice: 100_101,
+    lastBookAt: NOW + 2,
+    lastBookReceivedAt: NOW + 2,
+    lastValidUpdateAt: NOW + 2,
+    bookSource: 'WEBSOCKET'
+  });
+  assert.equal(runtime.snapshot().state.bidPrice, 100_099);
+  assert.equal(runtime.snapshot().state.askPrice, 100_101);
+  assert.equal(runtime.snapshot().state.bookSource, 'WEBSOCKET');
 
   runtime.syncSettings({ compactLayout: false, showBidAsk: false });
   assert.deepEqual(runtime.snapshot().settings, { ...DEFAULT_SETTINGS, compactLayout: false, showBidAsk: false });
@@ -138,5 +151,64 @@ test('runtime sanitizes optimistic and persisted settings values', async () => {
   await runtime.updateSettings({ compactLayout: 'invalid', showBidAsk: false });
   assert.deepEqual(runtime.snapshot().settings, { ...DEFAULT_SETTINGS, compactLayout: false, showBidAsk: false });
   assert.equal(rendered.some((value) => typeof value.compactLayout !== 'boolean'), false);
+  runtime.dispose();
+});
+
+test('concurrent runtime start calls share initialization and wait for completion', async () => {
+  let resolveSettings;
+  let sockets = 0;
+  const settingsGate = new Promise((resolve) => { resolveSettings = resolve; });
+  const runtime = createBtcLiveRuntime({
+    fetchSnapshot: async () => snapshotData(),
+    createSocket() { sockets += 1; return { close() {} }; },
+    loadSettingsValue: async () => settingsGate,
+    loadDiagnosticsValue: async () => ({
+      version: 1, startedAt: NOW, reconnectCount: 0,
+      lastConnectedAt: null, lastDisconnectAt: null, lastDisconnectReason: null
+    }),
+    persistSettings: async (settings) => settings,
+    persistDiagnostics: async (diagnostics) => diagnostics,
+    now: () => NOW,
+    isOnline: () => true,
+    setTimeoutFn: () => 1,
+    clearTimeoutFn: () => {},
+    setIntervalFn: () => 1,
+    clearIntervalFn: () => {}
+  });
+
+  const first = runtime.start();
+  const second = runtime.start();
+  assert.equal(first, second);
+  assert.equal(sockets, 0);
+
+  resolveSettings({ ...DEFAULT_SETTINGS, showVolume: false });
+  const [firstResult, secondResult] = await Promise.all([first, second]);
+  assert.equal(firstResult.settings.showVolume, false);
+  assert.equal(secondResult.settings.showVolume, false);
+  assert.equal(sockets, 1);
+  runtime.dispose();
+});
+
+test('runtime sanitizes settings loaded through an injected persistence adapter', async () => {
+  const runtime = createBtcLiveRuntime({
+    fetchSnapshot: async () => snapshotData(),
+    createSocket() { return { close() {} }; },
+    loadSettingsValue: async () => ({ compactLayout: 'invalid', showBidAsk: false }),
+    loadDiagnosticsValue: async () => ({
+      version: 1, startedAt: NOW, reconnectCount: 0,
+      lastConnectedAt: null, lastDisconnectAt: null, lastDisconnectReason: null
+    }),
+    persistSettings: async (settings) => settings,
+    persistDiagnostics: async (diagnostics) => diagnostics,
+    now: () => NOW,
+    isOnline: () => true,
+    setTimeoutFn: () => 1,
+    clearTimeoutFn: () => {},
+    setIntervalFn: () => 1,
+    clearIntervalFn: () => {}
+  });
+
+  await runtime.start();
+  assert.deepEqual(runtime.snapshot().settings, { ...DEFAULT_SETTINGS, compactLayout: false, showBidAsk: false });
   runtime.dispose();
 });

@@ -23,12 +23,12 @@ Required PNG sizes:
 
 ## Chromium store assets
 
-Prepare current screenshots that reflect v1.13.0 behavior rather than the original v1.0.0 popup.
+Prepare current screenshots that reflect v1.14.0 behavior.
 
 Recommended set:
 
-1. **Popup market view** - current price, market context, and connection status.
-2. **Dashboard and chart** - full monitoring dashboard with chart and diagnostics.
+1. **Popup Futures market view** - current BTCUSDT Futures price, market context, and connection status.
+2. **Dashboard and chart** - full monitoring dashboard using Futures klines with chart and diagnostics.
 3. **Alert manager** - multiple Above/Below price targets and alert-history UI.
 4. **Privacy / settings** - local settings and the absence of account/API-key requirements.
 
@@ -40,7 +40,8 @@ Small promotional tile: 440x280 for Chrome Web Store where required.
 
 All store screenshots must:
 
-- reflect actual shipped v1.13.0 behavior
+- reflect actual shipped v1.14.0 behavior
+- identify the market source as Binance Futures where visible
 - avoid fabricated market values or unsupported features
 - avoid implying trading or order execution
 - avoid implying Binance endorsement
@@ -49,7 +50,7 @@ All store screenshots must:
 
 ## Acceptance criteria
 
-- current UI shown, not obsolete v1.0.0 screenshots
+- current Futures-based UI shown, not obsolete Spot screenshots
 - unique project branding
 - icon remains readable at 16x16
 - no third-party protected logo usage

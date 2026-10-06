@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Effective version:** 1.13.0  
+**Effective version:** 1.14.0  
 **Effective date:** 2026-10-06
 
 BTC Live is designed to operate without collecting personal user data or using a project-operated backend.
@@ -44,7 +44,7 @@ If browser notifications are enabled, BTC Live uses Chromium's native notificati
 
 ## External network requests
 
-BTC Live connects directly to Binance public Spot market-data services for BTCUSDT data. This includes public REST and WebSocket endpoints used for live monitoring, chart data, recovery, and background alert checks.
+BTC Live connects directly to Binance public USDⓈ-M Futures market-data services for BTCUSDT. This includes public REST and WebSocket endpoints used for live aggregate trades, 24h market statistics, top-of-book data, chart klines, recovery, and background alert checks.
 
 No Binance account or API key is required.
 

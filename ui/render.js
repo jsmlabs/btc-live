@@ -6,8 +6,6 @@ import {
   formatVolume
 } from '../utils/format.js';
 import {
-  FEED_STATUS,
-  deriveFeedHealth,
   priceEventAgeMs,
   tickerEventAgeMs
 } from '../market/market-state.js';
@@ -157,74 +155,6 @@ function statusMessage(status) {
   }
 }
 
-export function renderDiagnostics(state, {
-  now = Date.now(),
-  online = true,
-  reconnectAttempt = 0,
-  nextRetryAt = null,
-  diagnostics = null
-} = {}) {
-  const health = deriveFeedHealth(state, now);
-
-  getNode('diagConnection').textContent = online ? state.connectionStatus : 'OFFLINE';
-  getNode('diagPriceFeed').textContent = diagnosticFeedLabel(
-    state.priceSource,
-    health.price,
-    health.priceAge,
-    now
-  );
-  getNode('diagStatsFeed').textContent = diagnosticFeedLabel(
-    state.tickerSource,
-    health.stats,
-    health.tickerAge,
-    now,
-    'STATS'
-  );
-
-  const reconnectCount = diagnostics?.reconnectCount;
-  getNode('diagReconnectCount').textContent = Number.isSafeInteger(reconnectCount) ? String(reconnectCount) : '0';
-  getNode('diagBackoff').textContent = backoffLabel(reconnectAttempt, nextRetryAt, now);
-  getNode('diagLastConnect').textContent = Number.isFinite(diagnostics?.lastConnectedAt)
-    ? formatRelativeTime(diagnostics.lastConnectedAt, now)
-    : 'Never';
-
-  const disconnectNode = getNode('diagLastDisconnect');
-  disconnectNode.textContent = Number.isFinite(diagnostics?.lastDisconnectAt)
-    ? `${formatRelativeTime(diagnostics.lastDisconnectAt, now)} · ${diagnostics.lastDisconnectReason || 'Unknown reason'}`
-    : 'None';
-  disconnectNode.title = diagnostics?.lastDisconnectReason || '';
-
-  getNode('diagSession').textContent = Number.isFinite(diagnostics?.startedAt)
-    ? formatSessionAge(diagnostics.startedAt, now)
-    : 'Current popup';
-}
-
-function diagnosticFeedLabel(source, health, age, now, kind = 'PRICE') {
-  if (health === FEED_STATUS.WAITING || age === null) return 'WAITING';
-  const sourceName = kind === 'STATS'
-    ? source === 'WEBSOCKET' ? 'Live' : source === 'REST' ? 'REST' : 'Unknown'
-    : source === 'TRADE' ? 'Trade' : source === 'TICKER' ? 'Ticker' : source === 'REST' ? 'REST' : 'Unknown';
-  const healthLabel = health === FEED_STATUS.FRESH ? 'FRESH' : 'STALE';
-  return `${healthLabel} · ${sourceName} · ${formatRelativeTime(now - age, now)}`;
-}
-
-function backoffLabel(reconnectAttempt, nextRetryAt, now) {
-  if (!Number.isInteger(reconnectAttempt) || reconnectAttempt <= 0) return 'Idle';
-  if (Number.isFinite(nextRetryAt) && nextRetryAt > now) {
-    const seconds = Math.max(1, Math.ceil((nextRetryAt - now) / 1000));
-    return `Attempt ${reconnectAttempt} · ${seconds}s`;
-  }
-  return `Attempt ${reconnectAttempt}`;
-}
-
-function formatSessionAge(startedAt, now) {
-  const elapsed = Math.max(0, now - startedAt);
-  const minutes = Math.floor(elapsed / 60_000);
-  if (minutes < 1) return '<1m';
-  if (minutes < 60) return `${minutes}m`;
-  const hours = Math.floor(minutes / 60);
-  return `${hours}h ${minutes % 60}m`;
-}
 
 export function renderSettings(settings) {
   getNode('settingCompact').checked = settings.compactLayout;

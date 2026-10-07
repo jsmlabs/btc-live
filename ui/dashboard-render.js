@@ -7,7 +7,6 @@ import {
   formatUnsignedPercent,
   formatVolume
 } from '../utils/format.js';
-import { formatRelativeTime } from '../utils/time.js';
 
 const nodes = {};
 let flashTimer = null;
@@ -18,7 +17,7 @@ function getNode(id) {
 }
 
 export function renderDashboard(snapshot, now = Date.now()) {
-  const { state, settings, diagnostics, reconnectAttempt, nextRetryAt, online } = snapshot;
+  const { state, settings, nextRetryAt, online } = snapshot;
   const shell = getNode('dashboardShell');
   shell.dataset.density = settings.compactLayout ? 'compact' : 'comfortable';
 
@@ -73,7 +72,6 @@ export function renderDashboard(snapshot, now = Date.now()) {
   getNode('dashboardRetryButton').hidden = !['STALE', 'RECONNECTING', 'OFFLINE', 'ERROR'].includes(state.connectionStatus);
 
   renderFeedHealth(state, now);
-  renderDiagnostics(state, diagnostics, reconnectAttempt, nextRetryAt, online, now);
   renderSettings(settings);
 
   const animationKey = Number.isSafeInteger(state.lastPriceTradeId)
@@ -99,24 +97,6 @@ function renderFeedHealth(state, now) {
   getNode('dashboardStatsHealth').dataset.health = health.stats.toLowerCase();
 }
 
-function renderDiagnostics(state, diagnostics, reconnectAttempt, nextRetryAt, online, now) {
-  getNode('dashboardDiagConnection').textContent = online ? state.connectionStatus : 'OFFLINE';
-  getNode('dashboardDiagReconnects').textContent = Number.isSafeInteger(diagnostics?.reconnectCount)
-    ? String(diagnostics.reconnectCount)
-    : '0';
-  getNode('dashboardDiagBackoff').textContent = backoffLabel(reconnectAttempt, nextRetryAt, now);
-  getNode('dashboardDiagSession').textContent = Number.isFinite(diagnostics?.startedAt)
-    ? formatSessionAge(diagnostics.startedAt, now)
-    : 'Current view';
-  getNode('dashboardDiagLastConnect').textContent = Number.isFinite(diagnostics?.lastConnectedAt)
-    ? formatRelativeTime(diagnostics.lastConnectedAt, now)
-    : 'Never';
-  const disconnect = getNode('dashboardDiagLastDisconnect');
-  disconnect.textContent = Number.isFinite(diagnostics?.lastDisconnectAt)
-    ? `${formatRelativeTime(diagnostics.lastDisconnectAt, now)} · ${diagnostics.lastDisconnectReason || 'Unknown reason'}`
-    : 'None';
-  disconnect.title = diagnostics?.lastDisconnectReason || '';
-}
 
 function renderSettings(settings) {
   getNode('dashboardSettingCompact').checked = settings.compactLayout;
@@ -201,23 +181,6 @@ function statusMessage(status) {
   }
 }
 
-function backoffLabel(reconnectAttempt, nextRetryAt, now) {
-  if (!Number.isInteger(reconnectAttempt) || reconnectAttempt <= 0) return 'Idle';
-  if (Number.isFinite(nextRetryAt) && nextRetryAt > now) {
-    const seconds = Math.max(1, Math.ceil((nextRetryAt - now) / 1000));
-    return `Attempt ${reconnectAttempt} · ${seconds}s`;
-  }
-  return `Attempt ${reconnectAttempt}`;
-}
-
-function formatSessionAge(startedAt, now) {
-  const elapsed = Math.max(0, now - startedAt);
-  const minutes = Math.floor(elapsed / 60_000);
-  if (minutes < 1) return '<1m';
-  if (minutes < 60) return `${minutes}m`;
-  const hours = Math.floor(minutes / 60);
-  return `${hours}h ${minutes % 60}m`;
-}
 
 function flashPrice(node, direction) {
   clearTimeout(flashTimer);

@@ -2,14 +2,12 @@
 
 BTC Live is a lightweight Chromium Manifest V3 extension for monitoring BTCUSDT using Binance USDⓈ-M Futures public market data.
 
-## v1.14.0
+## v1.20.0
 
-- Migrates the complete BTC market-data path from Binance Spot to Binance USDⓈ-M Futures (`BTCUSDT`).
-- Uses Futures aggregate trades for live price updates and the Futures 24h ticker for market statistics.
-- Keeps Top of Book and spread data accurate through the dedicated Futures `bookTicker` stream and REST fallback.
-- Migrates dashboard chart reconciliation to Futures klines so chart candles and live price originate from the same market.
-- Updates extension host permissions/CSP to the Futures-only Binance endpoints and adds verification guards against accidental Spot endpoint regressions.
-- Preserves the existing alert, settings, diagnostics, storage and UI contracts with zero runtime dependencies.
+- Removes the remaining desktop dead zone between Alert History and Display Settings with a shared aligned utility grid.
+- Aligns 24H Range + Top of Book with Connection Diagnostics and Alert History with Price Targets so both columns finish on the same baseline.
+- Preserves the compact v1.17 visual system and responsive behavior without negative margins, fixed-height hacks or DOM contract changes.
+- Keeps Binance Futures runtime, alerts, settings, diagnostics, permissions and storage behavior unchanged.
 
 ## v1.13.4
 
@@ -74,13 +72,13 @@ For a full release check and clean store directory:
 npm run release:check
 ```
 
-The generated extension is written to `dist/btc-live-chromium-v1.14.0-store`.
+The generated extension is written to `dist/btc-live-chromium-v1.20.0-store`.
 
 ## Privacy and permissions
 
 BTC Live stores display preferences locally and temporary connection diagnostics in browser-session storage and connects only to Binance public market-data endpoints. It does not use an account, analytics, tracking, API keys or runtime dependencies.
 
-## v1.9.0 chart checkpoint retained in v1.14.0
+## v1.9.0 chart checkpoint retained in v1.20.0
 
 The dashboard now includes a lightweight BTCUSDT live chart without external runtime dependencies.
 

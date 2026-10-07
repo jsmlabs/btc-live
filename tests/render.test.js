@@ -1,60 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createInitialMarketState, CONNECTION_STATUS } from '../market/market-state.js';
-import { renderDiagnostics, renderMarket } from '../ui/render.js';
+import { renderMarket } from '../ui/render.js';
 
 const NOW = 1_800_000_000_000;
-
-test('renderDiagnostics exposes connection, feed health and session telemetry deterministically', (t) => {
-  const previousDocument = globalThis.document;
-  t.after(() => {
-    if (previousDocument === undefined) delete globalThis.document;
-    else globalThis.document = previousDocument;
-  });
-
-  const elements = new Map();
-  globalThis.document = {
-    getElementById(id) {
-      if (!elements.has(id)) elements.set(id, { textContent: '', title: '' });
-      return elements.get(id);
-    }
-  };
-
-  const state = {
-    ...createInitialMarketState(),
-    connectionStatus: CONNECTION_STATUS.RECONNECTING,
-    priceSource: 'TRADE',
-    tickerSource: 'WEBSOCKET',
-    lastPriceEventAt: NOW - 1_000,
-    lastTickerAt: NOW - 2_000
-  };
-  const diagnostics = {
-    version: 1,
-    startedAt: NOW - 2 * 60 * 60 * 1000,
-    reconnectCount: 7,
-    lastConnectedAt: NOW - 5_000,
-    lastDisconnectAt: NOW - 10_000,
-    lastDisconnectReason: 'Network interruption.'
-  };
-
-  renderDiagnostics(state, {
-    now: NOW,
-    online: true,
-    reconnectAttempt: 3,
-    nextRetryAt: NOW + 2_500,
-    diagnostics
-  });
-
-  assert.equal(elements.get('diagConnection').textContent, 'RECONNECTING');
-  assert.equal(elements.get('diagPriceFeed').textContent, 'FRESH · Trade · 1s ago');
-  assert.equal(elements.get('diagStatsFeed').textContent, 'FRESH · Live · 2s ago');
-  assert.equal(elements.get('diagReconnectCount').textContent, '7');
-  assert.equal(elements.get('diagBackoff').textContent, 'Attempt 3 · 3s');
-  assert.equal(elements.get('diagLastConnect').textContent, '5s ago');
-  assert.equal(elements.get('diagLastDisconnect').textContent, '10s ago · Network interruption.');
-  assert.equal(elements.get('diagSession').textContent, '2h 0m');
-  assert.equal(elements.get('diagLastDisconnect').title, 'Network interruption.');
-});
 
 
 test('renderMarket applies compact density and exposes range position accessibly', (t) => {

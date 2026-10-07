@@ -104,7 +104,6 @@ function handleStorageChange(changes, areaName) {
 function bindUi() {
   document.getElementById('dashboardRetryButton').addEventListener('click', () => runtime.retryNow());
   document.getElementById('dashboardResetSettings').addEventListener('click', () => runtime.resetSettings());
-  document.getElementById('dashboardResetDiagnostics').addEventListener('click', () => runtime.resetDiagnostics());
   bindSettings();
   bindChart();
   document.getElementById('dashboardTestNotification').addEventListener('click', () => {

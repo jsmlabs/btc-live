@@ -1,4 +1,4 @@
-# BTC Live v1.14.0 manual QA
+# BTC Live v1.20.0 manual QA
 
 Use this checklist after loading the project directory through `chrome://extensions` with Developer mode enabled.
 
@@ -12,6 +12,10 @@ Use this checklist after loading the project directory through `chrome://extensi
 - Reset defaults from the dashboard restores display settings without clearing session diagnostics.
 - Reset diagnostics from the dashboard clears session telemetry without changing display settings.
 - Dashboard layout remains usable at desktop, tablet-width and narrow browser widths with no horizontal overflow.
+- Dashboard live-price hero and chart are visually dominant over supporting metrics without obscuring health or stale/error states.
+- Bitcoin accent is limited to identity/active-control hierarchy; positive, warning and negative states retain their semantic colors.
+- Metric cards, range, Top of Book, diagnostics, alerts and settings remain clearly distinguishable without excessive shadows or decorative noise.
+- Popup remains readable at 320-408px widths and Compact Layout preserves all enabled content without clipping.
 - At wide/ultrawide widths (including approximately 3440px physical-width displays), the dashboard remains centered and dense without excessive edge-to-content distance or stretched typography.
 - Range and Top of Book flow independently from Connection Diagnostics and Price Targets; taller cards in one column must not create vertical dead zones in the other column.
 - Alert History and Display Settings render in a separate lower utility grid; Display Settings uses two columns on wide screens.
@@ -55,7 +59,7 @@ Use this checklist after loading the project directory through `chrome://extensi
 - If 24h ticker updates stop while trades continue, the extension reports degradation and reconnects rather than leaving bid/ask, range and volume silently stale.
 - Delayed exchange events older than the freshness threshold cause `STALE` even if they were only just received locally.
 - With reduced-motion enabled at OS/browser level, transitions and flashes are effectively suppressed.
-- `npm run release:check` passes and creates exactly the declared 35 runtime files in `dist/btc-live-chromium-v1.14.0-store`.
+- `npm run release:check` passes and creates exactly the declared 35 runtime files in `dist/btc-live-chromium-v1.20.0-store`.
 - No account, API key, analytics, tracking request or unexpected host permission is present.
 
 ## v1.9.0 Step 1 chart checks

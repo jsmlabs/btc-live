@@ -4,7 +4,7 @@ import { ALERT_HISTORY_STORAGE_KEY } from '../storage/alert-history.js';
 import { ALERT_TARGETS_STORAGE_KEY } from '../storage/alert-targets.js';
 import { createAlertCenterController } from '../ui/alert-center.js';
 import { DEFAULT_SETTINGS, SETTINGS_STORAGE_KEY, sanitizeSettings } from '../storage/settings.js';
-import { renderDiagnostics, renderMarket, renderSettings } from '../ui/render.js';
+import { renderMarket, renderSettings } from '../ui/render.js';
 
 let latest = null;
 const api = globalThis.browser ?? globalThis.chrome ?? null;
@@ -29,13 +29,6 @@ const runtime = createBtcLiveRuntime({
 function renderSnapshot(snapshot) {
   const now = Date.now();
   renderMarket(snapshot.state, snapshot.settings, now, { nextRetryAt: snapshot.nextRetryAt });
-  renderDiagnostics(snapshot.state, {
-    now,
-    online: snapshot.online,
-    reconnectAttempt: snapshot.reconnectAttempt,
-    nextRetryAt: snapshot.nextRetryAt,
-    diagnostics: snapshot.diagnostics
-  });
   renderSettings(snapshot.settings);
 }
 
@@ -120,7 +113,6 @@ function bindUi() {
   });
 
   document.getElementById('resetSettingsButton').addEventListener('click', () => runtime.resetSettings());
-  document.getElementById('resetDiagnosticsButton').addEventListener('click', () => runtime.resetDiagnostics());
   window.addEventListener('offline', runtime.handleOffline);
   window.addEventListener('online', runtime.handleOnline);
   api?.storage?.onChanged?.addListener(handleStorageChange);

@@ -149,32 +149,9 @@
           </div>
         </article>
 
-        <article class="panel alert-history-panel" aria-label="Alert history">
-          <div class="panel-header"><div><div class="eyebrow muted">EVENTS</div><h2>Alert History</h2></div><span id="dashboardHistoryCount" class="alert-count">0 events</span></div>
-          <ul id="dashboardHistoryList" class="alert-history-list" aria-label="Alert history events"></ul>
-          <button id="dashboardClearHistory" class="button tertiary" type="button">Clear history</button>
-        </article>
       </div>
 
       <aside class="side-column">
-        <article class="panel diagnostics-panel" aria-label="Connection diagnostics">
-          <div class="panel-header">
-            <div>
-              <div class="eyebrow muted">SESSION</div>
-              <h2>Connection Diagnostics</h2>
-            </div>
-          </div>
-          <dl class="diagnostics-grid">
-            <div><dt>Connection</dt><dd id="dashboardDiagConnection">INITIAL</dd></div>
-            <div><dt>Session</dt><dd id="dashboardDiagSession">&lt;1m</dd></div>
-            <div><dt>Reconnects</dt><dd id="dashboardDiagReconnects">0</dd></div>
-            <div><dt>Backoff</dt><dd id="dashboardDiagBackoff">Idle</dd></div>
-            <div><dt>Last connect</dt><dd id="dashboardDiagLastConnect">Never</dd></div>
-            <div class="wide"><dt>Last disconnect</dt><dd id="dashboardDiagLastDisconnect">None</dd></div>
-          </dl>
-          <button id="dashboardResetDiagnostics" class="button tertiary" type="button">Reset diagnostics</button>
-        </article>
-
         <article class="panel alert-manager-panel" aria-label="Price target alerts">
           <div class="panel-header"><div><div class="eyebrow muted">ALERTS</div><h2>Price Targets</h2></div><span id="dashboardTargetCount" class="alert-count">0/0 active</span></div>
           <form id="dashboardTargetForm" class="alert-target-form">
@@ -186,8 +163,13 @@
           <div id="dashboardTargetFeedback" class="alert-feedback" role="status" aria-live="polite"></div>
           <ul id="dashboardTargetList" class="alert-target-list" aria-label="Configured price targets"></ul>
         </article>
-
       </aside>
+
+      <article class="panel alert-history-panel" aria-label="Alert history">
+        <div class="panel-header"><div><div class="eyebrow muted">EVENTS</div><h2>Alert History</h2></div><span id="dashboardHistoryCount" class="alert-count">0 events</span></div>
+        <ul id="dashboardHistoryList" class="alert-history-list" aria-label="Alert history events"></ul>
+        <button id="dashboardClearHistory" class="button tertiary" type="button">Clear history</button>
+      </article>
     </section>
 
     <section class="settings-section" aria-label="Local dashboard settings">
@@ -217,7 +199,7 @@
     </section>
 
     <footer class="dashboard-footer">
-      <span>BTC LIVE · V1.14.0</span>
+      <span>BTC LIVE · V1.20.0</span>
       <span>Binance USDⓈ-M Futures · Local settings · No tracking</span>
     </footer>
   </main>

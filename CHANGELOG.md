@@ -1,3 +1,60 @@
+## 1.20.0 - 2026-10-07
+
+- Removed the residual desktop dead space below Price Targets by restructuring the dashboard utility area.
+- Alert History now spans the full dashboard width below the market summary and Price Targets row.
+- Price Targets matches the adjacent market-summary row height without fixed pixel heights or negative-margin hacks.
+- Preserved all market-data, alert, storage, notification, and runtime behavior.
+
+## 1.19.0 - 2026-10-07
+
+### Fixed
+- Removed the remaining desktop dead zone between Alert History and Display Settings by replacing the two independently sized nested stacks with an aligned shared dashboard grid.
+- Aligned 24H Range + Top of Book against Connection Diagnostics and Alert History against Price Targets, so uneven utility-card heights no longer create exposed whitespace.
+- Kept responsive tablet/mobile behavior by restoring independent stacked groups below the desktop breakpoint.
+
+### Improved
+- Let Alert History and Connection Diagnostics use intentional stretch behavior so lower utility rows finish on the same baseline without negative margins, absolute positioning or brittle height constants.
+- Preserved the compact v1.17.0 spacing system, visual hierarchy, DOM IDs, accessibility labels and all runtime behavior.
+
+### Compatibility
+- Layout/CSS correction only; no market-data logic, alert logic, storage schema, permissions, networking, runtime APIs or element IDs changed.
+
+## 1.17.0 - 2026-10-07
+
+### Changed
+- Refined the popup and dashboard into a higher-contrast technical workstation hierarchy without changing market, storage, alert, runtime or DOM contracts.
+- Introduced a restrained Bitcoin accent used only for identity, primary hierarchy and enabled controls while keeping market data itself neutral and status colors semantic.
+- Promoted live price and chart surfaces above supporting metrics through stronger surface separation, spacing rhythm and deliberate border/elevation hierarchy.
+- Reworked metric groups, chart controls, settings toggles, range tracks, alert counters and compact states for cleaner alignment and faster scanning.
+
+### Improved
+- Increased distinction between primary, secondary and utility surfaces while preserving the low-noise dark research aesthetic.
+- Improved numeric legibility, label rhythm, focus states, scrollbars, responsive density and small-control ergonomics.
+- Reduced the previous same-weight card effect by giving hero, chart, metric and utility content distinct visual roles.
+- Kept reduced-motion behavior and all existing accessibility/status content contracts intact.
+
+### Compatibility
+- CSS-first visual refinement only; no market-data logic, storage schema, alert logic, permissions, runtime APIs or element IDs changed.
+- Existing settings, diagnostics, alert history, chart preferences and Futures-only networking remain compatible.
+
+## 1.15.0 - 2026-10-06
+
+### Changed
+- Reworked the entire popup and dashboard visual system around the supplied Frozen Technical Research specification: near-black canvas, neutral surfaces, strict grid alignment, flat border-led hierarchy and restrained rectangular geometry.
+- Replaced gradient/shadow-heavy card styling with semantic design tokens, lower-radius panels and stronger information hierarchy while preserving all existing functional DOM contracts.
+- Rebalanced popup and dashboard density, typography, spacing, status presentation, controls, settings, diagnostics, alert management and responsive composition.
+- Converted dashboard chart candles and volume rendering to a restrained monochrome market-structure language while keeping semantic status colors for system and market-state feedback.
+
+### Improved
+- Raised small technical text sizes for better legibility and tightened numeric alignment with tabular figures.
+- Added clearer P0/P1 hierarchy for live price, freshness, feed health, reference levels and decision-relevant market state.
+- Improved keyboard focus treatment, compact/touch control behavior, responsive recomposition and reduced-motion handling.
+- Preserved stale/error/retry content visibility and existing accessibility contracts without introducing new runtime dependencies.
+
+### Compatibility
+- No market-data logic, storage schema, alert logic, permissions, runtime APIs, element IDs or external behavior changed.
+- Existing settings, diagnostics, alert history and chart preferences remain compatible.
+
 ## 1.14.0 - 2026-10-06
 
 ### Changed

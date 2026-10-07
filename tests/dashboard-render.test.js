@@ -5,7 +5,7 @@ import { renderDashboard } from '../ui/dashboard-render.js';
 
 const NOW = 1_800_000_000_000;
 
-test('dashboard renderer exposes market, feed health, diagnostics and settings', (t) => {
+test('dashboard renderer exposes market, feed health and settings', (t) => {
   const previousDocument = globalThis.document;
   t.after(() => {
     if (previousDocument === undefined) delete globalThis.document;
@@ -62,16 +62,8 @@ test('dashboard renderer exposes market, feed health, diagnostics and settings',
     showRange: true,
     priceAnimation: false
   };
-  const diagnostics = {
-    version: 1,
-    startedAt: NOW - 90_000,
-    reconnectCount: 3,
-    lastConnectedAt: NOW - 5_000,
-    lastDisconnectAt: NOW - 15_000,
-    lastDisconnectReason: 'Test interruption.'
-  };
 
-  renderDashboard({ state, settings, diagnostics, reconnectAttempt: 0, nextRetryAt: null, online: true }, NOW);
+  renderDashboard({ state, settings, reconnectAttempt: 0, nextRetryAt: null, online: true }, NOW);
 
   assert.equal(elements.get('dashboardShell').dataset.density, 'compact');
   assert.equal(elements.get('dashboardPrice').textContent, '100,000.00');
@@ -81,7 +73,6 @@ test('dashboard renderer exposes market, feed health, diagnostics and settings',
   assert.equal(elements.get('dashboardRangeTrack').getAttribute('aria-valuenow'), '66');
   assert.equal(elements.get('dashboardVolumeCard').hidden, true);
   assert.equal(elements.get('dashboardBidAskCard').hidden, false);
-  assert.equal(elements.get('dashboardDiagReconnects').textContent, '3');
   assert.equal(elements.get('dashboardSettingCompact').checked, true);
   assert.equal(elements.get('dashboardStatusPill').getAttribute('aria-label'), 'Connection status: LIVE');
 });

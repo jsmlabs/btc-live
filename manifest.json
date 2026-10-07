@@ -3,7 +3,7 @@
   "name": "BTC Live",
   "short_name": "BTC Live",
   "description": "Private, lightweight Bitcoin live price monitor powered by Binance USDⓈ-M Futures market data.",
-  "version": "1.14.0",
+  "version": "1.20.0",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",

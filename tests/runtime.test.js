@@ -212,3 +212,87 @@ test('runtime sanitizes settings loaded through an injected persistence adapter'
   assert.deepEqual(runtime.snapshot().settings, { ...DEFAULT_SETTINGS, compactLayout: false, showBidAsk: false });
   runtime.dispose();
 });
+
+function createSettingsRaceRuntime({ persistSettings, loadSettingsValue, onWarning = () => {} }) {
+  return createBtcLiveRuntime({
+    onWarning,
+    fetchSnapshot: async () => snapshotData(),
+    createSocket: () => ({ close() {} }),
+    loadSettingsValue,
+    loadDiagnosticsValue: async () => ({
+      version: 1, startedAt: NOW, reconnectCount: 0,
+      lastConnectedAt: null, lastDisconnectAt: null, lastDisconnectReason: null
+    }),
+    persistSettings,
+    persistDiagnostics: async (value) => value,
+    now: () => NOW,
+    isOnline: () => true,
+    setTimeoutFn: () => 1,
+    clearTimeoutFn: () => {},
+    setIntervalFn: () => 1,
+    clearIntervalFn: () => {}
+  });
+}
+
+test('stale persistence results cannot overwrite newer runtime settings', async () => {
+  const pendingWrites = [];
+  const runtime = createSettingsRaceRuntime({
+    loadSettingsValue: async () => ({ ...DEFAULT_SETTINGS }),
+    persistSettings: (value) => new Promise((resolve) => {
+      pendingWrites.push({ value, resolve });
+    })
+  });
+
+  try {
+    await runtime.start();
+    const first = runtime.updateSettings({ ...DEFAULT_SETTINGS, showVolume: false });
+    const second = runtime.updateSettings({ ...DEFAULT_SETTINGS, compactLayout: true });
+    assert.equal(runtime.snapshot().settings.compactLayout, true);
+    assert.equal(pendingWrites.length, 2);
+
+    pendingWrites[0].resolve(pendingWrites[0].value);
+    await first;
+    assert.equal(runtime.snapshot().settings.compactLayout, true);
+
+    pendingWrites[1].resolve(pendingWrites[1].value);
+    await second;
+    assert.equal(runtime.snapshot().settings.compactLayout, true);
+  } finally {
+    runtime.dispose();
+  }
+});
+
+test('late settings recovery cannot overwrite a newer completed update', async () => {
+  let loads = 0;
+  let writes = 0;
+  let signalRecoveryStarted;
+  let releaseRecovery;
+  const recoveryStarted = new Promise((resolve) => { signalRecoveryStarted = resolve; });
+  const recoveryValue = new Promise((resolve) => { releaseRecovery = resolve; });
+  const runtime = createSettingsRaceRuntime({
+    loadSettingsValue: async () => {
+      if (++loads === 1) return { ...DEFAULT_SETTINGS };
+      signalRecoveryStarted();
+      return recoveryValue;
+    },
+    persistSettings: async (value) => {
+      if (++writes === 1) throw new Error('Injected storage failure');
+      return value;
+    }
+  });
+
+  try {
+    await runtime.start();
+    const first = runtime.updateSettings({ ...DEFAULT_SETTINGS, showVolume: false });
+    await recoveryStarted;
+    const second = runtime.updateSettings({ ...DEFAULT_SETTINGS, compactLayout: true });
+    await second;
+    releaseRecovery({ ...DEFAULT_SETTINGS, compactLayout: false });
+    await first;
+
+    assert.equal(runtime.snapshot().settings.compactLayout, true);
+    assert.equal(loads, 2);
+  } finally {
+    runtime.dispose();
+  }
+});

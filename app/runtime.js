@@ -394,14 +394,20 @@ export function createBtcLiveRuntime({
     emit();
 
     try {
-      settings = sanitizeSettings(await persistSettings(sanitized));
-      if (!disposed && revision === settingsRevision) emit();
+      const savedSettings = sanitizeSettings(await persistSettings(sanitized));
+      if (!disposed && revision === settingsRevision) {
+        settings = savedSettings;
+        emit();
+      }
     } catch (error) {
       onWarning('BTC Live settings could not be saved', error);
       if (revision !== settingsRevision || disposed) return settings;
       try {
-        settings = await loadSettingsValue();
+        const loadedSettings = await loadSettingsValue();
+        if (revision !== settingsRevision || disposed) return settings;
+        settings = loadedSettings;
       } catch {
+        if (revision !== settingsRevision || disposed) return settings;
         settings = { ...DEFAULT_SETTINGS };
       }
       emit();

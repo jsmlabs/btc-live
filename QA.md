@@ -68,7 +68,7 @@ Use this checklist after loading the project directory through `chrome://extensi
 - If 24h ticker updates stop while trades continue, the extension reports degradation and reconnects rather than leaving bid/ask, range and volume silently stale.
 - Delayed exchange events older than the freshness threshold cause `STALE` even if they were only just received locally.
 - With reduced-motion enabled at OS/browser level, transitions and flashes are effectively suppressed.
-- `npm run release:check` passes and creates exactly the declared 36 runtime files in `dist/btc-live-chromium-v1.21.0-store`.
+- `npm run release:check` passes and creates exactly the declared 36 runtime files in `dist/btc-live-chromium-v1.22.0-store`.
 - No account, API key, analytics, tracking request or unexpected host permission is present.
 
 ## v1.9.0 Step 1 chart checks

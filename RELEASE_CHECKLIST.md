@@ -10,7 +10,7 @@
 - [x] No new runtime permission, host, npm dependency or storage migration
 - [x] Store package contains exactly 36 allowlisted runtime files
 - [x] Manifest / package / popup / dashboard version labels aligned at `1.22.0`
-- [ ] Confirm GitHub Actions Node.js 22 / 24 both pass for pushed commit
+- [x] Confirm GitHub Actions Node.js 22 / 24 both pass for pushed commit ([successful run](https://github.com/jsmlabs/btc-live/actions/runs/38306909480) on `1d99918`)
 
 ## Browser and manual QA
 
@@ -24,7 +24,7 @@
 
 ## GitHub release (separate from repository commit)
 
-- [ ] Confirm branch merge and green repository CI
+- [x] Confirm v1.22.0 implementation is on `main` and repository CI is green (`1d99918`, [Verify run](https://github.com/jsmlabs/btc-live/actions/runs/38306909480))
 - [ ] Tag the approved release commit `v1.22.0`
 - [ ] Publish the GitHub release with notes, store ZIP and SHA-256
 - [ ] Submit reviewed store assets for Chrome Web Store approval

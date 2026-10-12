@@ -98,13 +98,13 @@ For a full release check and clean store directory:
 npm run release:check
 ```
 
-The generated extension is written to `dist/btc-live-chromium-v1.21.0-store`.
+The generated extension is written to `dist/btc-live-chromium-v1.22.0-store`.
 
 ## Privacy and permissions
 
 BTC Live stores display preferences locally and temporary connection diagnostics in browser-session storage and connects only to Binance public market-data endpoints. It does not use an account, analytics, tracking, API keys or runtime dependencies.
 
-## v1.9.0 chart checkpoint retained in v1.21.0
+## v1.9.0 chart checkpoint retained in v1.22.0
 
 The dashboard now includes a lightweight BTCUSDT live chart without external runtime dependencies.
 

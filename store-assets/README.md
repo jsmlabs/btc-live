@@ -1,6 +1,6 @@
 # BTC Live Store Assets
 
-Final release assets for BTC Live v1.0.0.
+Historical store asset previews from the v1.0.0 era. **Not approved for BTC Live v1.22.0 publication**: some visuals still depict Binance Spot instead of the current USDⓈ-M Futures source. See `STORE_ASSETS.md` for current acceptance criteria.
 
 - `promo-440x280.png` - Chrome Web Store promotional tile
 - `screenshot-1-1280x800.png` - primary product/value screenshot
@@ -9,4 +9,4 @@ Final release assets for BTC Live v1.0.0.
 - `real-popup.png` - crop from the real Chromium live smoke test
 - `asset-preview.png` - internal review contact sheet
 
-The extension icons used by the manifests are stored under `src/icons/` and generated in 16, 32, 48 and 128 px variants.
+The extension icons used by `manifest.json` are stored in the repository `icons/` directory (16, 32, 48 and 128 px).

@@ -2,6 +2,7 @@ import { CHART_STATUS } from '../app/chart-runtime.js';
 import { formatPrice, formatVolume } from '../utils/format.js';
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
+const renderedChartKeys = new WeakMap();
 const VIEW_WIDTH = 1000;
 const VIEW_HEIGHT = 360;
 const PADDING = Object.freeze({ left: 8, right: 82, top: 18, bottom: 22 });
@@ -126,7 +127,16 @@ export function renderBtcChart(chartSnapshot, marketState, now = Date.now()) {
   renderLevelStrip(marketState);
 
   const svg = document.getElementById('dashboardChartSvg');
-  svg.replaceChildren();
+  const chartKey = JSON.stringify([
+    preferences.interval, preferences.mode, preferences.showVolume,
+    marketState?.currentPrice, marketState?.open24h, marketState?.high24h, marketState?.low24h,
+    Array.isArray(candles) ? candles.map((candle) => candle ?
+      [candle.openTime, candle.open, candle.high, candle.low, candle.close, candle.volume] : null) : null,
+    Array.isArray(candles) && candles.some((candle) => candle &&
+      [candle.open, candle.high, candle.low, candle.close].every(Number.isFinite)) ? null : status
+  ]);
+  // Status, controls and level labels above still refresh when SVG geometry is unchanged.
+  if (renderedChartKeys.get(svg) === chartKey) return;
   const model = buildChartModel(candles, {
     showVolume: preferences.showVolume,
     currentPrice: marketState?.currentPrice,
@@ -135,9 +145,11 @@ export function renderBtcChart(chartSnapshot, marketState, now = Date.now()) {
     low24h: marketState?.low24h
   });
 
+  svg.replaceChildren();
   if (!model) {
     svg.setAttribute('aria-label', status === CHART_STATUS.ERROR ? 'Bitcoin chart unavailable' : 'Bitcoin chart loading');
     renderEmpty(svg, status === CHART_STATUS.ERROR ? 'Chart unavailable' : 'Loading chart...');
+    renderedChartKeys.set(svg, chartKey);
     return;
   }
 
@@ -149,6 +161,7 @@ export function renderBtcChart(chartSnapshot, marketState, now = Date.now()) {
   else renderCandles(svg, model);
   if (preferences.showVolume) renderVolume(svg, model);
   renderAxes(svg, model);
+  renderedChartKeys.set(svg, chartKey);
 }
 
 function renderLevelStrip(state) {

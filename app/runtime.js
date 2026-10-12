@@ -71,11 +71,14 @@ export function createBtcLiveRuntime({
   let restController = null;
   let freshnessTimer = null;
   let connectedAt = null;
+  let feedConnections = { market: 'CONNECTING', book: 'CONNECTING' };
+  let lastBookOpenedAt = null;
 
   const snapshot = () => ({
     state,
     settings,
     diagnostics,
+    feedConnections: { ...feedConnections },
     reconnectAttempt,
     nextRetryAt,
     online: isOnline(),
@@ -160,6 +163,8 @@ export function createBtcLiveRuntime({
     socket = null;
     staleSince = null;
     connectedAt = null;
+    feedConnections = { market: 'CONNECTING', book: 'CONNECTING' };
+    lastBookOpenedAt = null;
     nextRetryAt = null;
     previousSocket?.close('Replacing connection');
 
@@ -202,24 +207,32 @@ export function createBtcLiveRuntime({
           if (!isCurrentSocket(generation, nextSocket)) return;
           const nextState = applyBookTicker(state, book);
           if (nextState === state) return;
-          markMarketData();
           state = applyHealthConnection(nextState);
           emit();
         },
         onClose(event) {
           if (!isCurrentSocket(generation, nextSocket)) return;
-          socket = null;
           clearSocketDataTimer();
           clearTickerDataTimer();
-          scheduleReconnect(formatCloseReason(event));
+          connectedAt = null;
+          state = applyConnectionEvent(state, CONNECTION_EVENT.RECONNECT, formatCloseReason(event));
+          diagnostics = recordReconnect(diagnostics, formatCloseReason(event), now());
+          persistDiagnosticsSafe();
+          emit();
         },
-        onError() {
+        onError(event, feed) {
           if (!isCurrentSocket(generation, nextSocket)) return;
-          scheduleReconnect(
-            Number.isFinite(state.lastValidUpdateAt)
-              ? 'Live stream error. Reconnecting...'
-              : 'Unable to establish a live connection.'
-          );
+          onWarning(`BTC Live ${feed ?? 'market'} stream error`, event);
+        },
+        onFeedStatus(feed, status) {
+          if (!isCurrentSocket(generation, nextSocket)) return;
+          if (!['market', 'book'].includes(feed) || feedConnections[feed] === status) return;
+          feedConnections = { ...feedConnections, [feed]: status };
+          if (feed === 'book' && status === 'LIVE') lastBookOpenedAt = now();
+          if (feed === 'book' && [CONNECTION_STATUS.LIVE, CONNECTION_STATUS.DEGRADED].includes(state.connectionStatus)) {
+            state = applyHealthConnection(state);
+          }
+          emit();
         }
       });
     } catch (error) {
@@ -235,11 +248,17 @@ export function createBtcLiveRuntime({
 
   function applyHealthConnection(nextState, at = now()) {
     const health = deriveFeedHealth(nextState, at);
+    if (feedConnections.market === 'RECONNECTING') {
+      return applyConnectionEvent(nextState, CONNECTION_EVENT.RECONNECT, 'Price stream is reconnecting.');
+    }
     if (health.price === FEED_STATUS.STALE) {
       return applyConnectionEvent(nextState, CONNECTION_EVENT.DATA_STALE, 'Current price data may be delayed.');
     }
     if (health.price === FEED_STATUS.FRESH && health.stats === FEED_STATUS.STALE) {
       return applyConnectionEvent(nextState, CONNECTION_EVENT.DATA_DEGRADED, '24h market statistics may be delayed.');
+    }
+    if (health.price === FEED_STATUS.FRESH && (feedConnections.book !== 'LIVE' || health.book === FEED_STATUS.STALE)) {
+      return applyConnectionEvent(nextState, CONNECTION_EVENT.DATA_DEGRADED, 'Order book stream is reconnecting; bid/ask may be delayed.');
     }
     return applyConnectionEvent(nextState, CONNECTION_EVENT.DATA_FRESH);
   }
@@ -296,6 +315,14 @@ export function createBtcLiveRuntime({
         staleSince = null;
       }
       state = nextState;
+    }
+
+    // A connected public socket can silently stop emitting data. Recover only that
+    // feed, with a grace period after each open to prevent reconnect loops.
+    const bookHealth = deriveFeedHealth(state, at);
+    if (feedConnections.book === 'LIVE' && bookHealth.book === FEED_STATUS.STALE &&
+        lastBookOpenedAt !== null && at - lastBookOpenedAt >= RUNTIME_TIMING.SOCKET_DATA_TIMEOUT_MS) {
+      socket?.reconnectFeed?.('book');
     }
 
     if (

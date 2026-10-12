@@ -1,4 +1,13 @@
-# BTC Live v1.20.0 manual QA
+# BTC Live v1.22.0 manual QA
+
+## v1.21.0 visual performance regression (manual, not yet executed)
+
+- [ ] With the dashboard visible and rapid live trades arriving, price/health/status text stays current, the chart does not freeze, and there are no duplicated/cancelled visual flashes.
+- [ ] With the dashboard hidden and then made visible, the latest chart, prices, and age indicators appear without requiring a reload.
+- [ ] With dashboard + popup simultaneously open, target and percentage alerts keep their previous trigger/cooldown semantics under high update rates.
+- [ ] Switch 1m/5m/15m, Candles/Line and Volume during active updates; SVG geometry and aria descriptions follow each change.
+- [ ] Confirm no pending animation frames modify the page after dashboard close.
+- [ ] Record Chrome DevTools render counts and CPU profile on the target device before claiming real-browser performance improvement.
 
 Use this checklist after loading the project directory through `chrome://extensions` with Developer mode enabled.
 
@@ -59,7 +68,7 @@ Use this checklist after loading the project directory through `chrome://extensi
 - If 24h ticker updates stop while trades continue, the extension reports degradation and reconnects rather than leaving bid/ask, range and volume silently stale.
 - Delayed exchange events older than the freshness threshold cause `STALE` even if they were only just received locally.
 - With reduced-motion enabled at OS/browser level, transitions and flashes are effectively suppressed.
-- `npm run release:check` passes and creates exactly the declared 35 runtime files in `dist/btc-live-chromium-v1.20.0-store`.
+- `npm run release:check` passes and creates exactly the declared 36 runtime files in `dist/btc-live-chromium-v1.21.0-store`.
 - No account, API key, analytics, tracking request or unexpected host permission is present.
 
 ## v1.9.0 Step 1 chart checks
@@ -130,3 +139,18 @@ Use this checklist after loading the project directory through `chrome://extensi
 - [ ] Simultaneously reached but non-delivered targets are recorded as `SUPPRESSED` instead of being delivered later.
 - [ ] Alert History keeps at most 100 persisted events and Clear history removes all entries without changing targets/settings.
 - [ ] Disabling all price-move alerts and all target rows stops the background alarm; enabling any target reconciles it again.
+
+## v1.22.0 feed and alert checks
+
+- [x] Node: book-socket failure does not disconnect market stream or block trade events; independent bounded reconnect and cleanup
+- [x] Node: market stream independently retries while book socket remains open
+- [x] Node: REST ticker survives book HTTP failure and malformed prices are rejected before background notifications
+- [x] Node: target hysteresis prevents re-arm within 0.05% price band
+- [x] Node: stale/offline price is excluded from target and percent-move evaluation
+- [x] Node: background check status is recorded locally, including error handling for storage read failure
+- [x] Optional Chromium smoke (DOM, SVG cache, frame coalescing, mocked stream outage)
+- [ ] Chrome extension MV3 service worker lifecycle, native notifications and background alarm restart on target browser
+- [ ] Live Futures price continuity under isolated order-book outages and independent recovery
+- [ ] Browser sleep/suspension, clock changes, offline reconnect and observed polling delays
+
+Background alarms are scheduled per minute, not continuous monitoring; threshold crossings between successful polls can be missed. A degraded or stale price is not used for active-view alert thresholds. The stored `btcLiveBackgroundCheck` marker is diagnostic, not proof of a guaranteed alarm delivery.

@@ -2,20 +2,10 @@ import assert from 'node:assert/strict';
 import { access, readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { runtimeFiles } from './runtime-files.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const runtimeFiles = [
-  'manifest.json',
-  'icons/icon16.png','icons/icon32.png','icons/icon48.png','icons/icon128.png',
-  'app/runtime.js','app/chart-runtime.js','app/notifications.js','app/background-alerts.js',
-  'background/service-worker.js',
-  'popup/popup.html','popup/popup.css','popup/popup.js',
-  'dashboard/dashboard.html','dashboard/dashboard.css','dashboard/dashboard.js',
-  'market/binance-rest.js','market/binance-klines.js','market/binance-websocket.js','market/connection-state.js','market/market-state.js','market/validators.js',
-  'storage/settings.js','storage/chart-preferences.js','storage/session-diagnostics.js','storage/alert-targets.js','storage/alert-history.js',
-  'ui/render.js','ui/dashboard-render.js','ui/chart.js','ui/status.js','ui/alert-center.js',
-  'utils/backoff.js','utils/format.js','utils/time.js'
-];
+assert.ok(Number.parseInt(process.versions.node.split('.')[0], 10) >= 22, 'Node.js 22 or newer is required');
 const requiredFiles = [
   ...runtimeFiles,
   'scripts/build-store.mjs','README.md','CHANGELOG.md','QA.md'
@@ -29,6 +19,9 @@ const dashboardHtml = await readFile(path.join(root, 'dashboard/dashboard.html')
 const readme = await readFile(path.join(root, 'README.md'), 'utf8');
 const changelog = await readFile(path.join(root, 'CHANGELOG.md'), 'utf8');
 const qa = await readFile(path.join(root, 'QA.md'), 'utf8');
+const releaseNotes = await readFile(path.join(root, 'GITHUB_RELEASE.md'), 'utf8');
+const releaseChecklist = await readFile(path.join(root, 'RELEASE_CHECKLIST.md'), 'utf8');
+const storeAssets = await readFile(path.join(root, 'STORE_ASSETS.md'), 'utf8');
 const escapedVersion = manifest.version.replaceAll('.', '\\.');
 
 assert.equal(manifest.manifest_version, 3);
@@ -43,7 +36,12 @@ assert.match(popupHtml, new RegExp(`V${escapedVersion}`));
 assert.match(dashboardHtml, new RegExp(`V${escapedVersion}`));
 assert.match(readme, new RegExp(`v${escapedVersion}`, 'i'));
 assert.match(changelog, new RegExp(`## ${escapedVersion}\\b`));
-assert.match(qa, new RegExp(`v${escapedVersion}`, 'i'));
+assert.match(qa, new RegExp(`^# BTC Live v${escapedVersion} manual QA`, 'm'));
+assert.match(releaseNotes, new RegExp(`^# BTC Live v${escapedVersion}$`, 'm'));
+assert.match(releaseChecklist, new RegExp(`^# BTC Live v${escapedVersion} - Release Checklist$`, 'm'));
+assert.match(storeAssets, new RegExp(`reflect v${escapedVersion} behavior`));
+assert.match(releaseNotes, new RegExp(`${runtimeFiles.length} runtime files`));
+assert.match(releaseChecklist, new RegExp(`${runtimeFiles.length} allowlisted runtime files`));
 assert.deepEqual(manifest.permissions, ['storage', 'notifications', 'alarms']);
 assert.deepEqual(manifest.host_permissions, ['https://fapi.binance.com/*']);
 assert.match(manifest.content_security_policy.extension_pages, /connect-src https:\/\/fapi\.binance\.com wss:\/\/fstream\.binance\.com/);
@@ -104,5 +102,5 @@ for (const size of [16,32,48,128]) {
   assert.equal(buffer.readUInt32BE(16), size);
   assert.equal(buffer.readUInt32BE(20), size);
 }
-assert.equal(runtimeFiles.length, 35, 'Unexpected runtime allowlist size');
+assert.equal(runtimeFiles.length, 36, 'Unexpected runtime allowlist size');
 console.log(`verify: manifest v${manifest.version}, popup/dashboard DOM, imports, permissions, CSP, explicit runtime allowlist and icon dimensions OK`);

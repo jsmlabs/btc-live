@@ -231,3 +231,33 @@ test('notification manager contains connection notification failures while advan
   assert.equal(history[0].reason, 'notification_error');
   assert.equal(warnings.length, 1);
 });
+
+test('target hysteresis prevents rapid rearming around threshold', () => {
+  const target = { id: 'a', direction: 'above', price: 100000, enabled: true, triggered: true, triggeredAt: 100 };
+  assert.equal(evaluatePriceTargets([target], 99980).targets[0].triggered, true);
+  assert.equal(evaluatePriceTargets([target], 99950).targets[0].triggered, false);
+  const below = { ...target, direction: 'below' };
+  assert.equal(evaluatePriceTargets([below], 100020).targets[0].triggered, true);
+  assert.equal(evaluatePriceTargets([below], 100050).targets[0].triggered, false);
+});
+
+test('stale price cannot trigger or rearm targets, but connection status is processed', async () => {
+  const alerts = [];
+  const history = [];
+  let targets = [{ id: 'a', direction: 'above', price: 100, enabled: true, triggered: false }];
+  let state = { lastConnectionStatus: 'LIVE', anchorPrice: 100 };
+  const manager = createNotificationManager({
+    now: () => 1_000_000,
+    minProcessIntervalMs: 0,
+    notify: async (payload) => { alerts.push(payload); return true; },
+    loadState: async () => state,
+    saveState: async (value) => { state = value; return value; },
+    loadTargets: async () => targets,
+    saveTargets: async (value) => { targets = value; return value; },
+    appendHistory: async (entry) => { history.push(entry); return entry; }
+  });
+  await manager.observe({ settings: { ...DEFAULT_SETTINGS, notificationsEnabled: true, notifyConnectionIssues: true }, state: { currentPrice: 110, connectionStatus: 'STALE' } });
+  assert.equal(targets[0].triggered, false);
+  assert.equal(alerts.length, 1);
+  assert.equal(history[0].type, 'connection');
+});

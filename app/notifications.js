@@ -2,6 +2,7 @@ import { appendAlertHistory } from '../storage/alert-history.js';
 import { loadAlertTargets, saveAlertTargets } from '../storage/alert-targets.js';
 
 export const NOTIFICATION_STATE_STORAGE_KEY = 'btcLiveNotificationState';
+export const TARGET_REARM_HYSTERESIS_PERCENT = 0.05;
 
 export const DEFAULT_NOTIFICATION_STATE = Object.freeze({
   anchorPrice: null,
@@ -83,7 +84,9 @@ export function evaluatePriceTargets(targets, currentPrice, at = Date.now()) {
   const next = targets.map((target) => {
     if (!target?.enabled) return target;
     const isReached = target.direction === 'above' ? currentPrice >= target.price : currentPrice <= target.price;
-    const shouldRearm = target.triggered && (target.direction === 'above' ? currentPrice < target.price : currentPrice > target.price);
+    const margin = target.price * TARGET_REARM_HYSTERESIS_PERCENT / 100;
+    const shouldRearm = target.triggered && (target.direction === 'above'
+      ? currentPrice <= target.price - margin : currentPrice >= target.price + margin);
     if (shouldRearm) {
       changed = true;
       return { ...target, triggered: false, triggeredAt: null, updatedAt: at };
@@ -149,7 +152,9 @@ export function createNotificationManager({
     let changed = false;
     let explicitTargetHandled = false;
     const cooldownMs = Math.max(15, settings.notificationCooldownSeconds) * 1000;
-    const currentPrice = Number.isFinite(market.currentPrice) && market.currentPrice > 0 ? market.currentPrice : null;
+    const usablePrice = !['INITIAL', 'LOADING', 'CONNECTING', 'RECONNECTING', 'OFFLINE', 'ERROR', 'STALE'].includes(market.connectionStatus);
+    const currentPrice = usablePrice && Number.isFinite(market.currentPrice) && market.currentPrice > 0
+      ? market.currentPrice : null;
 
     if (currentPrice !== null) {
       let targets = [];

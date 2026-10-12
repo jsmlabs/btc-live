@@ -1,16 +1,17 @@
 {
   "name": "btc-live-chromium",
-  "version": "1.20.0",
+  "version": "1.22.0",
   "private": true,
   "type": "module",
   "description": "Development and verification tooling for the BTC Live Chromium extension.",
   "scripts": {
     "test": "node --test tests/*.test.js",
+    "bench:render": "node scripts/benchmark-render.mjs --optimized",
     "verify": "node scripts/verify.mjs && npm test",
     "build:store": "node scripts/build-store.mjs",
     "release:check": "npm run verify && npm run build:store"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }

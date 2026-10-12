@@ -36,7 +36,7 @@ test('parseCombinedMessage ignores malformed or unsupported events', () => {
 });
 
 
-test('createBinanceSocket treats Futures market/public streams as one logical connection', (t) => {
+test('createBinanceSocket treats Futures market/public streams independently', (t) => {
   const originalWebSocket = globalThis.WebSocket;
   const instances = [];
 
@@ -88,7 +88,7 @@ test('createBinanceSocket treats Futures market/public streams as one logical co
   assert.equal(instances.length, 2);
   assert.deepEqual(instances.map((item) => item.url), [MARKET_STREAM_URL, PUBLIC_STREAM_URL]);
   instances[0].emit('open');
-  assert.equal(opens, 0);
+  assert.equal(opens, 1);
   instances[1].emit('open');
   assert.equal(opens, 1);
   assert.equal(socket.readyState, FakeWebSocket.OPEN);
@@ -104,7 +104,108 @@ test('createBinanceSocket treats Futures market/public streams as one logical co
 
   instances[0].emit('close', { code: 1006 });
   assert.equal(closes, 1);
+  assert.equal(instances[1].closeCalls.length, 0);
+  socket.close();
   assert.equal(instances[1].closeCalls.length, 1);
-  instances[1].emit('close', { code: 1000 });
   assert.equal(closes, 1);
+});
+
+test('book failure retries book only, preserving market events and cleanup', (t) => {
+  const original = globalThis.WebSocket;
+  const instances = [];
+  const jobs = new Map();
+  let id = 0;
+  class FakeSocket {
+    static CONNECTING = 0; static OPEN = 1; static CLOSED = 3;
+    constructor(url) { this.url = url; this.readyState = 0; this.handlers = {}; instances.push(this); }
+    addEventListener(type, fn) { (this.handlers[type] ??= []).push(fn); }
+    emit(type, event = {}) {
+      if (type === 'open') this.readyState = 1;
+      if (type === 'close') this.readyState = 3;
+      for (const fn of this.handlers[type] ?? []) fn(event);
+    }
+    close() { this.readyState = 3; }
+  }
+  globalThis.WebSocket = FakeSocket;
+  t.after(() => { globalThis.WebSocket = original; });
+  const trades = [];
+  const changes = [];
+  const socket = createBinanceSocket({
+    onTrade: (trade) => trades.push(trade.currentPrice),
+    onFeedStatus: (feed, status) => changes.push(`${feed}:${status}`),
+    setTimeoutFn(fn, ms) { assert.ok(ms >= 1000); jobs.set(++id, fn); return id; },
+    clearTimeoutFn(value) { jobs.delete(value); }
+  });
+  instances[0].emit('open');
+  instances[1].emit('open');
+  instances[1].emit('close', { code: 1006 });
+  assert.equal(socket.readyState, FakeSocket.OPEN);
+  assert.equal(jobs.size, 1);
+  assert.ok(changes.includes('book:RECONNECTING'));
+  instances[0].emit('message', { data: JSON.stringify({ data: { e: 'aggTrade', s: 'BTCUSDT', p: '100123', a: 50, T: Date.now() } }) });
+  assert.deepEqual(trades, [100123]);
+  const retry = [...jobs.values()][0]; jobs.clear(); retry();
+  assert.equal(instances.length, 3);
+  assert.equal(instances[2].url, PUBLIC_STREAM_URL);
+  instances[2].emit('open');
+  assert.equal(changes.at(-1), 'book:LIVE');
+  instances[1].emit('open'); // stale socket must be ignored
+  socket.close();
+  assert.equal(jobs.size, 0);
+  instances[2].emit('close');
+  assert.equal(jobs.size, 0);
+});
+
+test('market reconnect is independent from a healthy public feed', (t) => {
+  const original = globalThis.WebSocket;
+  const instances = [];
+  const jobs = [];
+  class FakeSocket {
+    static CONNECTING = 0; static OPEN = 1; static CLOSED = 3;
+    constructor(url) { this.url = url; this.readyState = 0; this.handlers = {}; this.closed = false; instances.push(this); }
+    addEventListener(type, fn) { (this.handlers[type] ??= []).push(fn); }
+    emit(type, event = {}) { if (type === 'open') this.readyState = 1; if (type === 'close') this.readyState = 3; for (const fn of this.handlers[type] ?? []) fn(event); }
+    close() { this.closed = true; this.readyState = 3; }
+  }
+  globalThis.WebSocket = FakeSocket;
+  t.after(() => { globalThis.WebSocket = original; });
+  let opens = 0;
+  const socket = createBinanceSocket({
+    onOpen: () => { ++opens; },
+    setTimeoutFn: (fn) => { jobs.push(fn); return jobs.length; },
+    clearTimeoutFn: () => {}
+  });
+  instances[0].emit('open'); instances[1].emit('open');
+  instances[0].emit('close', { code: 1006 });
+  assert.equal(instances[1].closed, false);
+  jobs.shift()();
+  assert.equal(instances[2].url, MARKET_STREAM_URL);
+  instances[2].emit('open');
+  assert.equal(opens, 2);
+  assert.equal(instances[1].closed, false);
+  socket.close();
+});
+
+test('stale book feed can be recovered without closing the market socket', (t) => {
+  const original = globalThis.WebSocket;
+  const sockets = [];
+  const scheduled = [];
+  class FakeSocket {
+    static CONNECTING = 0; static OPEN = 1; static CLOSED = 3;
+    constructor(url) { this.url = url; this.readyState = 0; this.handlers = {}; this.closed = false; sockets.push(this); }
+    addEventListener(type, fn) { (this.handlers[type] ??= []).push(fn); }
+    emit(type) { if (type === 'open') this.readyState = 1; for (const fn of this.handlers[type] ?? []) fn({}); }
+    close() { this.closed = true; this.readyState = 3; }
+  }
+  globalThis.WebSocket = FakeSocket;
+  t.after(() => { globalThis.WebSocket = original; });
+  const socket = createBinanceSocket({ setTimeoutFn: (fn) => { scheduled.push(fn); return scheduled.length; }, clearTimeoutFn: () => {} });
+  sockets[0].emit('open'); sockets[1].emit('open');
+  assert.equal(socket.reconnectFeed('book'), true);
+  assert.equal(sockets[1].closed, true);
+  assert.equal(sockets[0].closed, false);
+  scheduled.shift()();
+  assert.equal(sockets[2].url, PUBLIC_STREAM_URL);
+  assert.equal(sockets[0].closed, false);
+  socket.close();
 });

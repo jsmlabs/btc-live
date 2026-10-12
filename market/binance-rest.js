@@ -39,21 +39,23 @@ export async function fetchBtcSnapshot({ timeoutMs = DEFAULT_TIMEOUT_MS, signal 
   );
 
   try {
-    const [tickerPayload, bookPayload] = await Promise.all([
+    const [tickerResult, bookResult] = await Promise.allSettled([
       fetchJson(TICKER_URL, controller.signal, '24h ticker'),
       fetchJson(BOOK_TICKER_URL, controller.signal, 'book ticker')
     ]);
+    if (tickerResult.status === 'rejected') throw tickerResult.reason;
     const receivedAt = Date.now();
-    const ticker = normalizeRestTicker(tickerPayload, receivedAt);
-    const book = normalizeRestBookTicker(bookPayload, receivedAt);
-    if (!ticker || !book) throw new Error('Binance Futures REST response failed validation');
+    const ticker = normalizeRestTicker(tickerResult.value, receivedAt);
+    if (!ticker) throw new Error('Binance Futures REST ticker failed validation');
+    const book = bookResult.status === 'fulfilled'
+      ? normalizeRestBookTicker(bookResult.value, receivedAt) : null;
 
     return {
       ...ticker,
-      ...book,
+      ...(book ?? {}),
       source: 'REST',
       tickerSource: 'REST',
-      bookSource: 'REST',
+      ...(book ? { bookSource: 'REST' } : {}),
       lastValidUpdateAt: receivedAt
     };
   } finally {

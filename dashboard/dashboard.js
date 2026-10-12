@@ -8,11 +8,17 @@ import { CHART_PREFERENCES_STORAGE_KEY, sanitizeChartPreferences } from '../stor
 import { DEFAULT_SETTINGS, SETTINGS_STORAGE_KEY, sanitizeSettings } from '../storage/settings.js';
 import { renderBtcChart } from '../ui/chart.js';
 import { renderDashboard } from '../ui/dashboard-render.js';
+import { createRenderScheduler } from '../ui/render-scheduler.js';
 
 let latest = null;
 let latestChart = null;
 const api = globalThis.browser ?? globalThis.chrome ?? null;
 let cleanedUp = false;
+const renderer = createRenderScheduler(() => {
+  const now = Date.now();
+  if (latest) renderDashboard(latest, now);
+  if (latestChart) renderBtcChart(latestChart, latest?.state, now);
+});
 const notificationManager = createNotificationManager({ source: 'dashboard' });
 const alertCenter = createAlertCenterController({
   ids: {
@@ -25,17 +31,16 @@ const alertCenter = createAlertCenterController({
 const chartRuntime = createBtcChartRuntime({
   onChange(snapshot) {
     latestChart = snapshot;
-    renderBtcChart(snapshot, latest?.state, Date.now());
+    renderer.schedule();
   }
 });
 
 const runtime = createBtcLiveRuntime({
   onChange(snapshot) {
     latest = snapshot;
-    renderDashboard(snapshot, Date.now());
     notificationManager.observe(snapshot);
     chartRuntime.ingestMarketState(snapshot.state);
-    if (latestChart) renderBtcChart(latestChart, snapshot.state, Date.now());
+    renderer.schedule();
   }
 });
 
@@ -110,14 +115,22 @@ function bindUi() {
     createNativeNotification({ id: 'btc-live-test', title: 'BTC Live notifications', message: 'Browser notifications are working.' })
       .catch((error) => console.warn('BTC Live test notification failed', error));
   });
+  // Background tabs may suspend animation frames; paint the latest state on return.
+  document.addEventListener('visibilitychange', handleVisibilityChange);
   window.addEventListener('offline', runtime.handleOffline);
   window.addEventListener('online', runtime.handleOnline);
   api?.storage?.onChanged?.addListener(handleStorageChange);
 }
 
+function handleVisibilityChange() {
+  if (document.visibilityState === 'visible') renderer.flush();
+}
+
 function cleanup() {
   if (cleanedUp) return;
   cleanedUp = true;
+  renderer.dispose();
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
   window.removeEventListener('offline', runtime.handleOffline);
   window.removeEventListener('online', runtime.handleOnline);
   api?.storage?.onChanged?.removeListener(handleStorageChange);

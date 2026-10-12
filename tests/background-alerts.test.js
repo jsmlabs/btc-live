@@ -94,3 +94,33 @@ test('background controller coalesces overlapping checks into one fetch', async 
   assert.deepEqual(a, b);
   assert.equal(fetches, 1);
 });
+
+test('background check persists a time and status without misreporting unvalidated prices', async () => {
+  const checks = [];
+  let price = 100000;
+  const controller = createBackgroundAlertController({
+    loadSettingsValue: async () => ({ ...DEFAULT_SETTINGS, notificationsEnabled: true }),
+    loadTargetsValue: async () => [],
+    fetchSnapshot: async () => ({ currentPrice: price }),
+    notificationManager: { observe: async () => {} },
+    storeCheck: async (status) => checks.push(status),
+    now: () => 1000,
+    onWarning: () => {}
+  });
+  assert.equal((await controller.runOnce()).status, 'ok');
+  assert.deepEqual(checks[0], { status: 'ok', checkedAt: 1000 });
+  price = Number.NaN;
+  assert.equal((await controller.runOnce()).status, 'error');
+  assert.deepEqual(checks[1], { status: 'error', checkedAt: 1000, reason: 'unavailable' });
+});
+
+test('background gracefully contains settings read errors', async () => {
+  const checks = [];
+  const controller = createBackgroundAlertController({
+    loadSettingsValue: async () => { throw new Error('storage failure'); },
+    storeCheck: async (status) => checks.push(status),
+    onWarning: () => {}
+  });
+  assert.equal((await controller.runOnce()).status, 'error');
+  assert.equal(checks[0].status, 'error');
+});

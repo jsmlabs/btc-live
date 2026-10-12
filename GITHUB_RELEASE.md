@@ -1,50 +1,30 @@
-# BTC Live v1.14.0
+# BTC Live v1.22.0
 
-BTC Live v1.14.0 migrates the complete BTCUSDT market-data path from Binance Spot to Binance USDⓈ-M Futures while preserving the existing alert, dashboard, chart, settings, diagnostics, and local-storage contracts.
+BTC Live v1.22.0 adds independently recovering Binance Futures WebSocket feeds, REST price fallback when the book request fails, and safer alert evaluation.
 
 ## Highlights
 
-- BTCUSDT USDⓈ-M Futures as the only market-data source
-- Futures aggregate trades for live price updates
-- Futures 24h ticker for rolling market statistics
-- Dedicated Futures `bookTicker` stream and REST fallback for best bid, best ask, and spread
-- Futures klines for dashboard chart reconciliation
-- Separate ordering for ticker statistics and top-of-book state
-- Guards against accidental restoration of legacy Spot REST/WebSocket endpoints
-- Existing multi-target alerts and background monitoring preserved
-- 106 deterministic automated tests
-- 35-file explicit store runtime allowlist
-- Zero runtime dependencies
-
-## Permissions
-
-- `storage`
-- `notifications`
-- `alarms`
-- Binance USDⓈ-M Futures REST host access: `https://fapi.binance.com/*`
-- Binance USDⓈ-M Futures WebSocket access through CSP: `wss://fstream.binance.com`
-
-## Privacy
-
-No account, API key, wallet connection, analytics provider, advertising network, tracking system, or custom backend is used.
+- Market trades/ticker and public book ticker each retry separately with bounded exponential backoff. A book connection failure cannot close the market stream, and vice versa.
+- Market status remains reconnecting while market feed is down; book-only outages show degraded status instead of false full disconnection. Book quotes older than 8 seconds are flagged degraded.
+- REST prices continue to load if the optional book-ticker request fails. Any previously validated book fields remain intact rather than being blanked.
+- Stale/offline/reconnecting prices cannot trigger or rearm price-target or percent-move alerts.
+- Target rearm hysteresis of 0.05% reduces immediate repetitive crossing alerts near a threshold.
+- Background polling saves a minimal local timestamp/status diagnostic and rejects invalid price payloads. Checks still run approximately once per minute and can be delayed by Chromium.
+- Ten focused Node.js regression tests plus an optional real-Chromium DOM/stream mock smoke test. Phase A renderer optimizations are retained.
 
 ## Verification
 
 ```bash
 npm run release:check
+python scripts/browser-smoke.py # optional, requires Playwright and Chromium
 ```
 
-Expected result:
+The Chromium smoke tests use an in-page, deterministic simulated WebSocket and DOM, not live Binance. Actual Manifest V3 service-worker activation, notifications across popup/dashboard/background, offline/online behavior and store screenshots remain manual release gates.
 
-```text
-106 / 106 tests passing
-35 runtime files in dist/btc-live-chromium-v1.14.0-store
-```
+## Compatibility and packaging
 
-## Package
+- Manifest V3, Binance USDⓈ-M Futures endpoints, existing local settings, alert targets, storage keys and user configuration retained.
+- Same `storage`, `notifications`, `alarms` permissions, Binance-only host permission, CSP and zero runtime npm dependencies.
+- `btc-live-chromium-v1.22.0-store.zip` contains only the 36 runtime files from the allowlist.
 
-- `btc-live-chromium-v1.14.0-store.zip` - Chromium-based browsers
-
-## Data source
-
-Market data is provided by Binance public USDⓈ-M Futures market-data services for BTCUSDT. BTC Live is independent and is not affiliated with or endorsed by Binance.
+BTC Live is independent and not affiliated with or endorsed by Binance.

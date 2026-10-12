@@ -1,3 +1,31 @@
+## 1.22.0 - 2026-10-12
+
+### Reliability
+- Separated public order-book and market WebSocket reconnect backoff; connection loss on one feed does not disconnect the other.
+- Preserved validated REST ticker snapshots when the optional book endpoint fails, and retained existing book fields when absent.
+- Exposed partial order-book disconnects and stale book quotations through degraded feed state.
+- Prevented price-target/percentage alerts from evaluating stale or disconnected cached prices; added 0.05% target rearm hysteresis.
+- Persisted latest background alert poll result and checked timestamp without expanding permissions or scheduling promises.
+
+### Verification
+- Added ten deterministic regressions for partial outages, retries, REST fallback, alert hysteresis, stale suppression, background metadata/errors.
+- Added optional real-Chromium DOM + simulated WebSocket smoke test; Manifest V3 activation and live Binance remain manual QA.
+- Preserved Phase A rendering/CI optimizations and storage contracts.
+
+## 1.21.0 - 2026-10-12
+
+### Performance
+- Coalesced dashboard visual updates into one animation-frame paint per burst while market-state ingest and notification evaluation remain synchronous.
+- Eliminated duplicate chart drawing from the dashboard runtime and the chart ingestion callback.
+- Added an SVG geometry cache that skips identical candlestick/line rebuilds while retaining fresh labels and age/status text.
+- Restored queued presentation when suspended tabs become visible and cancelled pending frame callbacks during cleanup.
+
+### Quality and release
+- Added synthetic render-work measurement, scheduling/cache regressions and visibility/cleanup-oriented scheduler tests.
+- Centralized the explicit 36-file runtime allowlist for source verification and store builds.
+- Updated supported Node.js baseline to 22+ with CI matrix 22/24 and reconciled versioned release documentation.
+- Kept Manifest V3, Futures-only endpoints, settings/storage schemas, alerts, permissions, and zero-runtime-dependency guarantees unchanged.
+
 ## 1.20.0 - 2026-10-07
 
 - Removed the residual desktop dead space below Price Targets by restructuring the dashboard utility area.

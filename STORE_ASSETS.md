@@ -23,7 +23,7 @@ Required PNG sizes:
 
 ## Chromium store assets
 
-Prepare current screenshots that reflect v1.14.0 behavior.
+Replace the obsolete Spot screenshots before publication. Prepare current screenshots that reflect v1.22.0 behavior.
 
 Recommended set:
 
@@ -40,7 +40,7 @@ Small promotional tile: 440x280 for Chrome Web Store where required.
 
 All store screenshots must:
 
-- reflect actual shipped v1.14.0 behavior
+- reflect actual shipped v1.22.0 behavior
 - identify the market source as Binance Futures where visible
 - avoid fabricated market values or unsupported features
 - avoid implying trading or order execution

@@ -27,7 +27,7 @@ Ticker statistics and top-of-book updates use independent ordering/state ownersh
 
 ## Permissions
 
-BTC Live v1.14.0 requests exactly:
+BTC Live v1.22.0 requests exactly:
 
 - `storage`
 - `notifications`

@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Effective version:** 1.14.0  
+**Reviewed for release:** 1.22.0  
 **Effective date:** 2026-10-06
 
 BTC Live is designed to operate without collecting personal user data or using a project-operated backend.

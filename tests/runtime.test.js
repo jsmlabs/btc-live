@@ -296,3 +296,57 @@ test('late settings recovery cannot overwrite a newer completed update', async (
     runtime.dispose();
   }
 });
+
+test('runtime flags book-only failures as degraded without discarding current price', async () => {
+  let callbacks;
+  const runtime = createBtcLiveRuntime({
+    fetchSnapshot: async () => snapshotData(),
+    createSocket: (value) => { callbacks = value; return { close() {} }; },
+    loadSettingsValue: async () => ({ ...DEFAULT_SETTINGS }),
+    loadDiagnosticsValue: async () => ({ version: 1, startedAt: NOW, reconnectCount: 0 }),
+    persistDiagnostics: async (value) => value,
+    now: () => NOW,
+    setTimeoutFn: () => 1, clearTimeoutFn: () => {},
+    setIntervalFn: () => 1, clearIntervalFn: () => {}
+  });
+  try {
+    await runtime.start();
+    await Promise.resolve(); await Promise.resolve();
+    callbacks.onFeedStatus('market', 'LIVE');
+    callbacks.onFeedStatus('book', 'LIVE');
+    callbacks.onOpen();
+    callbacks.onTrade({ currentPrice: 100100, lastTradeId: 25, lastTradeAt: NOW + 1, lastTradeReceivedAt: NOW + 1, lastValidUpdateAt: NOW + 1 });
+    callbacks.onFeedStatus('book', 'RECONNECTING');
+    assert.equal(runtime.snapshot().state.connectionStatus, 'DEGRADED');
+    assert.equal(runtime.snapshot().state.currentPrice, 100100);
+    assert.equal(runtime.snapshot().feedConnections.book, 'RECONNECTING');
+    callbacks.onFeedStatus('book', 'LIVE');
+    assert.equal(runtime.snapshot().feedConnections.book, 'LIVE');
+  } finally { runtime.dispose(); }
+});
+
+test('book updates cannot falsely restore LIVE status while market feed reconnects', async () => {
+  let callbacks;
+  const runtime = createBtcLiveRuntime({
+    fetchSnapshot: async () => snapshotData(),
+    createSocket: (value) => { callbacks = value; return { close() {} }; },
+    loadSettingsValue: async () => ({ ...DEFAULT_SETTINGS }),
+    loadDiagnosticsValue: async () => ({ version: 1, startedAt: NOW, reconnectCount: 0 }),
+    persistDiagnostics: async (value) => value,
+    now: () => NOW,
+    setTimeoutFn: () => 1, clearTimeoutFn: () => {},
+    setIntervalFn: () => 1, clearIntervalFn: () => {}
+  });
+  try {
+    await runtime.start(); await Promise.resolve(); await Promise.resolve();
+    callbacks.onFeedStatus('market', 'LIVE');
+    callbacks.onFeedStatus('book', 'LIVE');
+    callbacks.onOpen();
+    callbacks.onTrade({ currentPrice: 100100, lastTradeId: 25, lastTradeAt: NOW + 1, lastTradeReceivedAt: NOW + 1, lastValidUpdateAt: NOW + 1 });
+    callbacks.onClose({ code: 1006 });
+    callbacks.onFeedStatus('market', 'RECONNECTING');
+    callbacks.onBookTicker({ bidPrice: 100099, askPrice: 100101, lastBookAt: NOW + 2, lastBookReceivedAt: NOW + 2, lastValidUpdateAt: NOW + 2 });
+    assert.equal(runtime.snapshot().state.connectionStatus, 'RECONNECTING');
+    assert.equal(runtime.snapshot().feedConnections.book, 'LIVE');
+  } finally { runtime.dispose(); }
+});

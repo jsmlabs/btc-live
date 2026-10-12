@@ -4,6 +4,7 @@ export { CONNECTION_STATUS };
 
 export const STALE_AFTER_MS = 5000;
 export const TICKER_STALE_AFTER_MS = 8000;
+export const BOOK_STALE_AFTER_MS = 8000;
 
 export const FEED_STATUS = Object.freeze({
   WAITING: 'WAITING',
@@ -94,7 +95,7 @@ export function applySnapshot(state, snapshot, { preservePrice = false } = {}) {
   const preserveLiveBook = state.bookSource === 'WEBSOCKET' && currentBookAt !== null &&
     (snapshotBookAt === null || currentBookAt >= snapshotBookAt);
 
-  let next = { ...state, ...snapshot, tickerSource: 'REST', bookSource: snapshot.bookSource ?? 'REST' };
+  let next = { ...state, ...snapshot, tickerSource: 'REST', bookSource: snapshot.bookSource ?? state.bookSource };
 
   if (preserveLiveTicker) {
     for (const field of TICKER_FIELDS) next[field] = state[field];
@@ -227,11 +228,14 @@ export function withStatus(state, connectionStatus, errorMessage = null) {
 export function deriveFeedHealth(state, now = Date.now()) {
   const priceAge = priceEventAgeMs(state, now);
   const tickerAge = tickerEventAgeMs(state, now);
+  const bookAge = ageMs(state.lastBookAt, now);
   return {
     price: feedStatus(priceAge, STALE_AFTER_MS),
     stats: feedStatus(tickerAge, TICKER_STALE_AFTER_MS),
+    book: feedStatus(bookAge, BOOK_STALE_AFTER_MS),
     priceAge,
-    tickerAge
+    tickerAge,
+    bookAge
   };
 }
 

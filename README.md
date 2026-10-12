@@ -2,12 +2,38 @@
 
 BTC Live is a lightweight Chromium Manifest V3 extension for monitoring BTCUSDT using Binance USDⓈ-M Futures public market data.
 
+## v1.22.0
+
+- Independent reconnect/backoff for Binance Futures trade/ticker and order-book WebSockets; a book outage does not interrupt price updates.
+- REST ticker remains usable when the independent book request fails. Order-book degradation is exposed in connection status.
+- Suppresses price/target alerts for stale or disconnected market state, with 0.05% target rearm hysteresis against boundary oscillation.
+- Saves background check timestamps and success/failure markers locally as `btcLiveBackgroundCheck`. Polling is sampled, **not continuous real-time alerting**.
+- Adds targeted feed/alert regression tests and an optional Playwright-driven Chromium DOM + mocked-stream smoke test. No new permissions, network endpoints or runtime dependencies.
+
+## v1.21.0
+
+- Coalesces dashboard-only DOM/Chart paint requests with `requestAnimationFrame` while preserving synchronous market ingestion and alert evaluation.
+- Restores pending display state when a suspended background tab becomes visible and cancels queued paints on page teardown.
+- Avoids rebuilding the candle SVG when chart geometry and market reference values have not changed; status ages and level labels still refresh.
+- Adds a reproducible synthetic rendering workload benchmark and eight focused regression tests.
+- Consolidates store runtime files into one allowlist, updates Node.js CI to 22/24 and aligns release documentation.
+- No new runtime dependencies, permissions, settings migrations, network endpoints or feature flags.
+
 ## v1.20.0
 
 - Removes the remaining desktop dead zone between Alert History and Display Settings with a shared aligned utility grid.
 - Aligns 24H Range + Top of Book with Connection Diagnostics and Alert History with Price Targets so both columns finish on the same baseline.
 - Preserves the compact v1.17 visual system and responsive behavior without negative margins, fixed-height hacks or DOM contract changes.
 - Keeps Binance Futures runtime, alerts, settings, diagnostics, permissions and storage behavior unchanged.
+
+## Render-work benchmark (synthetic)
+
+```bash
+node scripts/benchmark-render.mjs --baseline
+npm run bench:render
+```
+
+The deterministic workload simulates 120 market updates (two legacy visual notifications each), grouped into 4-update frames, plus 40 unchanged status refreshes with 120 chart candles. The **baseline** forces the previous unconditional SVG-rebuild policy; the **optimized** run exercises the frame scheduler and geometry cache. Compare `svgRebuilds` and `svgNodesCreated`; wall-clock timings in Node.js with a mocked DOM are diagnostic only, not Chromium FPS or real-user latency. Market processing and alerts are not throttled. See `PERFORMANCE.md` for the frozen baseline and acceptance evidence.
 
 ## v1.13.4
 
@@ -60,7 +86,7 @@ BTC Live is a lightweight Chromium Manifest V3 extension for monitoring BTCUSDT 
 
 ## Development verification
 
-Requires Node.js 20 or newer.
+Requires Node.js 22 or newer. CI verifies Node.js 22 and 24.
 
 ```bash
 npm run verify
@@ -72,13 +98,13 @@ For a full release check and clean store directory:
 npm run release:check
 ```
 
-The generated extension is written to `dist/btc-live-chromium-v1.20.0-store`.
+The generated extension is written to `dist/btc-live-chromium-v1.21.0-store`.
 
 ## Privacy and permissions
 
 BTC Live stores display preferences locally and temporary connection diagnostics in browser-session storage and connects only to Binance public market-data endpoints. It does not use an account, analytics, tracking, API keys or runtime dependencies.
 
-## v1.9.0 chart checkpoint retained in v1.20.0
+## v1.9.0 chart checkpoint retained in v1.21.0
 
 The dashboard now includes a lightweight BTCUSDT live chart without external runtime dependencies.
 

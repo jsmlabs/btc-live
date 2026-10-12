@@ -88,3 +88,15 @@ test('fetchBtcSnapshot rejects invalid timeout configuration before calling fetc
   await assert.rejects(fetchBtcSnapshot({ timeoutMs: Number.POSITIVE_INFINITY }), TypeError);
   assert.equal(called, false);
 });
+
+test('REST keeps validated price when the independent book request fails', async (t) => {
+  const originalFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = originalFetch; });
+  globalThis.fetch = async (url) => url.includes('bookTicker')
+    ? { ok: false, status: 503 }
+    : { ok: true, json: async () => tickerPayload() };
+  const snapshot = await fetchBtcSnapshot({ timeoutMs: 1000 });
+  assert.equal(snapshot.currentPrice, 100000);
+  assert.equal(snapshot.bookSource, undefined);
+  assert.equal(snapshot.bidPrice, undefined);
+});

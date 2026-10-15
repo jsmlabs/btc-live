@@ -40,8 +40,8 @@ The following files describe **what was recorded at an earlier phase**. They are
 | Alerts | [Phase 08](PHASE08.md) |
 | Security/performance | [Phase 09](PHASE09.md) |
 | Candidate engineering | [Phase 10](PHASE10.md) |
-| Historical release | [Old checklist](HISTORICAL-RELEASE-CHECKLIST.md) · [v1.22.0 notes](../GITHUB_RELEASE.md) |
-| Earlier investigations | [Hardening](../HARDENING.md) · [Performance](../PERFORMANCE.md) · [Archive integration](../ARCHIVE_INTEGRATION.md) |
+| Historical release | [Original changelog archive](HISTORICAL-CHANGELOG.md) · [Old checklist](HISTORICAL-RELEASE-CHECKLIST.md) · [v1.22.0 notes](../GITHUB_RELEASE.md) |
+| Earlier investigations | [Prior QA worksheet](HISTORICAL-QA.md) · [Old hardening record](HISTORICAL-HARDENING.md) · [Current hardening guide](../HARDENING.md) · [Performance report](../PERFORMANCE.md) · [Archive integration](../ARCHIVE_INTEGRATION.md) |
 
 **Source authority:** current `main` implementation and [manifest](../manifest.json) > current documentation > historical records. Browser/store reality must be separately verified.
 

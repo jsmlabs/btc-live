@@ -1,10 +1,6 @@
-# Historical v1.22.0 release checklist
+# Archived v1.22.0 release checklist
 
-> Archived from the former root checklist. These checkmarks are historical, **not** approval of the v16 development candidate. The current checklist is [here](../RELEASE_CHECKLIST.md).
-
-> **Current release gate:** No new release is approved by this documentation change. The v16 candidate is integrated into `main`; its automated checks and packaging have passed for recorded commits, but real Chromium/MV3, Binance feed, migration and sustained-use acceptance remain unverified. See [current release readiness](RELEASE.md) before any tag/store submission. Historical statuses below remain as originally recorded.
-
-# BTC Live v1.22.0 - Release Checklist
+> **Historical record only.** Original checkmarks refer to the earlier source milestone and CI contexts, not to the current v16 development candidate, its new build pipeline or the Chrome Web Store's actual published version. Use [the current release checklist](../RELEASE_CHECKLIST.md) for active approval.
 
 ## Automated validation
 
@@ -34,3 +30,8 @@
 - [ ] Tag the approved release commit `v1.22.0`
 - [ ] Publish the GitHub release with notes, store ZIP and SHA-256
 - [ ] Submit reviewed store assets for Chrome Web Store approval
+
+
+---
+
+For current authoritative version/packaging rules see [Release](RELEASE.md) and [Acceptance](ACCEPTANCE.md). Do not reuse historical file counts or green boxes as present-day completion evidence.

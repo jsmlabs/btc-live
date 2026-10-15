@@ -1,32 +1,25 @@
-# BTC Live v1.22.0 - historical release notes
+# BTC Live - historical v1.22.0 source notes
 
-> This file documents the historical **v1.22.0 source baseline**. It does **not** describe a released v16 extension. This document alone does not establish which version the Chrome Web Store currently distributes. The v16 Phase-10 candidate has been merged into `main` but is still not release-approved; see [candidate status](docs/RELEASE.md) and [README](README.md).
+> [!NOTE]
+> **Archive, not a current release announcement.** This document describes the historical `1.22.0` source milestone. It does **not** certify the integrated v16 Phase 01–10 candidate, indicate the current Chrome Web Store version, or imply a signed-off customer ZIP.
 
-BTC Live v1.22.0 adds independently recovering Binance Futures WebSocket feeds, REST price fallback when the book request fails, and safer alert evaluation.
+## Historical focus
 
-## Highlights
+The earlier v1.22.0 source iteration emphasized independent recovery of public Binance Futures market/book streams, a validated REST price fallback, stale-book degradation and safer price-alert evaluation.
 
-- Market trades/ticker and public book ticker each retry separately with bounded exponential backoff. A book connection failure cannot close the market stream, and vice versa.
-- Market status remains reconnecting while market feed is down; book-only outages show degraded status instead of false full disconnection. Book quotes older than 8 seconds are flagged degraded.
-- REST prices continue to load if the optional book-ticker request fails. Any previously validated book fields remain intact rather than being blanked.
-- Stale/offline/reconnecting prices cannot trigger or rearm price-target or percent-move alerts.
-- Target rearm hysteresis of 0.05% reduces immediate repetitive crossing alerts near a threshold.
-- Background polling saves a minimal local timestamp/status diagnostic and rejects invalid price payloads. Checks still run approximately once per minute and can be delayed by Chromium.
-- Ten focused Node.js regression tests plus an optional real-Chromium DOM/stream mock smoke test. Phase A renderer optimizations are retained.
+| Area | Recorded design change |
+| --- | --- |
+| Market and book streams | Independent reconnect and bounded retry paths |
+| Price fallback | Preserve validated REST ticker when optional book fetch fails |
+| Feed degradation | Do not treat a stale book quote as an equally fresh market feed |
+| Alert safety | Suppress stale/reconnecting price triggers; support target rearm hysteresis |
+| Background checks | Scheduled sampling and bounded local status, not continuous observation |
+| Verification | Deterministic regression fixtures and optional Chromium DOM / mocked-WebSocket smoke |
 
-## Verification
+The old `btc-live-chromium-v1.22.0-store.zip` name and **36-file** package size belong to the **historical build procedure**, not the current candidate. The current `npm run package:extension` creates a deterministic *candidate* ZIP with its own verified runtime count and SHA-256 metadata.
 
-```bash
-npm run release:check
-python scripts/browser-smoke.py # optional, requires Playwright and Chromium
-```
+## Release boundaries
 
-The Chromium smoke tests use an in-page, deterministic simulated WebSocket and DOM, not live Binance. Actual Manifest V3 service-worker activation, notifications across popup/dashboard/background, offline/online behavior and store screenshots remain manual release gates.
+The current `main` includes additional depth/flow research, recordings, replay and advanced dashboard alert code. None becomes a stable customer release simply by being present in source. Actual MV3 notifications, live Binance behavior, upgrades, package contents, screenshots and store submissions require [formal acceptance](docs/ACCEPTANCE.md).
 
-## Compatibility and packaging
-
-- Manifest V3, Binance USDⓈ-M Futures endpoints, existing local settings, alert targets, storage keys and user configuration retained.
-- Same `storage`, `notifications`, `alarms` permissions, Binance-only host permission, CSP and zero runtime npm dependencies.
-- `btc-live-chromium-v1.22.0-store.zip` contains only the 36 runtime files from the allowlist.
-
-BTC Live is independent and not affiliated with or endorsed by Binance.
+[Current changelog](CHANGELOG.md) · [Release guide](docs/RELEASE.md) · [README](README.md)

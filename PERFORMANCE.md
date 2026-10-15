@@ -1,10 +1,20 @@
-> **Measurement scope:** This report records a synthetic rendering-work comparison for v1.21.0 retained in the current v1.22.0 repository. It is not a live Chromium performance measurement and does not cover the now-integrated v16 development candidate dashboard or establish live browser performance.
+# BTC Live performance and measurement
 
-# BTC Live v1.21.0 - Render performance measurement
+**Evidence boundary:** The results below are an **archived deterministic DOM-work benchmark** of the earlier v1.21.0 rendering improvements. They are **not measured real-Chromium CPU, memory, frame-rate, latency or energy improvements** for the integrated v16 candidate.
 
-## Reproduction
+## Historical synthetic benchmark
 
-From the repository root, using Node.js 22 or newer:
+The prior test reproduced a scenario with **120** market updates, grouped visual requests, **40** refreshes with identical chart geometry and **120** deterministic OHLCV candles. A minimal substitute DOM counted SVG work, not real-browser painting or throughput.
+
+| Deterministic metric | v1.20 baseline | v1.21 optimized | Change |
+| --- | ---: | ---: | ---: |
+| Chart render calls | 281 | 71 | -74.7% |
+| SVG subtree rebuilds | 281 | 31 | -89.0% |
+| Created SVG nodes | 107,342 | 11,842 | -89.0% |
+
+These historical synthetic measurements were documented for a specific controlled workload. They are **not transferable as claims about the current candidate's real-device performance**.
+
+## Reproducing the fixture
 
 ```bash
 node scripts/benchmark-render.mjs --baseline
@@ -12,26 +22,18 @@ node scripts/benchmark-render.mjs --optimized
 npm run verify
 ```
 
-The synthetic work model consists of 120 live market state updates, two visual notifications per update (as in the previous dashboard wiring), four updates before each animation-frame flush, 40 subsequent refreshes with unchanged chart geometry, and 120 deterministic OHLCV candles. A minimal DOM substitute tracks SVG replacements and newly created SVG nodes. Baseline mode deliberately forces the former unconditional chart rebuild; optimized mode exercises the coalescing scheduler and the chart geometry cache.
+The scheduler coalesces presentation requests; market ingest and alert evaluation are not intended to be deferred. The SVG chart renderer caches unchanged geometry while status/freshness must continue updating. Visibility changes, teardown and replay composition are relevant regression cases.
 
-| Deterministic measure | Original v1.20.0 baseline | Optimized v1.21.0 | Change |
-| --- | ---: | ---: | ---: |
-| Chart renderer calls | 281 | 71 | -74.7% |
-| SVG subtree rebuilds | 281 | 31 | -89.0% |
-| Created SVG nodes | 107,342 | 11,842 | -89.0% |
+## Required actual-browser measurement
 
-The **original baseline** was measured against the uploaded v1.20.0 code before edits; replaying baseline mode on v1.21.0 reproduces the same deterministic SVG-work counts. Runtime wall-clock time is machine-, JIT- and environment-dependent and is intentionally omitted from performance claims. Counts reflect this single artificial event grouping, not an overall performance guarantee.
+A customer-release performance report needs real Chromium and representative hardware, with a documented baseline and consistent workload. Measure:
 
-## Implementation boundaries
+- Live-feed bursts: CPU, long tasks, chart presentation latency and skipped frames.
+- Narrow/wide/ultrawide layouts: responsiveness, layout shifts and pointer/keyboard interaction.
+- Prolonged sessions: memory, recorded-event/IndexedDB growth, queues and tab/background transitions.
+- Replay: seek/step latency and import/load responsiveness at supported size limits.
+- Alert evaluation under load: state freshness and attempted notifications without duplicate triggering.
 
-- `ui/render-scheduler.js` merges only dashboard visual requests using the latest available snapshot. It does not delay `notificationManager.observe()` or `chartRuntime.ingestMarketState()`.
-- A pending animation frame is flushed on foreground `visibilitychange`, since inactive Chromium tabs may suspend frames.
-- Unmount/dispose cancels pending work and rejects subsequent schedule requests.
-- `ui/chart.js` reuses SVG geometry only when candle geometry, chart mode/interval/volume preference and referenced live/24h prices are identical. Textual status and level labels still update.
-- Chart SVG caching is scoped to the SVG DOM element through a WeakMap; reopening the dashboard gets a fresh cache.
+Record browser/OS, hardware, exact source SHA, duration, feed fixture/live conditions, measurement method, threshold and limitations. Do not claim improvement from a single synthetic count or a screenshot.
 
-## Remaining verification
-
-- Real Chromium CPU time, frame latency, memory usage and background-tab scheduling have **not** been benchmarked.
-- Run Chrome DevTools Performance against a real Futures feed on representative hardware; verify alerts remain synchronous under burst traffic, and test page visibility transitions.
-- Synthetic DOM work reduction is not an end-to-end latency or power-consumption result.
+[Testing](docs/TESTING.md) · [Acceptance](docs/ACCEPTANCE.md) · [Architecture](docs/ARCHITECTURE.md)

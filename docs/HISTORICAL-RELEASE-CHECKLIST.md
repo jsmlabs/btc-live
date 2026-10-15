@@ -2,7 +2,7 @@
 
 > Archived from the former root checklist. These checkmarks are historical, **not** approval of the v16 development candidate. The current checklist is [here](../RELEASE_CHECKLIST.md).
 
-> **Current release gate:** No new release is approved by this documentation change. The v16 candidate is integrated into `main`; its automated checks and packaging have passed for recorded commits, but real Chromium/MV3, Binance feed, migration and sustained-use acceptance remain unverified. See [current release readiness](docs/RELEASE.md) before any tag/store submission. Historical statuses below remain as originally recorded.
+> **Current release gate:** No new release is approved by this documentation change. The v16 candidate is integrated into `main`; its automated checks and packaging have passed for recorded commits, but real Chromium/MV3, Binance feed, migration and sustained-use acceptance remain unverified. See [current release readiness](RELEASE.md) before any tag/store submission. Historical statuses below remain as originally recorded.
 
 # BTC Live v1.22.0 - Release Checklist
 

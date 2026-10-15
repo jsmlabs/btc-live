@@ -4,17 +4,17 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-const excluded=new Set(['.git','.github','node_modules','dist','tests','docs','scripts','store-assets']);
-const ignored=new Set(['README.md','package.json','package-lock.json','verify.bat','verify.ps1','CHANGELOG.md','GITHUB_RELEASE.md','HARDENING.md','PERFORMANCE.md','PRIVACY.md','QA.md','RELEASE_CHECKLIST.md','SECURITY.md','STORE_ASSETS.md','STORE_LISTING.md','LICENSE','.gitignore']);
+const runtimeDirs=new Set(['app','background','dashboard','icons','market','popup','storage','ui','utils']);
+const runtimeRootFiles=new Set(['manifest.json']);
 const entries=[];
 async function walk(dir=''){
  for(const item of await readdir(path.join(root,dir),{withFileTypes:true})){
-  if(excluded.has(item.name))continue;
+  if(!dir && !runtimeDirs.has(item.name) && !runtimeRootFiles.has(item.name))continue;
   const relative=path.posix.join(dir,item.name),full=path.join(root,relative);
   const stat=await lstat(full);
   if(stat.isSymbolicLink())throw Error('Symbolic link rejected: '+relative);
   if(stat.isDirectory())await walk(relative);
-  else if(stat.isFile()&&!ignored.has(relative))entries.push(relative);
+  else if(stat.isFile())entries.push(relative);
  }
 }
 const crcTable=Array.from({length:256},(_,i)=>{let n=i;for(let j=0;j<8;j++)n=(n&1)?0xedb88320^(n>>>1):n>>>1;return n>>>0});
@@ -32,13 +32,15 @@ function zip(files){
   central.writeUInt16LE(filename.length,28);central.writeUInt32LE(0x81a40000,38);central.writeUInt32LE(offset,42);
   locals.push(local,filename,compressed);directory.push(central,filename);offset+=local.length+filename.length+compressed.length;
  }
- if(files.length>65535||offset>0xffffffff)throw Error('ZIP64 is not supported');
- const size=directory.reduce((n,b)=>n+b.length,0);const end=Buffer.alloc(22);
+ const size=directory.reduce((n,b)=>n+b.length,0);
+ if(files.length>65535||offset>0xffffffff||size>0xffffffff||offset+size+22>0xffffffff)throw Error('ZIP64 is not supported');const end=Buffer.alloc(22);
  end.writeUInt32LE(0x06054b50,0);end.writeUInt16LE(files.length,8);end.writeUInt16LE(files.length,10);end.writeUInt32LE(size,12);end.writeUInt32LE(offset,16);
  return Buffer.concat([...locals,...directory,end]);
 }
-const verify=spawnSync(process.execPath,[path.join(root,'scripts/verify.mjs')],{stdio:'inherit'});
-if(verify.status!==0)process.exit(verify.status||1);
+if(!process.argv.includes('--skip-verify')){
+ const verify=spawnSync(process.execPath,[path.join(root,'scripts/verify.mjs')],{stdio:'inherit'});
+ if(verify.status!==0)process.exit(verify.status||1);
+}
 await walk();entries.sort((a,b)=>a<b?-1:a>b?1:0);
 const manifest=JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8'));
 if(!entries.includes('manifest.json'))throw Error('Missing manifest in package');

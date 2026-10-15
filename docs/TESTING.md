@@ -14,7 +14,7 @@ npm run package:extension
 
 `verify` performs static checks and deterministic Node tests. `release:check` validates the candidate's static release contract. `package:extension` reruns source verification and builds `dist/btc-live-chromium-v1.22.0-candidate.zip`; CI validates archive integrity. These do not install the extension into Chromium or test a real Binance connection.
 
-**Historical evidence:** The isolated Phase-10 candidate reported 45/45 deterministic tests and static/package checks passing. The integrated PR has other files and must be tested independently. Do not quote that historical count as a current CI result.
+**Historical evidence:** The isolated Phase-10 candidate reported 45/45 deterministic tests and static/package checks passing. The candidate is now in `main`, with additional files and changes; run the entire suite and check CI for the exact current `main` commit. Do not quote that historical count as a current CI result.
 
 ## Manual acceptance matrix
 

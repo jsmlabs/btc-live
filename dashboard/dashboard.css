@@ -668,3 +668,20 @@ body:has(.analytics-overview[data-analytics-active-view="behavior"]) #analytics-
 .terminal-command-help {margin:12px 0 0;color:var(--text-muted);font-size:10px;}
 @media(max-width:700px){.terminal-controls {justify-content:flex-start;}.dashboard-shell[data-layout="stacked"] .metric-grid {grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(prefers-reduced-motion:reduce){.terminal-controls *, .terminal-palette * {scroll-behavior:auto!important;transition:none!important;}}
+
+/* Audited terminal refresh: keyboard, constrained layouts and forced colors. */
+.dashboard-shell :is(.panel,.hero-card,.health-card,.metric-card) { min-width:0; }
+.dashboard-shell :is(.chart-menu-content,.terminal-palette-content) { max-width:min(95vw,680px); }
+.dashboard-shell :is(button,select,input,textarea):disabled { opacity:.52; cursor:not-allowed; }
+.dashboard-shell :is(button,select,input,textarea):focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.dashboard-shell [hidden] { display:none!important; }
+@media (forced-colors:active) {
+  .dashboard-shell .workspace-link[aria-pressed="true"],
+  .dashboard-shell .chart-control[aria-pressed="true"],
+  .dashboard-shell :is(button,input,select,summary):focus-visible { outline:2px solid Highlight; }
+}
+@media (max-width:560px) {
+  .dashboard-shell .workspace-links { scroll-snap-type:x proximity; }
+  .dashboard-shell .workspace-link { scroll-snap-align:start; }
+  .dashboard-shell .chart-toolbar { justify-content:flex-start; }
+}

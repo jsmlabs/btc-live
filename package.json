@@ -6,7 +6,8 @@
     "test": "node --test tests/*.test.js",
     "verify": "node scripts/verify.mjs",
     "package:extension": "node scripts/package-extension.mjs",
-    "release:check": "node scripts/release-check.mjs"
+    "release:check": "node scripts/release-check.mjs",
+    "docs:check": "node scripts/check-docs.mjs"
   },
   "engines": {
     "node": ">=20"

@@ -39,7 +39,7 @@ npm run release:check
 npm run package:extension
 ```
 
-**Packaging:** `package:extension` now writes `dist/btc-live-chromium-v1.22.0-candidate.zip` with an explicit runtime-only allowlist, sorted files and fixed ZIP timestamps. The CI workflow is configured to check entry integrity, manifest, runtime-only paths, exclusions and matching SHA-256 hashes from two builds, then upload the candidate artifact. Successful execution must be confirmed from the corresponding Actions run. Packaging is **not** release approval.
+**Packaging:** `package:extension` now writes `dist/btc-live-chromium-v1.22.0-candidate.zip` with an explicit runtime-only allowlist, sorted files and fixed ZIP timestamps. The CI workflow is configured to check entry integrity, manifest, runtime-only paths, exclusions and matching SHA-256 hashes from two builds, then upload the candidate artifact. Successful execution must be confirmed from the corresponding Actions run. CI cancels superseded runs for the same ref; cancelled jobs do not count as passing tests. Packaging is **not** release approval.
 
 | Command | Purpose | What it does **not** prove |
 | --- | --- | --- |

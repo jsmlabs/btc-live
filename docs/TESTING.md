@@ -1,6 +1,6 @@
 # Test strategy and verification evidence
 
-This guide separates **deterministic repository checks**, **simulated browser checks**, and **real Chromium / live Binance acceptance**. None is interchangeable. The packaging script now writes a candidate ZIP; CI separately checks ZIP integrity and its content.
+This guide separates **deterministic repository checks**, **simulated browser checks**, and **real Chromium / live Binance acceptance**. None is interchangeable. The packaging script writes a candidate ZIP; CI checks ZIP integrity, runtime-only file paths and build reproducibility. Superseded CI runs on the same ref are cancelled.
 
 ## Automated commands
 
@@ -12,7 +12,7 @@ npm run release:check
 npm run package:extension
 ```
 
-`verify` performs static checks and deterministic Node tests. `release:check` validates the candidate's static release contract. `package:extension` reruns source verification and builds `dist/btc-live-chromium-v1.22.0-candidate.zip`; CI validates archive integrity. These do not install the extension into Chromium or test a real Binance connection.
+`verify` performs static checks and deterministic Node tests, rejecting symbolic links in the source tree. Individual JavaScript syntax checks have a 10-second timeout; the complete Node test subprocess has a 180-second timeout and fails explicitly on expiry. `release:check` validates the candidate's static release contract. `package:extension` reruns source verification and builds `dist/btc-live-chromium-v1.22.0-candidate.zip`; CI validates archive integrity. These do not install the extension into Chromium or test a real Binance connection.
 
 **Historical evidence:** The isolated Phase-10 candidate reported 45/45 deterministic tests and static/package checks passing. The candidate is now in `main`, with additional files and changes; run the entire suite and check CI for the exact current `main` commit. Do not quote that historical count as a current CI result.
 

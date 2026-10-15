@@ -4,7 +4,20 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const exclusions=new Set(['node_modules','.git','dist']);
-async function walk(dir){const result=[];for(const e of await readdir(dir,{withFileTypes:true})){if(exclusions.has(e.name))continue;const p=path.join(dir,e.name);if(e.isDirectory())result.push(...await walk(p));else result.push(p);}return result;}
+const syntaxTimeoutMs=10_000;
+const testTimeoutMs=180_000;
+async function walk(dir){
+ const result=[];
+ for(const e of await readdir(dir,{withFileTypes:true})){
+  if(exclusions.has(e.name))continue;
+  const p=path.join(dir,e.name);
+  if(e.isSymbolicLink())throw Error('Symbolic link in verification tree: '+p);
+  if(e.isDirectory())result.push(...await walk(p));
+  else if(e.isFile())result.push(p);
+  else throw Error('Unsupported filesystem entry: '+p);
+ }
+ return result;
+}
 const files=await walk(root);
 const manifest=JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8'));
 if(manifest.manifest_version!==3||!/^\d+\.\d+\.\d+$/.test(manifest.version))throw Error('Unexpected extension manifest');
@@ -12,8 +25,8 @@ const entries=[manifest.action?.default_popup,manifest.background?.service_worke
 for(const p of entries)if(!files.includes(path.join(root,p)))throw Error('Missing manifest entry '+p);
 let imports=0;
 for(const f of files.filter(p=>p.endsWith('.js')||p.endsWith('.mjs'))){
- const result=spawnSync(process.execPath,['--check',f],{encoding:'utf8'});
- if(result.status!==0)throw Error(`Syntax check failed ${path.relative(root,f)}: ${result.stderr}`);
+ const result=spawnSync(process.execPath,['--check',f],{encoding:'utf8',timeout:syntaxTimeoutMs});
+ if(result.error||result.status!==0)throw Error(`Syntax check failed ${path.relative(root,f)}: ${result.error?.message??result.stderr}`);
  const source=await readFile(f,'utf8');
  const re=/(?:import|export)\s+(?:[\s\S]*?\s+from\s+)?["'](\.{1,2}\/[^"']+)["']/g;
  for(const m of source.matchAll(re)){
@@ -29,5 +42,8 @@ for(const f of ['popup/popup.html','dashboard/dashboard.html']){
  }
 }
 console.log(`Manifest ${manifest.version}: ${files.length} files, ${files.filter(f=>f.endsWith('.js')||f.endsWith('.mjs')).length} checked scripts, ${imports} relative imports validated.`);
-const run=spawnSync(process.execPath,['--test',...files.filter(f=>f.startsWith(path.join(root,'tests')+path.sep)&&f.endsWith('.test.js'))],{stdio:'inherit'});
+const testFiles=files.filter(f=>f.startsWith(path.join(root,'tests')+path.sep)&&f.endsWith('.test.js')).sort();
+if(!testFiles.length)throw Error('No test files found');
+const run=spawnSync(process.execPath,['--test',...testFiles],{stdio:'inherit',timeout:testTimeoutMs});
+if(run.error)throw Error(`Tests could not complete within ${testTimeoutMs}ms or failed to start: ${run.error.message}`);
 if(run.status!==0)process.exit(run.status||1);

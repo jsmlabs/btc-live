@@ -1,4 +1,4 @@
-> **QA scope (2026-10-15):** This checklist covers the existing repository v1.22.0 test and manual QA plan. Earlier checked boxes or passing-run references are historical evidence, not tests rerun against the separately supplied archive. Candidate integration requires new depth/flow, recording/replay, storage and live-alert isolation tests. See [ARCHIVE_INTEGRATION.md](ARCHIVE_INTEGRATION.md).
+> **QA scope (2026-10-15):** This checklist covers the existing repository v1.22.0 test and manual QA plan. Earlier checked boxes or passing-run references are historical evidence, not current Chromium acceptance of the v16 candidate now integrated into `main`. Its automated checks passed for a recorded commit; depth/flow, recording/replay, storage, and live-alert browser acceptance remain open. See [current testing gates](docs/TESTING.md) and [historical archive integration notes](ARCHIVE_INTEGRATION.md).
 
 # BTC Live v1.22.0 manual QA
 

@@ -53,6 +53,7 @@ export function sanitizeUpdateState(raw, installed) {
   const x = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
   const channel = x.channel === 'preview' ? 'preview' : 'stable';
   const safeTime = v => Number.isSafeInteger(v) && v > 0 && v <= Date.now() + 60000 ? v : null;
+  const safeRetry = v => Number.isSafeInteger(v) && v > 0 && v <= Date.now() + 86400000 ? v : null;
   const release = x.release && parseVersion(x.release.version) &&
     x.release.url === RELEASE_BASE + encodeURIComponent(x.release.version) ||
     x.release && parseVersion(x.release.version) &&
@@ -63,7 +64,7 @@ export function sanitizeUpdateState(raw, installed) {
     release, lastAttemptAt: safeTime(x.lastAttemptAt), lastSuccessAt: safeTime(x.lastSuccessAt),
     checkedInstalled: x.checkedInstalled === installed ? installed : null,
     error: ['OFFLINE', 'CHECK_FAILED', 'RATE_LIMITED'].includes(x.error) ? x.error : null,
-    retryAfter: safeTime(x.retryAfter), dismissed: typeof x.dismissed === 'string' && parseVersion(x.dismissed) ? x.dismissed : null };
+    retryAfter: safeRetry(x.retryAfter), dismissed: typeof x.dismissed === 'string' && parseVersion(x.dismissed) ? x.dismissed : null };
 }
 export function createUpdateController({ api = globalThis.browser ?? globalThis.chrome, fetchFn = globalThis.fetch, now = Date.now } = {}) {
   let inFlight = null;

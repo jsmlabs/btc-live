@@ -1,28 +1,36 @@
-# Release readiness
+# Release readiness and version policy
 
-**Current state: v16 candidate source, not an approved production or store release.** `manifest.json` and its `1.22.0` version are deliberately unchanged pending browser acceptance.
+**Status as of 2026-10-15:** v16 Phase 01-10 is a **development candidate**, not a published, production-approved version. `manifest.json` still reports **1.22.0**. The candidate exists on `chore/v16-candidate-docs-and-regression` ([PR #3](https://github.com/jsmlabs/btc-live/pull/3)); `main` remains the stable reference.
 
-## Completed static verification
+## Evidence and status
 
-- Phase 01-10 development changes are assembled in candidate source.
-- 45 deterministic tests passed in the Phase 10 environment.
-- Manifest/CSP/import/reference checks and deterministic ZIP integrity checks passed in the Phase 10 environment.
-- No additional runtime npm dependencies, permissions or exchange API keys were introduced by the candidate phases.
+| Area | Recorded evidence | Current decision |
+| --- | --- | --- |
+| Candidate-only deterministic tests | Phase-10 checkout previously reported 45 passing tests | Historical result; rerun and verify on the integrated PR head |
+| Static imports, manifest and packaging | Candidate Phase-10 validation previously passed | Run on the exact release commit and record CI |
+| Chromium popup/dashboard | No accepted end-to-end evidence recorded | **Blocked** |
+| Binance feed and depth recovery | No accepted live/reconnect sequence recorded | **Blocked** |
+| MV3 lifecycle and multi-tab notifications | No accepted suspension/race evidence recorded | **Blocked** |
+| Long-session resources and replay | No accepted performance and memory evidence recorded | **Blocked** |
+| Existing-install migration | Not fully established | **Blocked** |
 
-## Open release blockers
+Passing scripts or a green CI run must not be presented as live-browser, market-feed or production evidence.
 
-- Full Chromium extension install and popup/dashboard acceptance.
-- Live Binance data freshness, snapshot resync and reconnect recovery.
-- MV3 suspend/resume plus alert delivery permission failures and cross-tab races.
-- Long-session replay performance, resource and memory growth.
-- Confirmation of migration/update behavior and public distribution/version policy.
+## Version rules
 
-## Release procedure
+- **1.22.0** is the extension manifest and historical stable release identifier, not a substitute name for v16.
+- **v16 candidate** identifies a development milestone, not a published Chrome Web Store release.
+- Do not bump the manifest, publish store packages, create a stable release tag, or mark PR #3 release-ready until all gates are satisfied.
+- When ready, choose a single version and update the manifest, release notes, changelog, package metadata and public listing together. Preserve release artifacts and a rollback path.
 
-1. Run `npm run verify` and `npm run release:check` from a clean checkout.
-2. Perform and record browser/live/manual smoke tests (`TESTING.md`).
-3. Audit storage and permission changes; confirm compatibility with the currently published extension.
-4. Only after all release gates, choose a coherent manifest, package and GitHub release version and update changelog/release notes.
-5. Package, verify checksums and publish from the accepted commit, preserving rollback artifacts.
+## Required acceptance procedure
 
-Historical upstream release documentation, if retained, describes previous stable versions, not this candidate.
+1. **Integrate:** Reconcile PR #3 with the latest `main`, resolve conflicts without deleting unrelated regressions, and review the resulting diff.
+2. **Verify:** In a clean checkout at the candidate commit run `npm run verify`, `npm run release:check` and `npm run package:extension`. Record OS, Node version, commit SHA and exit codes.
+3. **Exercise in Chromium:** Install unpacked, inspect extension/background consoles and verify popup/dashboard, focus, keyboard, responsive breakpoints, chart pointer behavior and notification permissions.
+4. **Exercise feeds:** Test real Binance REST/WS startup, stale/disconnect/reconnect conditions, depth gaps, snapshot resync and suppression of invalid dependent metrics.
+5. **Exercise lifecycle:** Test browser restart, MV3 worker suspension, multiple tabs, alert at-most-once *attempt* semantics, denied notifications and dashboard-closed behavior.
+6. **Exercise load/migration:** Run representative prolonged sessions, observe memory/CPU/rendering/queues, test persisted settings and upgrade from the existing version.
+7. **Release only after acceptance:** Update consistent version identifiers, produce reproducible packages/checksums, publish from the tested commit and preserve rollback artifacts.
+
+Use [Testing](TESTING.md) for test evidence and [Alerts](ALERTS.md) for notification caveats. Any missing or failed gate remains a release blocker.

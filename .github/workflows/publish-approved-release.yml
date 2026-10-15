@@ -1,0 +1,85 @@
+name: Publish Approved BTC Live Release
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Version tag matching manifest.json (for example v1.24.2)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: btc-live-approved-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production-release
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_ACCEPTANCE_JSON: ${{ secrets.RELEASE_ACCEPTANCE_JSON }}
+      RELEASE_TAG: ${{ inputs.release_tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Require external, commit-bound release approval
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$RELEASE_ACCEPTANCE_JSON" || { echo 'Missing environment approval secret'; exit 1; }
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import assert from 'node:assert/strict';
+          const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+          const tag = process.env.RELEASE_TAG;
+          assert.equal(tag, 'v' + manifest.version, 'Release tag must match exact manifest version');
+          assert.match(process.env.GITHUB_SHA, /^[0-9a-f]{40}$/);
+          fs.mkdirSync('dist', { recursive: true });
+          fs.writeFileSync('dist/release-approval.json', process.env.RELEASE_ACCEPTANCE_JSON, { mode: 0o600 });
+          NODE
+          RELEASE_ACCEPTANCE_FILE=dist/release-approval.json npm run release:gate
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo 'Release tag already has a published or draft GitHub Release'
+            exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/$RELEASE_TAG" >/dev/null; then
+            echo 'Refusing to reuse an existing tag'
+            exit 1
+          fi
+      - name: Verify and package exact release commit
+        run: |
+          set -euo pipefail
+          npm run verify
+          npm run docs:check
+          npm run release:check
+          npm run package:extension
+          npm run package:metadata
+          (cd dist && sha256sum -c SHA256SUMS.txt)
+      - name: Publish explicitly approved release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="dist/btc-live-chromium-v${RELEASE_TAG#v}-candidate.zip"
+          test -f "$package"
+          gh release create "$RELEASE_TAG" "$package" dist/SHA256SUMS.txt dist/BUILD_INFO.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title "BTC Live ${RELEASE_TAG#v}" \
+            --notes "Approved BTC Live Chromium extension archive. Verify SHA256SUMS.txt before extraction. For unpacked installations, replace the local source and reload the extension in chrome://extensions. Browser-store updates remain browser-managed."
+      - name: Verify published release
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease,tagName,assets \
+            --jq 'select(.isDraft == false and .isPrerelease == false and .tagName == env.RELEASE_TAG and (.assets | length) == 3) | .tagName' | grep -Fx "$RELEASE_TAG"

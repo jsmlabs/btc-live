@@ -16,3 +16,29 @@ jobs:
           node-version: '22'
       - run: npm run verify
       - run: npm run release:check
+      - run: npm run package:extension
+      - name: Validate candidate ZIP
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          import json
+          paths=list(Path('dist').glob('btc-live-chromium-v*-candidate.zip'))
+          assert len(paths)==1, f'Expected one package: {paths}'
+          with ZipFile(paths[0]) as z:
+              names=z.namelist()
+              assert names==sorted(names) and len(names)==len(set(names))
+              assert 'manifest.json' in names
+              assert len(names)>50
+              assert all(not n.startswith(('tests/','docs/','scripts/','store-assets/','.github/')) for n in names)
+              assert all(i.date_time==(1980,1,1,0,0,0) for i in z.infolist())
+              assert z.testzip() is None
+              manifest=json.loads(z.read('manifest.json'))
+              assert manifest['version']=='1.22.0'
+              print(f'Validated {paths[0]}: {len(names)} files')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: btc-live-candidate-zip
+          path: dist/*.zip
+          if-no-files-found: error

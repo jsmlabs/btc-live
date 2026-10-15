@@ -1,6 +1,6 @@
-export const KLINE_INTERVALS = Object.freeze(['1m', '5m', '15m']);
+export const KLINE_INTERVALS = Object.freeze(['1m', '5m', '15m', '30m', '1h', '4h']);
 export const DEFAULT_KLINE_INTERVAL = '5m';
-export const DEFAULT_KLINE_LIMIT = 120;
+export const DEFAULT_KLINE_LIMIT = 240;
 export const KLINE_REFRESH_MS = 30_000;
 
 const REST_URL = 'https://fapi.binance.com/fapi/v1/klines';
@@ -9,7 +9,10 @@ const DEFAULT_TIMEOUT_MS = 5000;
 const INTERVAL_MS = Object.freeze({
   '1m': 60_000,
   '5m': 5 * 60_000,
-  '15m': 15 * 60_000
+  '15m': 15 * 60_000,
+  '30m': 30 * 60_000,
+  '1h': 60 * 60_000,
+  '4h': 4 * 60 * 60_000
 });
 
 export function intervalMs(interval) {
@@ -55,6 +58,7 @@ export async function fetchBtcKlines({
   interval = DEFAULT_KLINE_INTERVAL,
   limit = DEFAULT_KLINE_LIMIT,
   timeoutMs = DEFAULT_TIMEOUT_MS,
+  endTime,
   signal
 } = {}) {
   intervalMs(interval);
@@ -65,6 +69,9 @@ export async function fetchBtcKlines({
     throw new TypeError('timeoutMs must be a positive finite number');
   }
 
+  if (endTime !== undefined && (!Number.isSafeInteger(endTime) || endTime <= 0)) {
+    throw new RangeError('endTime must be a positive safe integer');
+  }
   const controller = new AbortController();
   const abortFromCaller = () => controller.abort(signal?.reason ?? new DOMException('Request aborted', 'AbortError'));
   if (signal?.aborted) abortFromCaller();
@@ -79,6 +86,7 @@ export async function fetchBtcKlines({
   url.searchParams.set('symbol', 'BTCUSDT');
   url.searchParams.set('interval', interval);
   url.searchParams.set('limit', String(limit));
+  if (endTime !== undefined) url.searchParams.set('endTime', String(endTime));
 
   try {
     const response = await fetch(url, {
@@ -109,4 +117,18 @@ export async function fetchBtcKlines({
     clearTimeout(timeoutId);
     signal?.removeEventListener('abort', abortFromCaller);
   }
+}
+
+
+// Exchange-origin OHLCV events only. Never infer complete candles or volume from ticker trades.
+export function normalizeKlineEvent(payload, interval) {
+  const event = payload?.data ?? payload;
+  if (event?.e !== 'kline' || event.s !== 'BTCUSDT' || event.k?.i !== interval || event.k?.s !== 'BTCUSDT') return null;
+  const k = event.k;
+  const row = [k.t, k.o, k.h, k.l, k.c, k.v, k.T];
+  const candle = normalizeKlineRow(row);
+  const duration = intervalMs(interval);
+  if (!candle || candle.openTime % duration !== 0 || candle.closeTime !== candle.openTime + duration - 1 ||
+    !Number.isSafeInteger(event.E) || event.E <= 0 || typeof k.x !== 'boolean') return null;
+  return { candle, eventAt: event.E, closed: k.x };
 }

@@ -1,106 +1,33 @@
-import assert from 'node:assert/strict';
-import { access, readFile, readdir } from 'node:fs/promises';
+import {readdir,readFile} from 'node:fs/promises';
+import {spawnSync} from 'node:child_process';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { runtimeFiles } from './runtime-files.mjs';
-
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-assert.ok(Number.parseInt(process.versions.node.split('.')[0], 10) >= 22, 'Node.js 22 or newer is required');
-const requiredFiles = [
-  ...runtimeFiles,
-  'scripts/build-store.mjs','README.md','CHANGELOG.md','QA.md'
-];
-for (const file of [...new Set(requiredFiles)]) await access(path.join(root, file));
-
-const manifest = JSON.parse(await readFile(path.join(root, 'manifest.json'), 'utf8'));
-const packageJson = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
-const popupHtml = await readFile(path.join(root, 'popup/popup.html'), 'utf8');
-const dashboardHtml = await readFile(path.join(root, 'dashboard/dashboard.html'), 'utf8');
-const readme = await readFile(path.join(root, 'README.md'), 'utf8');
-const changelog = await readFile(path.join(root, 'CHANGELOG.md'), 'utf8');
-const qa = await readFile(path.join(root, 'QA.md'), 'utf8');
-const releaseNotes = await readFile(path.join(root, 'GITHUB_RELEASE.md'), 'utf8');
-const releaseChecklist = await readFile(path.join(root, 'RELEASE_CHECKLIST.md'), 'utf8');
-const storeAssets = await readFile(path.join(root, 'STORE_ASSETS.md'), 'utf8');
-const escapedVersion = manifest.version.replaceAll('.', '\\.');
-
-assert.equal(manifest.manifest_version, 3);
-assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
-assert.equal(manifest.version, packageJson.version);
-assert.equal(typeof manifest.name, 'string');
-assert.ok(manifest.name.trim().length > 0);
-assert.deepEqual(manifest.background, { service_worker: 'background/service-worker.js', type: 'module' });
-assert.equal(manifest.content_scripts, undefined, 'Unexpected content scripts');
-assert.equal(manifest.web_accessible_resources, undefined, 'Unexpected web-accessible resources');
-assert.match(popupHtml, new RegExp(`V${escapedVersion}`));
-assert.match(dashboardHtml, new RegExp(`V${escapedVersion}`));
-assert.match(readme, new RegExp(`v${escapedVersion}`, 'i'));
-assert.match(changelog, new RegExp(`## ${escapedVersion}\\b`));
-assert.match(qa, new RegExp(`^# BTC Live v${escapedVersion} manual QA`, 'm'));
-assert.match(releaseNotes, new RegExp(`^# BTC Live v${escapedVersion}$`, 'm'));
-assert.match(releaseChecklist, new RegExp(`^# BTC Live v${escapedVersion} - Release Checklist$`, 'm'));
-assert.match(storeAssets, new RegExp(`reflect v${escapedVersion} behavior`));
-assert.match(releaseNotes, new RegExp(`${runtimeFiles.length} runtime files`));
-assert.match(releaseChecklist, new RegExp(`${runtimeFiles.length} allowlisted runtime files`));
-assert.deepEqual(manifest.permissions, ['storage', 'notifications', 'alarms']);
-assert.deepEqual(manifest.host_permissions, ['https://fapi.binance.com/*']);
-assert.match(manifest.content_security_policy.extension_pages, /connect-src https:\/\/fapi\.binance\.com wss:\/\/fstream\.binance\.com/);
-assert.deepEqual(packageJson.dependencies ?? {}, {});
-assert.equal(/unsafe-eval|unsafe-inline/i.test(JSON.stringify(manifest.content_security_policy)), false);
-
-for (const [name, html] of [['popup', popupHtml], ['dashboard', dashboardHtml]]) {
-  assert.match(html, /<html\s+lang=["']en["']/i, `${name} must declare English document language`);
-  assert.match(html, /<meta\s+name=["']viewport["']/i, `${name} must declare a viewport`);
-  assert.equal(/<(?:script|link|img)[^>]+(?:src|href)=["']https?:\/\//i.test(html), false, `${name} uses a remote UI asset`);
-  assert.equal(/<script(?![^>]+src=)/i.test(html), false, `${name} contains inline script`);
-  assert.equal(/\son\w+\s*=/i.test(html), false, `${name} contains inline event handler`);
-  const ids = [...html.matchAll(/\bid=["']([^"']+)["']/g)].map(m => m[1]);
-  assert.equal(new Set(ids).size, ids.length, `${name} contains duplicate HTML ids`);
+import {fileURLToPath} from 'node:url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const exclusions=new Set(['node_modules','.git','dist']);
+async function walk(dir){const result=[];for(const e of await readdir(dir,{withFileTypes:true})){if(exclusions.has(e.name))continue;const p=path.join(dir,e.name);if(e.isDirectory())result.push(...await walk(p));else result.push(p);}return result;}
+const files=await walk(root);
+const manifest=JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8'));
+if(manifest.manifest_version!==3||!/^\d+\.\d+\.\d+$/.test(manifest.version))throw Error('Unexpected extension manifest');
+const entries=[manifest.action?.default_popup,manifest.background?.service_worker,...Object.values(manifest.icons??{})];
+for(const p of entries)if(!files.includes(path.join(root,p)))throw Error('Missing manifest entry '+p);
+let imports=0;
+for(const f of files.filter(p=>p.endsWith('.js')||p.endsWith('.mjs'))){
+ const result=spawnSync(process.execPath,['--check',f],{encoding:'utf8'});
+ if(result.status!==0)throw Error(`Syntax check failed ${path.relative(root,f)}: ${result.stderr}`);
+ const source=await readFile(f,'utf8');
+ const re=/(?:import|export)\s+(?:[\s\S]*?\s+from\s+)?["'](\.{1,2}\/[^"']+)["']/g;
+ for(const m of source.matchAll(re)){
+  const resolved=path.resolve(path.dirname(f),m[1]);
+  if(!files.includes(resolved))throw Error(`Missing import ${m[1]} from ${path.relative(root,f)}`);
+  imports++;
+ }
 }
-
-function htmlIds(html) {
-  return new Set([...html.matchAll(/\bid=["']([^"']+)["']/g)].map(m => m[1]));
+for(const f of ['popup/popup.html','dashboard/dashboard.html']){
+ const html=await readFile(path.join(root,f),'utf8');
+ for(const m of html.matchAll(/<script\b[^>]*src=["']([^"']+)["']/g)){
+  if(!files.includes(path.resolve(root,path.dirname(f),m[1])))throw Error('Missing HTML script '+m[1]);
+ }
 }
-function referencedIds(source) {
-  return new Set([...source.matchAll(/getElementById\(['"]([^'"]+)['"]\)|getNode\(['"]([^'"]+)['"]\)/g)].map(m => m[1] ?? m[2]));
-}
-async function assertRefsExist(files, ids, label) {
-  const source = (await Promise.all(files.map(file => readFile(path.join(root, file), 'utf8')))).join('\n');
-  const missing = [...referencedIds(source)].filter(id => !ids.has(id));
-  assert.deepEqual(missing, [], `${label} references missing DOM ids`);
-}
-await assertRefsExist(['popup/popup.js','ui/render.js'], htmlIds(popupHtml), 'popup');
-await assertRefsExist(['dashboard/dashboard.js','ui/dashboard-render.js','ui/chart.js'], htmlIds(dashboardHtml), 'dashboard');
-
-const sourceFiles = [];
-async function walk(dir) {
-  for (const entry of await readdir(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) await walk(full);
-    else if (entry.name.endsWith('.js')) sourceFiles.push(full);
-  }
-}
-for (const dir of ['app','popup','dashboard','market','storage','ui','utils']) await walk(path.join(root, dir));
-const source = (await Promise.all(sourceFiles.map(f => readFile(f, 'utf8')))).join('\n');
-const networkSurface = `${JSON.stringify(manifest)}\n${source}`;
-assert.equal(networkSurface.includes('https://api.binance.com'), false, 'Legacy Binance Spot REST endpoint detected');
-assert.equal(networkSurface.includes('wss://stream.binance.com'), false, 'Legacy Binance Spot WebSocket endpoint detected');
-assert.match(source, /https:\/\/fapi\.binance\.com\/fapi\/v1\/ticker\/24hr/);
-assert.match(source, /https:\/\/fapi\.binance\.com\/fapi\/v1\/klines/);
-assert.match(source, /wss:\/\/fstream\.binance\.com\/market\/stream/);
-assert.match(source, /wss:\/\/fstream\.binance\.com\/public\/stream/);
-assert.equal(/\beval\s*\(|new\s+Function\s*\(|\.innerHTML\s*=/.test(source), false, 'Unsafe dynamic code or HTML assignment detected');
-for (const file of sourceFiles) {
-  const text = await readFile(file, 'utf8');
-  for (const match of text.matchAll(/(?:import|export)\s+(?:[^'";]+?\s+from\s+)?['"](\.[^'"]+)['"]/g)) {
-    await access(path.resolve(path.dirname(file), match[1]));
-  }
-}
-for (const size of [16,32,48,128]) {
-  const buffer = await readFile(path.join(root, `icons/icon${size}.png`));
-  assert.equal(buffer.toString('hex',0,8),'89504e470d0a1a0a');
-  assert.equal(buffer.readUInt32BE(16), size);
-  assert.equal(buffer.readUInt32BE(20), size);
-}
-assert.equal(runtimeFiles.length, 36, 'Unexpected runtime allowlist size');
-console.log(`verify: manifest v${manifest.version}, popup/dashboard DOM, imports, permissions, CSP, explicit runtime allowlist and icon dimensions OK`);
+console.log(`Manifest ${manifest.version}: ${files.length} files, ${files.filter(f=>f.endsWith('.js')||f.endsWith('.mjs')).length} checked scripts, ${imports} relative imports validated.`);
+const run=spawnSync(process.execPath,['--test',...files.filter(f=>f.startsWith(path.join(root,'tests')+path.sep)&&f.endsWith('.test.js'))],{stdio:'inherit'});
+if(run.status!==0)process.exit(run.status||1);

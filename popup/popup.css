@@ -273,3 +273,27 @@ button { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* Match dashboard restraint: useful focus and value transitions, not continuous decoration. */
+.metric-card, .range-card, .alert-center { transition: background-color 160ms ease-out, border-color 160ms ease-out; }
+.metric-card:hover { background: var(--bg-surface-raised); border-color: var(--border-strong); }
+.range-fill { transition: width 190ms ease-out; }
+.range-marker { transition: left 190ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .metric-card, .range-card, .alert-center, .range-fill, .range-marker { transition: none !important; }
+}
+
+/* Audited popup interaction and narrow-width safeguards. */
+.app-shell :is(.price-block,.range-card,.metric-card) { min-width:0; }
+.app-shell :is(.current-price,.metric-value) { font-variant-numeric:tabular-nums; }
+.app-shell :is(button,select,input,textarea):disabled { opacity:.52; cursor:not-allowed; }
+.app-shell :is(button,select,input,textarea):focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.app-shell [hidden] { display:none!important; }
+@media (max-width:360px) {
+  .app-shell .view { padding:10px; }
+  .app-shell .current-price { font-size:clamp(30px,9vw,38px); }
+  .app-shell .price-block { padding:10px; }
+}
+@media (forced-colors:active) {
+  .app-shell :is(button,input,select):focus-visible { outline:2px solid Highlight; }
+}

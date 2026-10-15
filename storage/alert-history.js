@@ -13,7 +13,7 @@ export function sanitizeAlertHistoryEntry(value) {
   const source = value && typeof value === 'object' ? value : {};
   if (!Number.isFinite(source.at) || source.at < 0) return null;
   const status = ['sent', 'suppressed', 'failed'].includes(source.status) ? source.status : 'sent';
-  const type = ['target', 'price_move', 'connection'].includes(source.type) ? source.type : null;
+  const type = ['target', 'price_move', 'connection', 'advanced'].includes(source.type) ? source.type : null;
   if (!type) return null;
   return {
     id: cleanText(source.id, 100) || `event-${source.at}`,

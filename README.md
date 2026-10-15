@@ -1,136 +1,88 @@
-<div align="center">
-
-<img src="icons/icon128.png" alt="BTC Live icon" width="88" height="88">
-
 # BTC Live
 
-**Bitcoin market monitoring, without the noise.**
-
-A local-first Chromium extension for live **BTCUSDT Binance USDⓈ-M Futures** prices, charts, feed diagnostics and configurable browser alerts.
-
-**[Features](#features) · [Installation](#installation) · [Development](#development) · [Architecture](#architecture) · [Documentation](#documentation)**
-
-<sub>Manifest V3 · Version 1.22.0 · Public market data · No account or API key required</sub>
-
-</div>
-
----
+**BTCUSDT market terminal for Chromium (Manifest V3).** BTC Live displays public Binance USDⓈ-M Futures prices, trades and depth data, with charting, order-flow research, local recordings and optional notifications. No exchange credentials or order placement are involved.
 
 > [!IMPORTANT]
-> **Repository status:** `main` contains **v1.22.0**. A separately reviewed candidate archive also declares v1.22.0 and includes additional, **not yet merged** depth, order-flow and recording/replay code. Those capabilities are **not shipped in this repository state**. See [Archive Integration](ARCHIVE_INTEGRATION.md). That archive is not a tagged or published v2.2.0 release.
+> **Version and release status:** The extension manifest is **1.22.0**. This branch is a **v16 Phase 01-10 development candidate**, not a released v16 build. The candidate has not passed all browser, live-market, lifecycle and long-session acceptance gates. For the published/stable implementation, use [main](https://github.com/jsmlabs/btc-live/tree/main); for the integration discussion, see [PR #3](https://github.com/jsmlabs/btc-live/pull/3). Do not treat candidate features or screenshots as verified production behavior.
 
-## Overview
+## What it does
 
-BTC Live puts an at-a-glance market view in the toolbar and a fuller monitoring workspace in a dedicated dashboard. It reads public exchange data directly, keeps user preferences and alert configuration in browser storage, and does not place trades.
+| Workspace | Candidate capabilities | Limits |
+| --- | --- | --- |
+| Live | BTCUSDT price, trades, candles, order-book view and connection diagnostics | Binance connectivity, feed freshness and valid depth synchronization are required |
+| Analytics | Rolling CVD, observed executed volume, divergence and book imbalance | Descriptive research metrics, not verified execution signals; missing data are not zero |
+| Chart | Candle/line view, zoom/pan, drawings, crosshair and undo/redo | Actual Chromium pointer/keyboard behavior remains an acceptance item |
+| Replay | Locally recorded session playback, steps, timeline and session comparison | Coverage may be incomplete; bookmarks are session-local |
+| Alerts | Price alerts and dashboard-only advanced price/flow rules | Background checks are sampled; dashboard-only rules stop evaluating when it closes |
+| Diagnostics | Connection state, feed age, bounded counters and runtime inspection | Telemetry does not establish live-feed correctness or performance gains |
+| Layout | Presets, density controls, focus mode and command palette | Presets are not a free-form drag-and-drop layout system |
 
-| Compact popup | Full dashboard |
-| :--- | :--- |
-| Current BTCUSDT Futures price, 24-hour change and market context | Live chart, 24-hour statistics, top-of-book context and feed health |
-| Quick access to alerts, settings and the dashboard | Dedicated panels for alerts, diagnostics and display preferences |
+BTC Live does **not** submit trades, require Binance API keys, guarantee notifications, or predict market direction.
 
-## Features
+## Install the development candidate
 
-| Capability | What's included in v1.22.0 |
-| :--- | :--- |
-| **Live market data** | Binance USDⓈ-M Futures aggregate-trade/ticker and top-of-book feeds, with REST fallback |
-| **Connection resilience** | Separate market/book WebSocket recovery, freshness indicators and degraded-book reporting |
-| **Charts** | 1m / 5m / 15m intervals, candlestick or line view, optional volume and reference levels |
-| **Price alerts** | Opt-in percentage-move and multiple above/below target alerts, cooldowns, rearming and local history |
-| **Background sampling** | Optional Chromium alarm-driven price checks when the required alert settings are enabled |
-| **Local preferences** | Display/chart settings, alert configuration and bounded diagnostics in extension storage |
-| **Read-only operation** | No trading, wallet access, private exchange endpoints or API keys |
+1. Clone this branch (or download its source archive).
+2. Open `chrome://extensions` in a supported Chromium browser and enable **Developer mode**.
+3. Choose **Load unpacked** and select the folder containing `manifest.json`.
+4. Open the BTC Live toolbar popup, then **Open Dashboard**.
+5. Confirm Binance access, data freshness and notification permissions before testing alerts.
 
-**Alert limitations:** Background checks are sampled, approximately once per minute under normal browser scheduling; they are **not continuous tick-by-tick monitoring**. Chromium may delay or suspend alarms, and alerts are not guaranteed when the browser is closed or its background processing is suspended. Stale or disconnected market prices must not produce fresh price alerts.
+Use a separate browser profile if a previously installed version holds data you need to preserve. Migration and upgrade compatibility have **not** been fully browser-tested.
 
-## Installation
+## Develop, verify, package
 
-**Load the unpacked extension (development installation):**
-
-1. Clone or [download the repository](https://github.com/jsmlabs/btc-live/archive/refs/heads/main.zip) and extract it.
-2. Open `chrome://extensions` in Chrome or the extensions management page in another compatible Chromium browser.
-3. Enable **Developer mode** and select **Load unpacked**.
-4. Select the **repository root** containing `manifest.json`.
-5. Pin **BTC Live** to the toolbar; open the popup or select **Open Dashboard** for the larger workspace.
-
-No build or `npm install` is needed for unpacked runtime usage. A source installation does not imply Chrome Web Store approval or publication.
-
-## Development
-
-**Prerequisite:** Node.js **22 or newer**. No runtime npm dependencies are required.
+Node.js **20 or newer** is declared by this candidate; the repository CI tests on **Node.js 22**. The source has no external runtime npm dependencies.
 
 ```bash
-git clone https://github.com/jsmlabs/btc-live.git
-cd btc-live
 npm run verify
+npm run release:check
+npm run package:extension
 ```
 
-| Command | Purpose |
-| :--- | :--- |
-| `npm test` | Run Node.js regression tests |
-| `npm run verify` | Run source/static verification and the test suite |
-| `npm run build:store` | Copy allowlisted extension files into a clean `dist/` directory |
-| `npm run release:check` | Verify and create a store-package directory |
-| `npm run bench:render` | Run the optimized synthetic render-work benchmark |
+**Packaging:** `package:extension` now writes `dist/btc-live-chromium-v1.22.0-candidate.zip` with an explicit runtime-only allowlist, sorted files and fixed ZIP timestamps. CI independently checks entry integrity, manifest, runtime-only paths and exclusions and uploads the candidate artifact. Packaging is **not** release approval.
 
-The store build is written to `dist/btc-live-chromium-v1.22.0-store/`. The packaging script creates a **directory**, not a ZIP or a published store release. Refer to [QA](QA.md) and the [Release Checklist](RELEASE_CHECKLIST.md) before producing a distribution artifact.
+| Command | Purpose | What it does **not** prove |
+| --- | --- | --- |
+| `npm run verify` | Source/manifest/reference validation and deterministic Node tests | Browser rendering or live exchange behavior |
+| `npm run release:check` | Static release and packaging contract checks | Approval to publish v16 |
+| `npm run package:extension` | Create deterministic candidate ZIP after verification | Store acceptance or runtime compatibility |
 
-Optional baseline comparison:
+The candidate Phase-10 environment previously reported **45 deterministic passing tests**. This is historical candidate evidence, **not** a claim that the integrated branch or current CI has passed. Review [Testing](docs/TESTING.md) and [Release readiness](docs/RELEASE.md) for the required gates.
 
-```bash
-node scripts/benchmark-render.mjs --baseline
-npm run bench:render
-```
-
-These measurements count synthetic rendering work, not real Chromium FPS, latency, CPU or battery usage. See [Performance](PERFORMANCE.md).
-
-## Architecture
+## System boundaries
 
 ```text
-popup/ & dashboard/  →  app/runtime.js
-                           ├── market/   REST, WebSocket, validation, state
-                           ├── ui/       chart and scheduled rendering
-                           ├── storage/  preferences, targets, history
-                           └── app/      notifications and chart lifecycle
+Public Binance REST / WebSocket
+  -> market/ transport, validation, feed health and aggregation
+  -> app/ runtime and bounded live alert evaluation
+  -> ui/ selectors and rendering
+  -> dashboard/ and popup/
 
-background/service-worker.js  →  sampled alert checks
-tests/ & scripts/              →  verification and packaging
+background/ service worker -> sampled price alert checks
+storage/ -> local settings, histories and recorded sessions
 ```
 
-Market payloads are external, untrusted input. Parsers validate incoming data before acceptance; runtime freshness checks govern feed health and alert eligibility. Rendering is coalesced separately from market ingestion and alert processing. See [Architecture](ARCHITECTURE.md) for module responsibilities and trust boundaries.
+Depth continuity and snapshot synchronization must be valid before showing dependent analytics. Replay must not generate live notifications. Notification attempts are not reliable trade-execution events. See [Architecture](docs/ARCHITECTURE.md) and [Alerts](docs/ALERTS.md).
 
-### Permissions and connections
+## Privacy and risks
 
-| Surface | Declared access |
-| :--- | :--- |
-| Extension permissions | `storage`, `notifications`, `alarms` |
-| REST host permission | `https://fapi.binance.com/*` |
-| Allowed WebSocket connection | `wss://fstream.binance.com` |
-| Browser/page access | No content scripts or browsing-history permission |
-| Credentials | No Binance account, trading API key or wallet access |
-
-The extension connects to Binance public market-data services; it does not send user information to a project-operated backend. Storage is local to the browser. See [Privacy](PRIVACY.md) and [Security](SECURITY.md).
-
-## Reliability and data interpretation
-
-- **Feed state matters.** A market price or order-book value can be stale, delayed or unavailable during disconnection, exchange interruption or browser suspension.
-- **Top of book is not trade execution.** Displayed bid/ask quotes are indicative liquidity, not guaranteed fills, traded volume or liquidation events.
-- **Notifications are conditional.** Permissions, user settings, freshness, cooldowns, rearm rules and browser scheduling affect alert delivery.
-- **Read-only data is not a trading signal.** BTC Live does not manage positions, execute orders or provide investment advice.
+The extension uses public market endpoints, local browser storage, notifications and alarms. It requests Binance REST host access and a restricted Binance streaming CSP. It has no order-execution functionality. Browser suspension, denied notifications, feed gaps and disconnected dashboards can prevent alerts; never use an alert as the sole risk control. See [Privacy](docs/PRIVACY.md).
 
 ## Documentation
 
-| Guide | Scope |
-| :--- | :--- |
-| [Architecture](ARCHITECTURE.md) | Components, data flow and trust boundaries |
-| [Changelog](CHANGELOG.md) | Version history and released changes |
-| [Quality Assurance](QA.md) | Automated coverage and pending manual browser checks |
-| [Performance](PERFORMANCE.md) | Reproducible synthetic benchmark and limitations |
-| [Security](SECURITY.md) · [Privacy](PRIVACY.md) | Permissions, data handling and security invariants |
-| [Hardening](HARDENING.md) | Historical hardening decisions |
-| [Release Checklist](RELEASE_CHECKLIST.md) · [Release Notes](GITHUB_RELEASE.md) | Packaging and release gates |
-| [Store Listing](STORE_LISTING.md) · [Store Assets](STORE_ASSETS.md) | Publication copy and visual asset requirements |
-| [Archive Integration](ARCHIVE_INTEGRATION.md) | Unmerged candidate features and validation requirements |
+| Guide | Subject |
+| --- | --- |
+| [Usage](docs/USAGE.md) | Install, controls, research, replay and troubleshooting |
+| [Architecture](docs/ARCHITECTURE.md) | Runtime, trust boundaries and data validity |
+| [Alerts](docs/ALERTS.md) | Evaluation, delivery and failure semantics |
+| [Testing](docs/TESTING.md) | Deterministic checks, manual tests and evidence |
+| [Release](docs/RELEASE.md) | Version policy, blockers and acceptance gates |
+| [Privacy](docs/PRIVACY.md) | Permissions, endpoints and local information |
+| [Phase 10](docs/PHASE10.md) | Development-stage engineering evidence |
+| [Stable release notes](GITHUB_RELEASE.md) | Historical v1.22.0 release information |
 
-## License and disclaimer
+## Contributing
 
-See [LICENSE](LICENSE) for license terms. BTC Live is an independent project and is **not affiliated with or endorsed by Binance**. Binance and related marks belong to their respective owners. Market data is supplied by third-party services and may be delayed or unavailable.
+Make focused, reversible changes and include regression tests for changed behavior. Preserve storage and manifest compatibility, constrained browser permissions, live/replay isolation, feed validity checks and notification de-duplication. Submit the candidate only after the required manual acceptance evidence is recorded. Static verification alone does not certify live extension behavior.
+
+[MIT license](LICENSE) · Independent project; not affiliated with or endorsed by Binance.

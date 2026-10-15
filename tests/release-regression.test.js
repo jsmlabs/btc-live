@@ -38,3 +38,18 @@ test('manual release workflow remains approval-gated and never runs on push', as
  assert.match(workflow,/--target "\$GITHUB_SHA"/);
  assert.match(workflow,/gh release create/);
 });
+
+test('experimental preview publication cannot become a stable release or run automatically', async () => {
+ const workflow = await readFile(path.join(root,'.github/workflows/publish-experimental-preview.yml'),'utf8');
+ assert.match(workflow,/workflow_dispatch:/);
+ assert.doesNotMatch(workflow,/^  push:/m);
+ assert.doesNotMatch(workflow,/^  pull_request:/m);
+ assert.match(workflow,/PUBLISH_UNTESTED_PREVIEW/);
+ assert.match(workflow,/--prerelease/);
+ assert.match(workflow,/EXPERIMENTAL.*UNTESTED/);
+ assert.match(workflow,/--skip-verify/);
+ assert.doesNotMatch(workflow,/release:gate/);
+ const stable = await readFile(path.join(root,'.github/workflows/publish-approved-release.yml'),'utf8');
+ assert.match(stable,/release:gate/);
+ assert.match(stable,/environment: production-release/);
+});

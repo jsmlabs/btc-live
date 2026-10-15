@@ -1,6 +1,6 @@
 # Test strategy and verification evidence
 
-This guide separates **deterministic repository checks**, **simulated browser checks**, and **real Chromium / live Binance acceptance**. None is interchangeable. The packaging script writes a candidate ZIP; CI checks ZIP integrity, runtime-only file paths and build reproducibility. Superseded CI runs on the same ref are cancelled.
+This guide separates **deterministic repository checks**, **simulated browser checks**, and **real Chromium / live Binance acceptance**. None is interchangeable. The packaging script writes a candidate ZIP; CI checks ZIP integrity, runtime-only file paths, the fixed valid DOS timestamp (1980-01-01), and byte-for-byte build reproducibility. Superseded CI runs on the same ref are cancelled.
 
 ## Automated commands
 

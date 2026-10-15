@@ -35,9 +35,9 @@ jobs:
           import fs from 'node:fs';
           import assert from 'node:assert/strict';
           const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
-          assert.match(manifest.version, /^\\d+\\.\\d+\\.\\d+$/);
+          assert.match(manifest.version, /^\d+\.\d+\.\d+$/);
           assert.match(process.env.GITHUB_SHA, /^[a-f0-9]{40}$/);
-          fs.appendFileSync(process.env.GITHUB_ENV, 'PREVIEW_TAG=v' + manifest.version + '-preview.' + process.env.GITHUB_RUN_ID + '\\n');
+          fs.appendFileSync(process.env.GITHUB_ENV, 'PREVIEW_TAG=v' + manifest.version + '-preview.' + process.env.GITHUB_RUN_ID + '\n');
           NODE
           test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.commit.sha')" = "$GITHUB_SHA"
       - name: Package untested candidate without acceptance tests
@@ -60,11 +60,11 @@ jobs:
           if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$PREVIEW_TAG" >/dev/null 2>&1; then
             echo 'Preview tag already exists'; exit 1
           fi
-          gh release create "$PREVIEW_TAG" "$package" dist/SHA256SUMS.txt dist/BUILD_INFO.json \\
-            --repo "$GITHUB_REPOSITORY" \\
-            --target "$GITHUB_SHA" \\
-            --prerelease \\
-            --title "BTC Live $PREVIEW_TAG - EXPERIMENTAL / UNTESTED" \\
+          gh release create "$PREVIEW_TAG" "$package" dist/SHA256SUMS.txt dist/BUILD_INFO.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --title "BTC Live $PREVIEW_TAG - EXPERIMENTAL / UNTESTED" \
             --notes "**EXPERIMENTAL, UNTESTED DEVELOPMENT CANDIDATE. NOT A STABLE RELEASE.** Chromium/MV3, Binance feeds, depth recovery, alerts, replay, migration and privacy acceptance are not established. No self-installation. This archive has manifest version ${version}; the preview tag is an artifact identifier, not a newer installed version. Verify SHA256SUMS.txt and manually load unpacked in a disposable Chromium profile."
       - name: Verify GitHub prerelease and assets
         run: |

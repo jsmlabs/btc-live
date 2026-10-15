@@ -4,15 +4,15 @@
 
 ## Release readiness at a glance
 
-Automated source checks, local Markdown link validation, static release validation, ZIP integrity, deterministic package generation, and artifact upload have passed for the cited `main` revision. This confirms the repository pipeline, **not** a browser-tested release. Manual gates remain blocking until supported by reproducible evidence.
+Automated source checks, local Markdown link validation, static release validation, ZIP integrity, deterministic package generation, and artifact upload have passed for the cited `main` revision. This confirms the repository pipeline at the cited commit, **not** a browser-tested release. After any additional commit, check the [latest GitHub Actions results](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml) on the **exact new head**. Manual gates remain blocking until supported by reproducible evidence.
 
 ## Evidence and status
 
 | Area | Recorded evidence | Current decision |
 | --- | --- | --- |
-| Automated verification on integrated `main` | [Commit `d511e91` CI](https://github.com/jsmlabs/btc-live/actions/runs/38690697919) succeeded | **Passed for that exact commit**; re-check after future changes |
-| Static release check, candidate ZIP integrity and reproducibility | [Main CI run `38690697919`](https://github.com/jsmlabs/btc-live/actions/runs/38690697919) | **Passed for that exact commit** |
-| Local Markdown link integrity | [Main CI run `38690697919`](https://github.com/jsmlabs/btc-live/actions/runs/38690697919) | **Passed for that exact commit** |
+| Automated verification on integrated `main` | [Verified `b7e4ebe` CI](https://github.com/jsmlabs/btc-live/actions/runs/38715232184) succeeded | **Passed for that exact commit**; re-check after future changes |
+| Static release check, candidate ZIP integrity and reproducibility | [Verified `b7e4ebe` CI](https://github.com/jsmlabs/btc-live/actions/runs/38715232184) | **Passed for that exact commit** |
+| Local Markdown link integrity | [Verified `b7e4ebe` CI](https://github.com/jsmlabs/btc-live/actions/runs/38715232184) | **Passed for that exact commit** |
 | Chromium popup/dashboard | No accepted end-to-end evidence recorded | **Blocked** |
 | Binance feed and depth recovery | No accepted live/reconnect sequence recorded | **Blocked** |
 | MV3 lifecycle and multi-tab notifications | No accepted suspension/race evidence recorded | **Blocked** |
@@ -23,7 +23,7 @@ Passing scripts or a green CI run must not be presented as live-browser, market-
 
 ## Version rules
 
-- **1.22.0** is the extension manifest and historical stable release identifier, not a substitute name for v16.
+- **1.22.0** is the current extension manifest and historical release-notes identifier; it is neither proof of a public-store update nor a substitute name for v16.
 - **v16 candidate** identifies a development milestone, not a published Chrome Web Store release.
 - Do not bump the manifest, publish store packages, create a stable release tag, or present the merged PR #3 as stable-release approval until all gates are satisfied.
 - When ready, choose a single version and update the manifest, release notes, changelog, package metadata and public listing together. Preserve release artifacts and a rollback path.
@@ -38,4 +38,4 @@ Passing scripts or a green CI run must not be presented as live-browser, market-
 6. **Exercise load/migration:** Run representative prolonged sessions, observe memory/CPU/rendering/queues, test persisted settings and upgrade from the existing version.
 7. **Release only after acceptance:** Update consistent version identifiers, inspect the generated candidate ZIP and CI artifact, verify its contents/checksums, then promote only an accepted release build, publish from the tested commit and preserve rollback artifacts.
 
-Use [Testing](TESTING.md) for test evidence and [Alerts](ALERTS.md) for notification caveats. Any missing or failed gate remains a release blocker.
+Use [Repository workflow](REPOSITORY.md) for the maintained-branch policy and [Testing](TESTING.md) for test evidence and [Alerts](ALERTS.md) for notification caveats. Any missing or failed gate remains a release blocker.

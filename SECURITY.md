@@ -19,7 +19,7 @@ Security invariants:
 - no analytics, telemetry, advertising, or tracking SDKs
 - zero runtime package dependencies
 - validation of external market-data payloads before state updates
-- explicit store runtime allowlist
+- deterministic candidate package with a constrained runtime directory allowlist
 
 ## External data
 

@@ -146,7 +146,7 @@ npm run package:extension
 | `npm run release:check` | Validate static manifest and release contracts |
 | `npm run package:extension` | Re-verify and produce a deterministic candidate ZIP |
 
-The packaging command writes `dist/btc-live-chromium-v1.22.0-candidate.zip`. The archive uses an explicit runtime file allowlist, sorted entries and fixed timestamps. CI checks archive integrity and reproducibility across two builds, then uploads a **candidate artifact**.
+The packaging command writes `dist/btc-live-chromium-v1.22.0-candidate.zip`. The archive uses a runtime directory allowlist, sorted entries and fixed timestamps. CI checks archive integrity and reproducibility across two builds, then uploads a **candidate artifact**.
 
 **Verification boundary:** Passing Node tests, static release checks, packaging or GitHub Actions does **not** prove Chromium runtime behavior, access to live Binance feeds, alert delivery or release approval. Consult [the latest workflow results](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml) for evidence at the exact commit and [the testing matrix](docs/TESTING.md) for remaining manual acceptance.
 
@@ -176,8 +176,12 @@ The packaging command writes `dist/btc-live-chromium-v1.22.0-candidate.zip`. The
 | [Changelog](CHANGELOG.md) | Historical release development |
 | [Historical v1.22.0 notes](GITHUB_RELEASE.md) | Prior release notes, **not** v16 approval |
 | [Phase 10 notes](docs/PHASE10.md) | Candidate engineering and remaining acceptance |
+| [Repository workflow](docs/REPOSITORY.md) | Branch policy and maintenance practices |
+| [Support](SUPPORT.md) | Reporting reproducible bugs and known limitations |
 
 ## Contributing
+
+[Contribution guide](CONTRIBUTING.md) · [Support](SUPPORT.md) · [Repository workflow](docs/REPOSITORY.md)
 
 Keep changes small, reviewable and covered by relevant regression checks. Preserve least-privilege browser permissions, verified feed boundaries, safe storage behavior, MV3 lifecycle constraints and separation of live alerts from replay. Follow the [test strategy](docs/TESTING.md) and verify the **exact proposed commit**. Do not treat a generated ZIP or a green CI badge as approval to publish a stable release.
 

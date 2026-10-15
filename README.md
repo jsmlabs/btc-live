@@ -3,7 +3,7 @@
 **BTCUSDT market terminal for Chromium (Manifest V3).** BTC Live displays public Binance USDⓈ-M Futures prices, trades and depth data, with charting, order-flow research, local recordings and optional notifications. No exchange credentials or order placement are involved.
 
 > [!IMPORTANT]
-> **Version and release status (2026-10-15):** `main` now contains the **v16 Phase 01-10 development candidate**, integrated through [PR #3](https://github.com/jsmlabs/btc-live/pull/3). The extension manifest intentionally remains **1.22.0**; this does **not** designate the v16 candidate as a stable or Chrome Web Store release. Chromium integration, live Binance feeds, MV3 lifecycle, multi-tab operation, migration and sustained-load acceptance still require documented evidence. The historical v1.22.0 release notes describe an earlier baseline, not the current `main` feature set.
+> **Version and release status (2026-10-15):** `main` now contains the **v16 Phase 01-10 development candidate**, integrated through [PR #3](https://github.com/jsmlabs/btc-live/pull/3). The extension manifest intentionally remains **1.22.0**; this does **not** designate the v16 candidate as a stable or Chrome Web Store release. Chromium integration, live Binance feeds, MV3 lifecycle, multi-tab operation, migration and sustained-load acceptance still require documented evidence. The historical v1.22.0 release notes describe an earlier baseline, not the current `main` feature set. Automated verification of [main commit `a7920d2`](https://github.com/jsmlabs/btc-live/commit/a7920d2cc7b8277fb61280fedb74268cd71c2674) [passed in GitHub Actions](https://github.com/jsmlabs/btc-live/actions/runs/38689981950); live Chromium and exchange acceptance remain open.
 
 ## What it does
 
@@ -47,7 +47,7 @@ npm run package:extension
 | `npm run release:check` | Static release and packaging contract checks | Approval to publish v16 |
 | `npm run package:extension` | Create deterministic candidate ZIP after verification | Store acceptance or runtime compatibility |
 
-An isolated Phase-10 checkout previously reported **45 passing deterministic tests**. This is historical evidence, **not** proof that all current `main` tests, CI jobs, or runtime acceptance gates pass. Review [Testing](docs/TESTING.md) and [Release readiness](docs/RELEASE.md) for the required gates.
+An isolated Phase-10 checkout previously reported **45 passing deterministic tests** (historical evidence). Current automated checks **passed** for [main commit `a7920d2`](https://github.com/jsmlabs/btc-live/actions/runs/38689981950), including ZIP validation and reproducibility; that does not establish live-browser or exchange acceptance. Review [Testing](docs/TESTING.md) and [Release readiness](docs/RELEASE.md) for the required gates.
 
 ## System boundaries
 

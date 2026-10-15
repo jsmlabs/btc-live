@@ -45,6 +45,13 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
   note.className = 'settings-scope-note';
   note.textContent = 'Development builds in the repository are not published updates. To refresh an unpacked installation, update the local source and reload it in chrome://extensions. This checker does not install software.';
   note.hidden = true;
+  const sourceLink = document.createElement('a');
+  sourceLink.textContent = 'Open official source and upgrade guide';
+  sourceLink.href = 'https://github.com/jsmlabs/btc-live#get-started';
+  sourceLink.target = '_blank';
+  sourceLink.rel = 'noopener noreferrer';
+  sourceLink.hidden = true;
+  controls.append(sourceLink);
   root.append(title, status, detail, note, toggleLabel, channelLabel, controls);
   container.append(root);
   let disposed = false;
@@ -82,6 +89,7 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
       ' · Last attempt: ' + formatTime(state.lastAttemptAt) +
       (state.error ? ' · Previous result may be outdated' : '');
     note.hidden = state.status !== 'UNSUPPORTED';
+    sourceLink.hidden = state.status !== 'UNSUPPORTED';
     const eligible = state.release && ['UPDATE_AVAILABLE', 'PREVIEW_AVAILABLE'].includes(state.status);
     link.hidden = !eligible;
     if (eligible) link.href = state.release.url;

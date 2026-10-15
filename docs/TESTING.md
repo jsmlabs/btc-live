@@ -70,3 +70,7 @@ Use [`SMOKE-TEST.md`](SMOKE-TEST.md) and [`ACCEPTANCE.md`](ACCEPTANCE.md), recor
 The external, same-commit approval procedure is described in [Release](RELEASE.md). The committed pending acceptance JSON is an example of **missing evidence**; `npm run release:gate` should fail until independent signoff exists.
 
 [Architecture](ARCHITECTURE.md) · [Release checklist](../RELEASE_CHECKLIST.md) · [Documentation index](INDEX.md)
+
+## GitHub software update checks
+
+`tests/software-updates.test.js` covers semantic comparison, release eligibility, request deduplication, persistent state and failures. Manually verify real Chromium MV3 startup, installation lifecycle, worker suspension, parallel popup/dashboard views, GitHub API errors, notification permissions, channel switching and release-link handling. CI does not establish network availability or browser behavior. Do not promote a release merely because update discovery works.

@@ -1,4 +1,4 @@
-> **Documentation status (2026-10-15):** The current repository manifest remains at **1.22.0**. The separately supplied expanded-workspace ZIP is an **unmerged candidate**, not a new released version. Preserve the release history below; track import requirements in [ARCHIVE_INTEGRATION.md](ARCHIVE_INTEGRATION.md).
+> **Current source and release status (2026-10-15):** `main` contains the v16 Phase 01–10 development candidate, merged through [PR #3](https://github.com/jsmlabs/btc-live/pull/3). The manifest remains **1.22.0**, and v16 is **not** a stable published release. The entries below preserve historical release chronology; see [current release gates](docs/RELEASE.md), [verification](docs/TESTING.md), and [historical archive integration notes](ARCHIVE_INTEGRATION.md).
 
 ## 1.22.0 - 2026-10-12
 

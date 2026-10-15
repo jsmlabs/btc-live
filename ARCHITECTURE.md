@@ -1,6 +1,6 @@
 # BTC Live architecture
 
-**Scope:** current repository `main`, extension version `1.22.0`. Expanded depth, order-flow, recording and replay modules exist in a separately supplied candidate archive but are not yet shipped in this tree. See [ARCHIVE_INTEGRATION.md](ARCHIVE_INTEGRATION.md).
+**Scope:** This document records the architecture of the historical `1.22.0` baseline. The current `main` tree additionally includes the v16 development candidate (merged in [PR #3](https://github.com/jsmlabs/btc-live/pull/3)); its manifest still reports `1.22.0`, but it has not received stable-release approval. Use [current candidate architecture](docs/ARCHITECTURE.md), [release gates](docs/RELEASE.md), and [historical archive integration notes](ARCHIVE_INTEGRATION.md) when evaluating present behavior.
 
 ## Runtime path
 

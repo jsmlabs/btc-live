@@ -2,12 +2,17 @@
 
 **Status as of 2026-10-15:** v16 Phase 01-10 is a **development candidate**, not a published, production-approved version. `manifest.json` still reports **1.22.0**. The candidate was integrated into `main` by [merged PR #3](https://github.com/jsmlabs/btc-live/pull/3) (merge commit [`70977d9`](https://github.com/jsmlabs/btc-live/commit/70977d92f5b9b84a6906698a4cde7c16688ffeca)). **Integration into `main` is not equivalent to release approval.** Historical v1.22.0 release notes remain separate.
 
+## Release readiness at a glance
+
+Automated source checks, local Markdown link validation, static release validation, ZIP integrity, deterministic package generation, and artifact upload have passed for the cited `main` revision. This confirms the repository pipeline, **not** a browser-tested release. Manual gates remain blocking until supported by reproducible evidence.
+
 ## Evidence and status
 
 | Area | Recorded evidence | Current decision |
 | --- | --- | --- |
-| Automated verification on integrated `main` | [Commit `a7920d2` CI](https://github.com/jsmlabs/btc-live/actions/runs/38689981950) succeeded | **Passed for that exact commit**; re-check after future changes |
-| Static release check, candidate ZIP integrity and reproducibility | [Main CI run `38689981950`](https://github.com/jsmlabs/btc-live/actions/runs/38689981950) | **Passed for that exact commit** |
+| Automated verification on integrated `main` | [Commit `d511e91` CI](https://github.com/jsmlabs/btc-live/actions/runs/38690697919) succeeded | **Passed for that exact commit**; re-check after future changes |
+| Static release check, candidate ZIP integrity and reproducibility | [Main CI run `38690697919`](https://github.com/jsmlabs/btc-live/actions/runs/38690697919) | **Passed for that exact commit** |
+| Local Markdown link integrity | [Main CI run `38690697919`](https://github.com/jsmlabs/btc-live/actions/runs/38690697919) | **Passed for that exact commit** |
 | Chromium popup/dashboard | No accepted end-to-end evidence recorded | **Blocked** |
 | Binance feed and depth recovery | No accepted live/reconnect sequence recorded | **Blocked** |
 | MV3 lifecycle and multi-tab notifications | No accepted suspension/race evidence recorded | **Blocked** |

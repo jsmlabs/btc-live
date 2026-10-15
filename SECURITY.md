@@ -1,4 +1,4 @@
-> **Scope:** This policy documents current `main` version **1.22.0**. The expanded depth/recording/replay archive is not integrated; imported recordings, additional persisted state and new feed parsers need a separate security review before release.
+> **Scope (2026-10-15):** `main` includes the v16 Phase 01–10 candidate while `manifest.json` remains **1.22.0**. Depth, recordings, replay, additional persisted state, and feed parsers require browser and security acceptance before any stable v16 release. Historical [archive integration notes](ARCHIVE_INTEGRATION.md) are not the current integration status. See [release gates](docs/RELEASE.md) and [privacy](docs/PRIVACY.md).
 
 # Security Policy
 

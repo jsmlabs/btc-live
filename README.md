@@ -3,7 +3,7 @@
 **BTCUSDT market terminal for Chromium (Manifest V3).** BTC Live displays public Binance USDⓈ-M Futures prices, trades and depth data, with charting, order-flow research, local recordings and optional notifications. No exchange credentials or order placement are involved.
 
 > [!IMPORTANT]
-> **Version and release status (2026-10-15):** `main` now contains the **v16 Phase 01-10 development candidate**, integrated through [PR #3](https://github.com/jsmlabs/btc-live/pull/3). The extension manifest intentionally remains **1.22.0**; this does **not** designate the v16 candidate as a stable or Chrome Web Store release. Chromium integration, live Binance feeds, MV3 lifecycle, multi-tab operation, migration and sustained-load acceptance still require documented evidence. The historical v1.22.0 release notes describe an earlier baseline, not the current `main` feature set. Automated verification of [main commit `a7920d2`](https://github.com/jsmlabs/btc-live/commit/a7920d2cc7b8277fb61280fedb74268cd71c2674) [passed in GitHub Actions](https://github.com/jsmlabs/btc-live/actions/runs/38689981950); live Chromium and exchange acceptance remain open.
+> **Version and release status (2026-10-15):** `main` now contains the **v16 Phase 01-10 development candidate**, integrated through [PR #3](https://github.com/jsmlabs/btc-live/pull/3). The extension manifest intentionally remains **1.22.0**; this does **not** designate the v16 candidate as a stable or Chrome Web Store release. Chromium integration, live Binance feeds, MV3 lifecycle, multi-tab operation, migration and sustained-load acceptance still require documented evidence. The historical v1.22.0 release notes describe an earlier baseline, not the current `main` feature set. Automated verification, including Markdown link checks, of [main commit `d511e91`](https://github.com/jsmlabs/btc-live/commit/d511e9156325b106ee8bc3f31a1ac1cbe3e060ab) [passed in GitHub Actions](https://github.com/jsmlabs/btc-live/actions/runs/38690697919); live Chromium and exchange acceptance remain open.
 
 ## What it does
 
@@ -72,6 +72,8 @@ The extension uses public market endpoints, local browser storage, notifications
 
 ## Documentation
 
+Start with [Usage](docs/USAGE.md) to try the candidate, [Testing](docs/TESTING.md) to reproduce automated checks, and [Release readiness](docs/RELEASE.md) to understand what remains unverified. Historical notes are retained separately from current candidate behavior.
+
 | Guide | Subject |
 | --- | --- |
 | [Usage](docs/USAGE.md) | Install, controls, research, replay and troubleshooting |
@@ -82,6 +84,8 @@ The extension uses public market endpoints, local browser storage, notifications
 | [Privacy](docs/PRIVACY.md) | Permissions, endpoints and local information |
 | [Phase 10](docs/PHASE10.md) | Development-stage engineering evidence |
 | [Stable release notes](GITHUB_RELEASE.md) | Historical v1.22.0 release information |
+| [Changelog](CHANGELOG.md) | Historical release chronology and current source distinction |
+| [Security policy](SECURITY.md) | Threat boundaries and disclosure guidance |
 
 ## Contributing
 

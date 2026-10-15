@@ -1,4 +1,4 @@
-> **Scope:** This privacy policy describes the extension currently tracked in repository `main` (manifest version **1.22.0**). Recording/replay capabilities in the supplied candidate archive are **not included** in this repository state. Re-review local storage categories and retention before integrating or publishing the archive.
+> **Scope:** This privacy policy describes the extension currently tracked in repository `main` (manifest version **1.22.0**). The current `main` source also contains candidate recording and replay capabilities, but they are **not production-approved**. Use [current candidate privacy details](docs/PRIVACY.md) for storage categories and [release gates](docs/RELEASE.md) before distribution. The historical policy below must not be treated as a complete privacy audit of the candidate.
 
 # Privacy Policy
 

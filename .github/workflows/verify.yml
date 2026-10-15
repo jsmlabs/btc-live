@@ -43,7 +43,7 @@ jobs:
               assert all(i.date_time==(1980,1,1,0,0,0) for i in z.infolist())
               assert z.testzip() is None
               manifest=json.loads(z.read('manifest.json'))
-              assert manifest['version']=='1.24.1'
+              assert manifest['version']=='1.24.2'
               print(f'Validated {paths[0]}: {len(names)} files')
           PY
       - name: Verify reproducible package

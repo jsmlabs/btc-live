@@ -1,6 +1,6 @@
 # BTC Live v1.22.0 - historical stable release notes
 
-> This file documents the existing **v1.22.0 stable baseline**. It does **not** describe a released v16 extension. The v16 Phase-10 branch is an unapproved development candidate; see [candidate status](docs/RELEASE.md) and [README](README.md).
+> This file documents the existing **v1.22.0 stable baseline**. It does **not** describe a released v16 extension. The v16 Phase-10 candidate has been merged into `main` but is still not release-approved; see [candidate status](docs/RELEASE.md) and [README](README.md).
 
 BTC Live v1.22.0 adds independently recovering Binance Futures WebSocket feeds, REST price fallback when the book request fails, and safer alert evaluation.
 

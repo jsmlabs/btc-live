@@ -19,10 +19,10 @@ Closing the obsolete PR does **not** remove its branch. A repository owner must 
 1. Establish exact `main` SHA, release state and affected behaviors.
 2. Make small, reviewable, risk-aware changes with failure-path tests.
 3. Keep README, documentation, security/privacy assumptions, changelog and CI consistent.
-4. Run `npm run verify`, `npm run docs:check`, `npm run release:check` and `npm run package:extension`; confirm CI on the resulting SHA.
+4. Run `npm run verify`, `npm run docs:check`, `npm run release:check`, `npm run package:extension` and `npm run package:metadata`; confirm CI, artifact checksum and provenance on the resulting SHA.
 5. Preserve the distinction between deterministic source tests and **unverified** Chromium, live-feed, MV3 lifecycle, storage migration and load tests.
-6. Do not tag, publish or promote a candidate before the [release gates](RELEASE.md) pass.
+6. Do not tag, publish or promote a candidate before the documented [release gates](ACCEPTANCE.md) pass and external approval is bound to the exact tested SHA.
 
-The old standalone `scripts/build-store.mjs` and `scripts/runtime-files.mjs` path is superseded by the checked, reproducible `npm run package:extension` candidate pipeline. Old historical release notes are retained as historical evidence, not active build instructions.
+The old standalone `scripts/build-store.mjs` and `scripts/runtime-files.mjs` path is superseded by the reproducible `npm run package:extension` candidate pipeline and `npm run package:metadata` checksums. The fail-closed `npm run release:gate` is a separate human-evidence release barrier, not a substitute for real-browser testing. Old historical release notes are retained as historical evidence, not active build instructions.
 
 [README](../README.md) · [Contributing](../CONTRIBUTING.md) · [Support](../SUPPORT.md) · [Tests](TESTING.md) · [Security](../SECURITY.md)

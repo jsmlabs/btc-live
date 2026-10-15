@@ -47,7 +47,7 @@ GitHub Actions verifies archive integrity, deterministic re-packaging, metadata 
 npm run release:gate
 ```
 
-The command must remain **non-zero** while any mandatory acceptance is pending, evidence is absent, the signoff is missing, or the recorded source commit/version differs. Passing this metadata gate still requires a reviewer to inspect the actual test evidence and packaged extension.
+The command is intentionally **non-zero** while any mandatory acceptance is pending, evidence is absent, the signoff is missing, or the recorded source commit/version differs. Passing this metadata gate still requires a reviewer to inspect the actual test evidence and packaged extension.
 
 ### Promotion steps (only after all gates pass)
 
@@ -65,7 +65,7 @@ Never overwrite historical tags or use a candidate name as evidence that a store
 
 - `1.22.0` is the repository manifest and a historical release-notes label, **not** proof that this candidate was published to the store.
 - `v16 Phase 01–10` describes a development milestone, **not** a release semver.
-- The [historical v1.22.0 notes](../GITHUB_RELEASE.md), [old release checklist](../RELEASE_CHECKLIST.md) and [Phase 10 notes](PHASE10.md) retain their original context.
+- The [historical v1.22.0 notes](../GITHUB_RELEASE.md), [archived v1.22.0 release checklist](HISTORICAL-RELEASE-CHECKLIST.md) and [Phase 10 notes](PHASE10.md) retain their original context.
 - `main` is the single maintained integration branch; the legacy branch is described in [repository policy](REPOSITORY.md).
 
 [README](../README.md) · [Testing](TESTING.md) · [User guide](USAGE.md) · [Security](../SECURITY.md)

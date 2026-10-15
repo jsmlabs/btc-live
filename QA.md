@@ -1,6 +1,9 @@
 > **QA scope (2026-10-15):** This checklist covers the existing repository v1.22.0 test and manual QA plan. Earlier checked boxes or passing-run references are historical evidence, not current Chromium acceptance of the v16 candidate now integrated into `main`. Its automated checks passed for a recorded commit; depth/flow, recording/replay, storage, and live-alert browser acceptance remain open. See [current testing gates](docs/TESTING.md) and [historical archive integration notes](ARCHIVE_INTEGRATION.md).
 
-# BTC Live v1.22.0 manual QA
+# BTC Live v1.22.0 historical manual QA
+
+> [!NOTE]
+> Historical instructions are retained for traceability. Older commands and package counts in this checklist may no longer apply. For current automated commands and real-release evidence use [Testing](docs/TESTING.md) and [Release acceptance](docs/ACCEPTANCE.md).
 
 ## v1.21.0 visual performance regression (manual, not yet executed)
 

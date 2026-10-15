@@ -1,6 +1,6 @@
 # Phase 10 - Release & Regression
 
-Status: **RELEASE CANDIDATE / NOT PRODUCTION-VERIFIED**.
+Status: **historical Phase 10 development milestone / NOT PRODUCTION-VERIFIED**. The current build process produces provenance and checksums, while [release acceptance](ACCEPTANCE.md) remains mandatory.
 
 ## Executed verification
 

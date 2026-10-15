@@ -1,6 +1,6 @@
-# Using BTC Live (v16 development candidate)
+# Using BTC Live (v16 candidate source in `main`)
 
-> The candidate's extension manifest is `1.22.0`; v16 features are **not yet production-approved**. Follow [release gates](RELEASE.md) before distributing this branch.
+> The candidate's extension manifest is `1.22.0`; v16 features are **not yet production-approved**. PR #3 merged the candidate into `main`, but the runtime release gates remain open. Follow [release gates](RELEASE.md) before distributing it as stable.
 
 ## First run
 

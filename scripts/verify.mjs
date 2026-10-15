@@ -6,7 +6,18 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const exclusions=new Set(['node_modules','.git','dist']);
 const syntaxTimeoutMs=10_000;
 const testTimeoutMs=180_000;
-async function walk(dir){const result=[];for(const e of await readdir(dir,{withFileTypes:true})){if(exclusions.has(e.name))continue;const p=path.join(dir,e.name);if(e.isDirectory())result.push(...await walk(p));else result.push(p);}return result;}
+async function walk(dir){
+ const result=[];
+ for(const e of await readdir(dir,{withFileTypes:true})){
+  if(exclusions.has(e.name))continue;
+  const p=path.join(dir,e.name);
+  if(e.isSymbolicLink())throw Error('Symbolic link in verification tree: '+p);
+  if(e.isDirectory())result.push(...await walk(p));
+  else if(e.isFile())result.push(p);
+  else throw Error('Unsupported filesystem entry: '+p);
+ }
+ return result;
+}
 const files=await walk(root);
 const manifest=JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8'));
 if(manifest.manifest_version!==3||!/^\d+\.\d+\.\d+$/.test(manifest.version))throw Error('Unexpected extension manifest');

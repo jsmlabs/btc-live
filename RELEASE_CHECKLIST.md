@@ -1,30 +1,38 @@
-# BTC Live - release checklist
+# BTC Live release checklist
 
-> [!IMPORTANT]
-> **NOT APPROVED FOR PUBLICATION.** The v16 development candidate is integrated into `main`, while the manifest still declares `1.22.0`. The [historic v1.22.0 checklist](docs/HISTORICAL-RELEASE-CHECKLIST.md) is archived for provenance.
+> [!CAUTION]
+> **Current decision: NOT APPROVED for customer publication.** Passing CI builds a **development candidate**, not a stable Chrome Web Store package. Keep missing manual evidence unchecked.
 
-## Automated build
-- [x] Static validation and deterministic Node regression tests run in CI.
-- [x] Runtime-only candidate ZIP, reproducibility checks and SHA-256 provenance exist.
-- [x] A separate `npm run release:gate` requires evidence bound to an exact source commit.
-- [ ] Confirm **all** CI jobs passed on the exact final intended release SHA.
-- [ ] Inspect the final candidate artifact and its `BUILD_INFO.json` / `SHA256SUMS.txt`.
+## 1. Code, docs and build
 
-## Real customer acceptance
-- [ ] Chromium MV3 popup, dashboard, responsiveness, keyboard and chart gestures.
-- [ ] Live Binance Futures REST/WebSocket reconnect, stale data and order-book resync.
-- [ ] Multiple dashboards, notification permissions, background alarms and worker suspension.
-- [ ] Invalid/corrupt recording import, replay isolation and sustained performance.
-- [ ] Existing-install storage migration/rollback, no loss of supported user state.
-- [ ] Actual screenshots, privacy, security, support and store claims match the release package.
+- [x] Source verification, deterministic tests and documentation-link checks exist in GitHub Actions.
+- [x] Static manifest/permissions/CSP checks and deterministic candidate packaging exist.
+- [x] Candidate ZIP checksum and source provenance are emitted by the build.
+- [ ] Verify **all** tests and packaging on the *exact final intended release SHA*.
+- [ ] Review actual ZIP, permissions, local files and source-to-package version consistency.
+- [ ] Confirm all customer-facing documentation reflects the **exact approved build**, not historical source versions.
 
-Each case needs independent evidence; details are in [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md).
+## 2. Required manual release gates
 
-## Stable promotion
-- [ ] Approve an **external**, SHA-bound evidence record and run `npm run release:gate`.
-- [ ] Reconcile manifest, package metadata, changelog, release notes and store version.
-- [ ] Rebuild from tested source, verify package SHA-256 and retain rollback assets.
-- [ ] Create an approved GitHub version tag/release.
-- [ ] Submit verified assets and package to the Chrome Web Store; verify publication separately.
+- [ ] Real Chromium MV3 UI, responsive interaction, accessibility and keyboard.
+- [ ] Live Binance Futures REST/WS startup, failure, reconnect and stale-state suppression.
+- [ ] Depth sequence gap/snapshot race and resynchronization.
+- [ ] Price/advanced alerts across notification permissions, multiple dashboards and worker suspension.
+- [ ] Real recording/replay isolation, invalid imports and representative sustained load.
+- [ ] Migration from a genuinely installed prior version, state preservation and rollback.
+- [ ] Actual screenshots, package metadata, store listing, privacy and security disclosures.
 
-[Release policy](docs/RELEASE.md) · [Testing](docs/TESTING.md) · [Store assets](STORE_ASSETS.md)
+Capture evidence for the seven exact IDs in [Release acceptance](docs/ACCEPTANCE.md).
+
+## 3. Approval and distribution
+
+- [ ] Store complete reviewer-approved evidence **outside the source tree**, bound to the tested full commit SHA.
+- [ ] Run `RELEASE_ACCEPTANCE_FILE=dist/release-approval.json npm run release:gate`; inspect linked evidence separately.
+- [ ] Reconcile final manifest semver, changelog, GitHub release text, packaging, store copy and image assets.
+- [ ] Re-run the complete test and package checks after the final version-related change.
+- [ ] Archive the final ZIP, checksum, approval material and tested rollback version.
+- [ ] Publish a GitHub tag/release and submit to the Chrome Web Store **only after** approval; separately verify the real public listing.
+
+This is the only **active** release checklist. [The previous v1.22.0 checklist](docs/HISTORICAL-RELEASE-CHECKLIST.md) is an archival record, not present-day acceptance.
+
+[Release procedure](docs/RELEASE.md) · [Testing](docs/TESTING.md) · [Store assets](STORE_ASSETS.md)

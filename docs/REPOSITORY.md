@@ -1,28 +1,29 @@
-# Repository maintenance and branch policy
+# Repository and maintenance policy
 
-## Source of truth
+## Maintained source of truth
 
-- **Maintained branch:** `main`, also the default branch.
-- **Current code:** v16 Phase 01–10 development candidate, with `manifest.json` reporting `1.22.0`.
-- **Release:** not production-approved; [acceptance gates](RELEASE.md) remain open.
+| Item | Policy |
+| --- | --- |
+| Default maintained branch | **`main`** |
+| Current integration | v16 Phase 01–10 **development candidate** |
+| Manifest version | `1.22.0` (not a claim of v16 publication) |
+| Automated validation | [GitHub Actions for main](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml) |
+| Customer release | Blocked until the [acceptance matrix](ACCEPTANCE.md) passes |
 
-`main` is the only **intended long-lived integration branch**. Avoid permanent maintenance and release branches. Temporary review branches or forks, when needed, should be removed after review. Branch-protection availability and restrictions must be verified separately in GitHub settings; a passing CI workflow is not a substitute.
+`main` is the only intended long-lived integration branch. Temporary review branches are not permanent maintenance channels.
 
-## Legacy v1.0.x branch
+**Historical exception:** `maintenance/v1.0.x` still exists as a legacy ref. Its Spot/Firefox-era assumptions are incompatible with the current Chromium Futures candidate. Do **not** merge/rebase that branch into `main` or force-push `main` to erase it. PR #1 has been closed unmerged; an administrator may delete the obsolete branch after confirming no history is needed.
 
-The old `maintenance/v1.0.x` branch and [PR #1](https://github.com/jsmlabs/btc-live/pull/1) diverged from the current source. Their historical Spot, Firefox and package-version assumptions are incompatible with the current Futures/MV3 candidate. **Do not merge or rebase them into `main`.** Reusable reporting and contribution practices were adapted into current files.
+## Change procedure
 
-Closing the obsolete PR does **not** remove its branch. A repository owner must separately delete the obsolete ref after preserving any needed commit history. Do not rewrite or force-push `main` just to reduce branch count.
+1. Resolve the current `main` SHA, task requirements, affected files and existing behavior.
+2. Make the smallest complete change without losing storage, feed, permission or browser-lifecycle invariants.
+3. Add/repair deterministic tests for expected, malformed, stale, retry and regression scenarios.
+4. Update affected README, architecture, user steps, privacy/security disclosures, scripts, changelog and versions **when behavior changes**.
+5. Run `npm run verify`, `npm run docs:check`, `npm run release:check`, `npm run package:extension` and `npm run package:metadata`; inspect the package.
+6. Review the final diff and only commit scoped changes; verify CI on that exact commit.
+7. Do not create stable tags, publish ZIPs to customers or modify the Chrome Web Store until [manual release acceptance](ACCEPTANCE.md) is independently approved.
 
-## Maintenance procedure
+The retired `scripts/build-store.mjs` and `scripts/runtime-files.mjs` are **not** valid current build commands; use [Release](RELEASE.md). Historical phase reports are retained for provenance only; consult the [documentation index](INDEX.md).
 
-1. Establish exact `main` SHA, release state and affected behaviors.
-2. Make small, reviewable, risk-aware changes with failure-path tests.
-3. Keep README, documentation, security/privacy assumptions, changelog and CI consistent.
-4. Run `npm run verify`, `npm run docs:check`, `npm run release:check`, `npm run package:extension` and `npm run package:metadata`; confirm CI, artifact checksum and provenance on the resulting SHA.
-5. Preserve the distinction between deterministic source tests and **unverified** Chromium, live-feed, MV3 lifecycle, storage migration and load tests.
-6. Do not tag, publish or promote a candidate before the documented [release gates](ACCEPTANCE.md) pass and external approval is bound to the exact tested SHA.
-
-The old standalone `scripts/build-store.mjs` and `scripts/runtime-files.mjs` path is superseded by the reproducible `npm run package:extension` candidate pipeline and `npm run package:metadata` checksums. The fail-closed `npm run release:gate` is a separate human-evidence release barrier, not a substitute for real-browser testing. Old historical release notes are retained as historical evidence, not active build instructions.
-
-[README](../README.md) · [Contributing](../CONTRIBUTING.md) · [Support](../SUPPORT.md) · [Tests](TESTING.md) · [Security](../SECURITY.md)
+[Contributing](../CONTRIBUTING.md) · [Support](../SUPPORT.md) · [Security](../SECURITY.md)

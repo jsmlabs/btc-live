@@ -1,16 +1,14 @@
-# Verification strategy
+# Testing and verification
 
-BTC Live separates three distinct evidence levels. A result in one level **never** certifies another.
+BTC Live verification has **three independent tiers**. A green result at a lower tier does not imply acceptance of the next.
 
-| Level | Verified by | What it cannot prove |
-| --- | --- | --- |
-| **Static and deterministic** | Node syntax/import checks, unit/regression tests, manifest and local-document contracts | Runtime behavior in Chromium |
-| **Simulated browser harness** | Optional `python scripts/browser-smoke.py` with Playwright/Chromium and mocked feed | Real extension MV3 lifecycle or real Binance network behavior |
-| **Real acceptance** | Unpacked MV3 extension, live Binance traffic, actual browser interaction, load and migration evidence | Must be recorded independently; no shortcut via green CI |
+| Tier | Test environment | Covered | Not covered |
+| --- | --- | --- | --- |
+| 1. Static and Node | GitHub Actions / local Node 20+ | Syntax, modules, deterministic behavior, docs links, manifest constraints | Real browser behavior |
+| 2. Optional DOM smoke | Python Playwright + Chromium, mocked WebSocket | Selected chart rendering, UI and simulated reconnection | Extension MV3 lifecycle, live exchange |
+| 3. Real acceptance | Unpacked built extension in real Chromium, live Binance and prior installed version | User-facing behavior, connectivity, MV3 races and migration | Only the recorded scenarios/platforms |
 
-## Automated verification
-
-Node.js **20+**; GitHub Actions uses **22**. From repository root:
+## Developer commands
 
 ```bash
 npm run verify
@@ -20,37 +18,42 @@ npm run package:extension
 npm run package:metadata
 ```
 
-- `verify` checks source syntax/references and invokes the complete deterministic Node test suite with per-test-file timeouts.
-- `docs:check` checks **local** Markdown and applicable HTML link targets. External site availability is not validated.
-- `release:check` inspects manifest permissions, CSP, extension exposures and packaged runtime resources.
-- `package:extension` creates the runtime-only deterministic candidate ZIP (and runs source verification unless explicitly skipped).
-- `package:metadata` creates `BUILD_INFO.json` and `SHA256SUMS.txt` from the actual ZIP. It is a metadata generator, not a runtime smoke test.
-- CI verifies ZIP integrity, sorted paths and fixed timestamps, two-build SHA-256 reproducibility and build metadata/checksum consistency before artifact upload.
+- **`verify`** checks JS syntax/imports and runs discovered `tests/*.test.js` separately, including timeout and failure reporting.
+- **`docs:check`** verifies local Markdown link and embedded HTML paths. It does not verify remote site availability.
+- **`release:check`** enforces a static MV3 manifest/permission/CSP/resource contract. It does **not** build/approve a store release.
+- **`package:extension`** builds the sorted deterministic candidate ZIP, verifying source unless `--skip-verify` is explicitly supplied.
+- **`package:metadata`** records SHA-256 and source provenance for the existing candidate ZIP.
 
-**CI must be checked on the exact candidate SHA.** Failed, cancelled, queued or skipped jobs are not passing evidence. The optional browser harness requires additional locally installed Playwright and Chromium; it is not part of the default Node suite and uses deterministic mocked transport.
+CI also checks ZIP integrity, path exclusions, fixed timestamps, repeat-build byte-for-byte matching and checksum agreement. Use the workflow of the **specific tested commit**. Never count a queued, cancelled or superseded run as passed.
 
-## Manual acceptance
-
-Complete the [release acceptance matrix](ACCEPTANCE.md) and use the pending [`release-acceptance.json`](release-acceptance.json) template and store final evidence in a separate, SHA-bound acceptance file. Include: exact SHA, UTC date, OS/browser version, hardware if performance-related, inputs/actions, expected and actual results, diagnostics and evidence links.
-
-Critical cases:
-
-1. Unpacked MV3 load, popup/dashboard navigation, responsive layout, keyboard focus, chart drawings and accessibility.
-2. Real REST/WebSocket startup, exchange timestamps, stale/disconnect/reconnect and independent data-source degradation.
-3. Depth snapshot gaps and diff races: invalid book-dependent metrics remain unavailable until valid recovery.
-4. Foreground price and advanced alert rules, browser permission denial, background alarms, multi-tab locking, worker suspension and dashboard closure.
-5. Replay-only state isolation, invalid/oversized imports, recording persistence and sustained-session resource use.
-6. Migration from the **actually installed build**, including local storage snapshots and rollback behavior.
-7. Exact build assets, permissions, privacy disclosures, screenshots and listing claims.
+### Optional browser mock harness
 
 ```bash
-npm run release:gate
+python scripts/browser-smoke.py
 ```
 
-This command is expected to **fail** while acceptance is pending; it verifies recorded requirements and commit binding, not the authenticity of evidence. A reviewer must evaluate every underlying test.
+Requires separately installed Python Playwright and Chromium. The test uses an **in-page synthetic WebSocket**, not the installed Manifest V3 extension or actual Binance connectivity. Passing it is browser DOM smoke evidence **only**.
 
-## Failure policy
+## Real-browser acceptance matrix
 
-A missing scenario remains **pending**. Do not substitute a screenshot or mock run for an interactive browser test, or present benchmark/synthetic measurements as real-client performance. Record failures and retest after fixes. Preserve previous release artifacts and user data when validating migration.
+Use [`SMOKE-TEST.md`](SMOKE-TEST.md) and [`ACCEPTANCE.md`](ACCEPTANCE.md), recording for each case: UTC time, exact SHA and package digest, OS/browser version, source fixtures or live endpoints, actions, expected/actual outcome, relevant console/trace and reviewer.
 
-[Release procedure](RELEASE.md) · [Browser smoke checklist](SMOKE-TEST.md) · [Candidate guide](USAGE.md)
+| Scenario | Essential observations |
+| --- | --- |
+| Extension and navigation | Manifest loads, worker initializes, popup/dashboard and six workspaces operate |
+| UI/accessibility | Responsive widths, chart pointer and keyboard behavior, focus and layouts |
+| REST and streaming | Feed startup, endpoint failure, reconnect, stale gating and recovery |
+| Depth/trade integrity | Snapshot race, sequence gaps, late data and flow-window validity |
+| Standard and advanced alerts | Enabled/denied notifications, cooldown, multiple tabs, Web Locks and dashboard closure |
+| MV3 lifecycle | Worker suspension/restart, alarms and browser relaunch |
+| Recordings/replay | Real storage, import limits, timeline seeking and no replay notifications |
+| Load and compatibility | Prolonged CPU/memory/frame monitoring and existing-install migration |
+| Distribution | Final screenshots, package permissions, privacy and store claims align |
+
+**Failure rule:** An unrun, unavailable or inconclusive check is *pending*, not passed. Automated mocks cannot approve live acceptance. Record regressions, fix the root cause, then retest the original case and adjacent legitimate/failure paths.
+
+## Release gate
+
+The external, same-commit approval procedure is described in [Release](RELEASE.md). The committed pending acceptance JSON is an example of **missing evidence**; `npm run release:gate` should fail until independent signoff exists.
+
+[Architecture](ARCHITECTURE.md) · [Release checklist](../RELEASE_CHECKLIST.md) · [Documentation index](INDEX.md)

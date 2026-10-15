@@ -1,45 +1,45 @@
 # BTC Live architecture
 
-**Current source:** `main` contains the v16 Phase 01–10 development candidate with extension manifest `1.22.0`. This is **not** an approved stable release. For the detailed module contracts and data boundaries, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+**Status:** Chromium Manifest V3 development candidate, manifest `1.22.0`. This is the current architecture overview; [the detailed contract](docs/ARCHITECTURE.md) is the technical source of documentation.
 
-## Runtime overview
+## System map
 
 ```text
-             Binance Futures (public REST + WebSocket)
-                             |
-                   market/ (validation)
-                             |
-                    app/ (live runtime)
-                             |
-                ui/ (presentation selectors)
-                      /              \
-                 popup/           dashboard/
-                                      |
-                           analysis, replay, alerts
+Binance USDⓈ-M Futures (public HTTPS + WSS)
+           |
+market/    Payload validation, transport, sequence and freshness
+           |
+app/       Runtime, chart ingestion, alerts and lifecycle
+           |
+ui/        Terminal, charts, analytics and replay
+           |                   |
+popup/     Compact view      dashboard/  Six workspaces
 
-background/   MV3 service worker + sampled price checks
-storage/      local preferences, alert state, recording sessions
+background/    MV3 sampled background price checks
+storage/       User preferences, alert state and recorded sessions
 ```
 
-Price, 24-hour statistics, aggregate trades, exchange-origin klines and synchronized depth have distinct sequencing/freshness boundaries. Invalid/stale state must not be silently presented as live or converted into zero. Resting book depth is not executed volume; replayed historical events cannot trigger live notifications.
+## Contract by layer
 
-## Trust boundaries
+| Boundary | Purpose | Constraint |
+| --- | --- | --- |
+| Network | Public Binance Futures snapshots and streams | External data is always untrusted |
+| State | Combine valid market observations | Distinct price, ticker, trade, kline and depth freshness |
+| Depth | Maintain synchronized order book | Snapshot/diff gaps invalidate dependent metrics |
+| Flow | Summarize observed aggressive executions | Not an exchange-complete trade ledger or prediction |
+| Chart | Display exchange-origin candles and annotations | Do not synthesize authoritative OHLC from ticker events |
+| Alert engine | Conditional notification attempts | Replay isolation, live-data gating and at-most-once attempt semantics |
+| Browser storage | Preserve settings and replay sessions | Validate imported/state records and handle quota errors |
+| Extension package | Standalone Chromium runtime | Minimal permissions, locally hosted JS, no account credentials |
 
-| Component | Required invariant |
-| --- | --- |
-| Binance streams | Validate untrusted symbols, numeric values, timestamps and sequence continuity |
-| State and analytics | Preserve provenance/freshness; invalidate dependent metrics on feed gaps |
-| Storage | Sanitize untrusted preferences, rules and recordings; handle quota/failure paths |
-| Alerts | Live-data gating, bounded evaluation and browser permission/worker limitations |
-| Packaging | Local runtime resources, limited permissions, restrictive CSP and deterministic archive |
-| UI | Monitoring and research only; no account credentials, wallet or trade execution |
+## Browser boundaries
 
-Permissions are `storage`, `notifications`, `alarms`; host access is `https://fapi.binance.com/*`, and the CSP permits the matching Futures WebSocket endpoint. Source/runtime contracts must be checked at the **exact build SHA**.
+The extension declares `storage`, `notifications` and `alarms`, with REST host access to `https://fapi.binance.com/*`. The CSP allows `wss://fstream.binance.com` for public Futures streams. The background service worker may be suspended at any time: **a scheduled alarm is not a persistent process**.
 
-## Verification
+Advanced alerts evaluate live metrics only while a dashboard is open; price alerts additionally have sampled background checks. Trigger persistence precedes attempts at native notifications, so delivery may fail without retry. Historical replay does not feed the live alert engine.
 
-`npm run verify` runs static checks and deterministic tests; `npm run release:check` validates static release contracts; `npm run package:extension` builds the candidate ZIP. **None establishes actual Chromium, MV3, Binance, migration or notification acceptance.**
+## Validation status
 
-The prior archive overlay proposal has been incorporated into `main` as a candidate; the archival process is retained in [ARCHIVE_INTEGRATION.md](ARCHIVE_INTEGRATION.md) for provenance, not as an active import task.
+Automated Node tests, static release checks and reproducible packaging are distinct from real Chromium, live Binance recovery, MV3 suspension, performance and migration acceptance. See [testing](docs/TESTING.md) and [release requirements](docs/ACCEPTANCE.md).
 
-[User guide](docs/USAGE.md) · [Detailed architecture](docs/ARCHITECTURE.md) · [Release readiness](docs/RELEASE.md)
+[README](README.md) · [Technical architecture](docs/ARCHITECTURE.md) · [Privacy](PRIVACY.md)

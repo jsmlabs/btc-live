@@ -1,27 +1,27 @@
-# Release readiness and version policy
+# Release and build guide
 
 > [!IMPORTANT]
-> **Status: development candidate / NOT APPROVED FOR PUBLIC RELEASE.** The `main` branch includes the v16 Phase 01–10 implementation, but `manifest.json` remains `1.22.0`. Neither a successful CI run nor an automatically generated package authorizes customer publication.
+> **Development candidate - NOT approved for customer publication.** Current `main` contains the v16 Phase 01–10 feature candidate, while `manifest.json` still reports `1.22.0`. Neither an old release note nor a green CI badge changes this status.
 
-## Current release decision
+## Release state
 
-| Area | Evidence | Decision |
+| Milestone | Status | Required proof |
 | --- | --- | --- |
-| Automated source, test, docs and static-release validation | [GitHub Actions: latest main](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml) | Check that the **exact candidate SHA** is green |
-| Reproducible candidate ZIP and SHA-256/provenance | CI package step and `BUILD_INFO.json` / `SHA256SUMS.txt` | Candidate packaging only |
-| Real Chromium popup, dashboard, accessibility and keyboard | [Acceptance record](ACCEPTANCE.md) | **Pending** |
-| Live Binance Futures REST, WebSocket and feed recovery | [Acceptance record](ACCEPTANCE.md) | **Pending** |
-| Depth sequence-gap/snapshot recovery | [Acceptance record](ACCEPTANCE.md) | **Pending** |
-| MV3 suspension, multi-tab locks, notification permissions | [Acceptance record](ACCEPTANCE.md) | **Pending** |
-| Recording/replay isolation and sustained load | [Acceptance record](ACCEPTANCE.md) | **Pending** |
-| Existing-install data and settings migration | [Acceptance record](ACCEPTANCE.md) | **Pending** |
-| Store screenshots, permissions and privacy statements | [Store assets](../STORE_ASSETS.md) | **Pending** |
+| Automated source and regression checks | Executed in GitHub Actions | Success on the **exact proposed commit** |
+| Static permissions/CSP/resources check | Automated | Successful release check |
+| Deterministic runtime-only candidate ZIP | Automated | Integrity, reproducibility, checksum and provenance |
+| Actual Chromium MV3 popup/dashboard | **Pending** | Browser build, console, interaction outcomes |
+| Live Binance feeds, reconnect and depth resync | **Pending** | Timestamped real-endpoint traces |
+| Multi-tab alerts, MV3 suspension and OS permission denial | **Pending** | Repeatable lifecycle outcomes |
+| Large recording/replay workload and stability | **Pending** | Load duration, hardware and measured budgets |
+| Existing-install migration and rollback | **Pending** | Sanitized before/after state and rollback evidence |
+| Store visuals, copy and privacy/security review | **Pending** | Approved final-build material |
 
-The pending release gate template lives in [`release-acceptance.json`](release-acceptance.json). Final signoff is supplied as a separate, commit-bound evidence file via `RELEASE_ACCEPTANCE_FILE`; see [acceptance instructions](ACCEPTANCE.md). A check is not passed without real, reproducible evidence. Historical v1.22.0 notes and older CI results do not represent approval for the integrated candidate.
+The structured [acceptance checklist](ACCEPTANCE.md) is the source for **manual** gates, not a claim those tests have passed.
 
-## Candidate build
+## Build a candidate
 
-**Prerequisite:** Node.js 20+ and npm. CI uses Node.js 22.
+**Requirements:** Node.js 20+ and npm. CI runs Node.js 22.
 
 ```bash
 npm run verify
@@ -31,41 +31,46 @@ npm run package:extension
 npm run package:metadata
 ```
 
-The resulting `dist/` directory contains:
-
-| File | Purpose |
+| Artifact in `dist/` | Function |
 | --- | --- |
-| `btc-live-chromium-v1.22.0-candidate.zip` | Runtime-only Manifest V3 test build |
-| `SHA256SUMS.txt` | Verifiable SHA-256 checksum of the candidate ZIP |
-| `BUILD_INFO.json` | Manifest version, source SHA when available, artifact size/checksum and candidate status |
+| `btc-live-chromium-v1.22.0-candidate.zip` | Deterministic package of manifest and reviewed runtime directories |
+| `SHA256SUMS.txt` | SHA-256 digest for the runtime ZIP |
+| `BUILD_INFO.json` | Manifest version, candidate status, source SHA (when available) and artifact metadata |
 
-GitHub Actions verifies archive integrity, deterministic re-packaging, metadata and checksum agreement, then uploads the package with its provenance files. Download the **latest successful exact-SHA** artifact from [Actions](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml). Extract the extension ZIP to a folder before **Load unpacked**; do not select the ZIP directly. Use a separate browser profile for candidate testing.
+The GitHub Actions workflow verifies syntax, unit tests, local-document links, manifest/HTML contracts, sorted ZIP contents and deterministic re-packaging. It uploads all three files in the **`btc-live-candidate-zip`** artifact. Select a successful workflow for the exact SHA; verify the hash before use. Extract the inner ZIP and use **Load unpacked** in a dedicated Chromium profile.
 
-## Stable-release gate
+The candidate ZIP is **not** an approved stable store package. A successful checksum does not establish browser functionality.
+
+## Stable acceptance: intentionally fail closed
 
 ```bash
 npm run release:gate
 ```
 
-The command is intentionally **non-zero** while any mandatory acceptance is pending, evidence is absent, the signoff is missing, or the recorded source commit/version differs. Passing this metadata gate still requires a reviewer to inspect the actual test evidence and packaged extension.
+Without external acceptance evidence, the command returns a non-zero exit code. The committed `docs/release-acceptance.json` is **a pending template**; final approval must be stored **outside the tracked source tree** to avoid the circular requirement of embedding a commit SHA into that same commit.
 
-### Promotion steps (only after all gates pass)
+After real browser/migration/store testing, copy the template to a separate file, record all seven passed gates, evidence HTTPS links, exact commit, manifest version, reviewer and UTC timestamp, and run:
 
-1. Freeze the source SHA and verify the complete automated suite on that exact checkout.
-2. Test the actual unpacked candidate and live Binance endpoints across the complete [acceptance matrix](ACCEPTANCE.md).
-3. Record UTC evidence and reviewer in an **external** approval record bound to the tested source SHA (do not edit that SHA into the same commit). Confirm the source, build and signoff correspond.
-4. Decide the customer-visible version; consistently update `manifest.json`, package metadata, changelog, release notes and store listing. **Do not imply v16 is a shipped version until it is approved.**
-5. Rebuild from the intended release SHA, compare checksums, inspect package contents and verify the required permissions and local assets.
-6. Prepare **actual screenshots from the approved extension**, test the upgrade path, verify privacy disclosures and keep rollback artifacts.
-7. Create a version tag and publish a GitHub release only for an accepted build; separately submit the reviewed package/listing to the Chrome Web Store and track its review state.
+```bash
+RELEASE_ACCEPTANCE_FILE=dist/release-approval.json npm run release:gate
+```
 
-Never overwrite historical tags or use a candidate name as evidence that a store version is already live.
+PowerShell: `$env:RELEASE_ACCEPTANCE_FILE='dist/release-approval.json'; npm run release:gate`.
 
-## Historical version distinctions
+This validates **record structure and same-SHA binding**, not evidence authenticity. A responsible reviewer must inspect the actual results before publication. Do not edit or commit the approved record into the same SHA to which it refers.
 
-- `1.22.0` is the repository manifest and a historical release-notes label, **not** proof that this candidate was published to the store.
-- `v16 Phase 01–10` describes a development milestone, **not** a release semver.
-- The [historical v1.22.0 notes](../GITHUB_RELEASE.md), [archived v1.22.0 release checklist](HISTORICAL-RELEASE-CHECKLIST.md) and [Phase 10 notes](PHASE10.md) retain their original context.
-- `main` is the single maintained integration branch; the legacy branch is described in [repository policy](REPOSITORY.md).
+## Promote an accepted customer release
 
-[README](../README.md) · [Testing](TESTING.md) · [User guide](USAGE.md) · [Security](../SECURITY.md)
+1. Settle the **actual** release version; align manifest, package metadata, screenshots, release notes, changelog and store listing. The v16 phase label is **not** a semver release.
+2. Freeze/test the final release commit; reconfirm automated success and all manual acceptance on that exact build.
+3. Run the external release gate and review the underlying links/evidence; check for regressions after any final code or metadata edit.
+4. Rebuild, inspect the actual extension archive, verify SHA-256, rights, capabilities and rollback artifacts.
+5. Only then create the matching version tag and GitHub release. Store submission requires separate approval, review and proof of actual publication.
+
+**Never treat merging, tagging, a draft store listing, or passing static checks as proof of a released extension.**
+
+## Historical records
+
+The historical [v1.22.0 notes](../GITHUB_RELEASE.md) and [archived checklist](HISTORICAL-RELEASE-CHECKLIST.md) describe earlier source milestones, not current candidate acceptance. The old `maintenance/v1.0.x` branch is unmaintained; see [repository policy](REPOSITORY.md).
+
+[Release checklist](../RELEASE_CHECKLIST.md) · [Testing](TESTING.md) · [Documentation index](INDEX.md)

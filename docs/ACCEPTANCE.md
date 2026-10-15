@@ -1,22 +1,24 @@
-# Release acceptance record
+# Customer-release acceptance
 
-The tracked [`release-acceptance.json`](release-acceptance.json) is a machine-readable **pending template**, not an approval. It is deliberately `pending`: a reproducible package and green automated CI are not proof of a production-ready Chromium extension.
+**Current decision: BLOCKED / NOT YET APPROVED.** The automated build can be generated, but no complete real Chromium/live-feed/migration/store evidence set is recorded. Passing source tests is necessary and **not sufficient**.
 
-## Required acceptance
+## Required gates
 
-| ID | Manual acceptance | Evidence to attach |
+The CLI [`release-gate.mjs`](../scripts/release-gate.mjs) defines these seven exact IDs. Keep the IDs unchanged in the external acceptance JSON.
+
+| Gate ID | Actual test requirement | Evidence |
 | --- | --- | --- |
-| `chromium-ui` | Actual unpacked Manifest V3 popup/dashboard, interactions, keyboard, responsive display | Browser/OS/build, screenshots, console and test steps |
-| `live-binance-feeds` | Live Binance Futures REST/WS startup, stale/dropout and reconnection | UTC feed/reconnect traces with timestamps |
-| `depth-recovery` | Missing/delayed snapshot, sequence gaps and resynchronization suppress invalid metrics | Gap and snapshot event evidence |
-| `mv3-alert-lifecycle` | Worker suspension, browser restarts, notification denial, multiple tabs, dashboard-closed limitations | Timestamped alarm, permission, trigger and notification logs |
-| `recording-replay-load` | Recording coverage, import rejection, replay isolation and representative sustained performance | Fixture/results, browser metrics, workload and duration |
-| `existing-install-migration` | Actual upgrade path from the installed release preserves supported stored data/settings | Sanitized before/after fixtures and expected migration contract |
-| `store-assets-privacy` | Screenshots of tested packaged UI, privacy disclosures, permissions and store listing match the artifact | Reviewed asset links and package/store metadata |
+| `chromium-ui` | Load built MV3 extension, popup and all workspaces; check keyboard, responsive layout, chart gestures and console | Browser/OS/build, steps, screenshots and console log |
+| `live-binance-feeds` | Public Binance Futures startup, stale/drop/reconnect, independent REST/WS degradation | Timestamped traces, network/state transition results |
+| `depth-recovery` | Delayed snapshots, delta sequence gaps, crossed book rejection and valid resync | Controlled gap and book state evidence |
+| `mv3-alert-lifecycle` | Worker suspension/restart, alarms, notifications denied/allowed, two dashboards and Web Locks | Timestamped trigger, permission and lifecycle logs |
+| `recording-replay-load` | Real capture/replay/import validation, alert isolation, sustained performance | Session fixtures, load duration, resource traces |
+| `existing-install-migration` | Upgrade from actual installed version and preserve supported state; rollback | Sanitized before/after settings, observed migration outcome |
+| `store-assets-privacy` | Real final-build captures, permissions, privacy and accurate listing copy | Reviewed screenshots, declaration and package references |
 
-For each scenario, record the exact source commit, manifest version, platform/browser build, steps, expected result, actual outcome, UTC time and stable evidence links. Redact user data and secrets.
+**Report each case** with exact SHA, artifact checksum, UTC timestamp, browser version, test machine, reproducible steps, expected and actual results, reviewer and stable evidence URLs. Redact any unrelated private data.
 
-## Commands
+## Automated checks vs acceptance
 
 ```bash
 npm run verify
@@ -24,21 +26,28 @@ npm run docs:check
 npm run release:check
 npm run package:extension
 npm run package:metadata
-npm run release:gate
 ```
 
-The first five prepare and verify a **candidate**. The last command must fail while any gate is pending, missing, or recorded against another commit. It checks completeness and evidence references; it cannot establish authenticity of reports or substitute for an actual human review.
+These prepare the development package only. Do not mark the manual gates as passed because the commands succeed or because the Playwright mocked DOM smoke test passes.
 
-After real acceptance, **copy the pending template to a separate evidence file outside the tracked source tree** (for example, `dist/release-approval.json`), then record each passed scenario, stable evidence URL, the exact tested commit SHA, version, approver and UTC signoff. Do not commit the approved record into that same source commit: embedding a commit's SHA into its own contents is self-referential.
+## Approved evidence file - kept separate from source
 
-Point the release gate at the external record:
+[`release-acceptance.json`](release-acceptance.json) is a **tracked pending template**. When real manual checks are complete, copy it to an external file such as `dist/release-approval.json`, then set:
+
+- `schema_version` to `1`, `manifest_version` to the actual version and `commit` to the full **40-character tested Git SHA**.
+- `decision` to `approved` only after all checks pass; identify `approved_by` and ISO 8601 UTC `approved_at`.
+- Each expected gate to `status: "passed"` with one or more HTTPS `evidence` URLs.
+
+Run the structural gate **in the exact clean checkout**:
 
 ```bash
 RELEASE_ACCEPTANCE_FILE=dist/release-approval.json npm run release:gate
 ```
 
-On Windows PowerShell, use `$env:RELEASE_ACCEPTANCE_FILE='dist/release-approval.json'; npm run release:gate`. The gate also rejects dirty tracked files; the source SHA must match the actual checkout. Preserve the approved evidence file with the release materials, but avoid publicly distributing sensitive acceptance data.
+PowerShell: `$env:RELEASE_ACCEPTANCE_FILE='dist/release-approval.json'; npm run release:gate`.
 
-When the stable release source is approved, reconcile versions, tags, store assets, notes and rollback artifacts using [Release readiness](RELEASE.md). Do not promote the candidate ZIP automatically.
+The gate rejects a missing/mismatched source SHA, uncommitted tracked changes, invalid approval, failed/missing gate or absent evidence reference. It **cannot inspect whether a referenced screenshot, trace or result is truthful**. Human signoff is therefore mandatory. The approval file must remain external to the tested commit: otherwise editing the SHA into that commit changes the SHA itself.
 
-[Testing](TESTING.md) · [Release status](RELEASE.md) · [Store assets](../STORE_ASSETS.md)
+After any code/version or material packaging change, obtain a new exact-build acceptance. No automated process may silently promote this candidate.
+
+[Release guide](RELEASE.md) · [Browser worksheet](SMOKE-TEST.md) · [Store assets](../STORE_ASSETS.md)

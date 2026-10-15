@@ -10,7 +10,7 @@ Live BTCUSDT market observation · Charts and order flow · Local replay · Conf
 
 [![Verification](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml)
 ![Chromium](https://img.shields.io/badge/Chromium-Manifest_V3-30343B?logo=googlechrome&logoColor=white)
-![Version](https://img.shields.io/badge/manifest-1.24.1-F3A23A)
+![Version](https://img.shields.io/badge/manifest-1.24.2-F3A23A)
 ![Status](https://img.shields.io/badge/status-development_candidate-555)
 [![License](https://img.shields.io/badge/license-MIT-30343B)](LICENSE)
 
@@ -19,7 +19,7 @@ Live BTCUSDT market observation · Charts and order flow · Local replay · Conf
 </div>
 
 > [!IMPORTANT]
-> **Development candidate, not an approved customer release.** The current `main` branch declares version **1.24.1** in `manifest.json`. Automated checks do not establish live Chromium/MV3 behavior, real Binance connectivity, alert delivery, migration safety or Chrome Web Store approval. See [release acceptance](docs/ACCEPTANCE.md).
+> **Development candidate, not an approved customer release.** The current `main` branch declares version **1.24.2** in `manifest.json`. Automated checks do not establish live Chromium/MV3 behavior, real Binance connectivity, alert delivery, migration safety or Chrome Web Store approval. See [release acceptance](docs/ACCEPTANCE.md).
 
 ### Product snapshot
 
@@ -139,7 +139,7 @@ npm run package:metadata
 
 | Output | Meaning |
 | :-- | :-- |
-| `dist/btc-live-chromium-v1.24.1-candidate.zip` | Reproducible Chromium candidate package |
+| `dist/btc-live-chromium-v1.24.2-candidate.zip` | Reproducible Chromium candidate package |
 | `dist/SHA256SUMS.txt` | Artifact checksum |
 | `dist/BUILD_INFO.json` | Candidate status, version, source commit and artifact metadata |
 | [CI workflow](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml) | Automated syntax/tests, documentation/release checks, archive integrity and reproducibility |
@@ -148,7 +148,7 @@ npm run package:metadata
 
 ## Software updates
 
-BTC Live checks the official GitHub Releases API for eligible newer versions on startup and at most daily during normal use. The popup main view shows a discreet indicator when a newer release is available. Popup Settings and dashboard Settings contain **Software Updates**, with the installed version, available version, channel, check status and a manual check. Stable excludes drafts and pre-releases; Preview additionally permits explicitly published prereleases. A Git commit, tag or CI development-candidate ZIP alone is not a public update. An installed unpacked extension may therefore display an older version than the latest repository source until its local files are refreshed and the extension is reloaded. The panel distinguishes last successful check from last attempt and rejects stale results from a different installed version. When no qualifying release exists, the status is **No eligible published release**, not Up to date. Checks use the public GitHub API without authentication; the extension requests `https://api.github.com/*` and permits that origin in its connect-src CSP. GitHub rate limits and network failures are nonfatal; transient failures are retried no sooner than 15 minutes unless manually requested, and the previous result can be stale. The feature opens official release notes only; it never installs software or executes remote code. Browser-store installations continue updating through the store.
+BTC Live checks the official GitHub Releases API for eligible newer versions on startup and at most daily during normal use. The popup main view shows a discreet indicator when a newer release is available. Popup Settings and dashboard Settings contain **Software Updates**, with the installed version, available version, channel, check status and a manual check. Stable excludes drafts and pre-releases; Preview additionally permits explicitly published prereleases. Release lookups validate a bounded, paginated history; incomplete histories or malformed API responses are treated as check failures rather than definitive absence of an eligible release. A Git commit, tag or CI development-candidate ZIP alone is not a public update. An installed unpacked extension may therefore display an older version than the latest repository source until its local files are refreshed and the extension is reloaded. The panel distinguishes last successful check from last attempt and rejects stale results from a different installed version. When no qualifying release exists, the status is **No eligible published release**, not Up to date. Checks use the public GitHub API without authentication; the extension requests `https://api.github.com/*` and permits that origin in its connect-src CSP. GitHub rate limits and network failures are nonfatal; transient failures are retried no sooner than 15 minutes unless manually requested, and the previous result can be stale. The feature opens official release notes only; it never installs software or executes remote code. Browser-store installations continue updating through the store.
 
 ## Privacy, safety and release scope
 

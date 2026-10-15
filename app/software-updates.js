@@ -5,7 +5,7 @@ export const UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const RELEASES_API = 'https://api.github.com/repos/jsmlabs/btc-live/releases';
 const RELEASE_BASE = 'https://github.com/jsmlabs/btc-live/releases/tag/';
 const RETRY_INTERVAL_MS = 15 * 60 * 1000;
-const VALID_VERSION = /^(?:v)?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/;
+const VALID_VERSION = /^(?:v)?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 export function parseVersion(value) {
   if (typeof value !== 'string' || value.length > 100) return null;
   const match = VALID_VERSION.exec(value);
@@ -110,21 +110,34 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 8000);
       try {
-        const response = await fetchFn(RELEASES_API + '?per_page=30', {
-          headers: { Accept: 'application/vnd.github+json' }, signal: controller.signal, redirect: 'error', cache: 'no-store'
-        });
-        if (response.status === 403 || response.status === 429) {
-          const header = response.headers?.get('retry-after');
-          const seconds = header !== null && header !== undefined && /^\d+(?:\.\d+)?$/.test(header.trim())
-            ? Number(header.trim()) : NaN;
-          const retryMs = Number.isFinite(seconds) ? seconds * 1000
-            : typeof header === 'string' ? Date.parse(header) - time : NaN;
-          const delayMs = Number.isFinite(retryMs) && retryMs > 0 ? retryMs : 3600000;
-          return write({ ...state, error: 'RATE_LIMITED', retryAfter: time + Math.min(86400000, Math.max(60000, delayMs)) });
+        const releases = [];
+        let complete = false;
+        // GitHub paginates published releases. A partial first page can hide
+        // eligible stable versions behind many previews or older releases.
+        for (let page = 1; page <= 5; page++) {
+          const response = await fetchFn(RELEASES_API + '?per_page=100&page=' + page, {
+            headers: { Accept: 'application/vnd.github+json' }, signal: controller.signal,
+            redirect: 'error', cache: 'no-store'
+          });
+          if (response.status === 403 || response.status === 429) {
+            const header = response.headers?.get('retry-after');
+            const seconds = typeof header === 'string' && /^\d+(?:\.\d+)?$/.test(header.trim())
+              ? Number(header.trim()) : NaN;
+            const retryMs = Number.isFinite(seconds) ? seconds * 1000
+              : typeof header === 'string' ? Date.parse(header) - time : NaN;
+            const delayMs = Number.isFinite(retryMs) && retryMs > 0 ? retryMs : 3600000;
+            return write({ ...state, error: 'RATE_LIMITED',
+              retryAfter: time + Math.min(86400000, Math.max(60000, delayMs)) });
+          }
+          if (!response.ok) throw Error('GitHub release lookup failed');
+          const pageItems = await response.json();
+          if (!Array.isArray(pageItems) || pageItems.length > 100)
+            throw Error('Invalid GitHub Releases response');
+          releases.push(...pageItems);
+          if (pageItems.length < 100) { complete = true; break; }
         }
-        if (!response.ok) throw Error('GitHub release lookup failed');
-        const releases = await response.json();
-        if (!Array.isArray(releases)) throw Error('Invalid GitHub Releases response');
+        // Never claim UP_TO_DATE or UNSUPPORTED from a truncated release list.
+        if (!complete) throw Error('GitHub release listing exceeded safe page limit');
         const result = selectRelease(releases, installed, state.channel);
         if (result.status === 'UNSUPPORTED') return write({ ...state, status: 'UNSUPPORTED', release: null, checkedInstalled: installed, lastSuccessAt: time });
         return write({ ...state, ...result, checkedInstalled: installed, lastSuccessAt: time });

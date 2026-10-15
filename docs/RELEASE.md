@@ -1,7 +1,14 @@
 # Release and build guide
 
 > [!IMPORTANT]
-> **Development candidate - NOT approved for customer publication.** Current `main` contains the extension development candidate, while `manifest.json` reports `1.24.1`. A green CI badge does not change its release status.
+> **Development candidate - NOT approved for customer publication.** Current `main` contains the extension development candidate, while `manifest.json` reports `1.24.2`. A green CI badge does not change its release status.
+
+## Development-candidate changes in 1.24.2
+
+- Read multiple bounded GitHub Releases API pages so a stable release cannot be silently hidden by many recent preview releases.
+- Reject incomplete or malformed release histories rather than reporting an unsupported or up-to-date state from partial evidence.
+- Accept SemVer build metadata in release tags while comparing version precedence correctly.
+- Add pagination, rate-limit, truncation and version-precedence regressions. No new permissions, auto-install mechanism or stable-release approval.
 
 ## Development-candidate changes in 1.24.1
 
@@ -49,7 +56,7 @@ npm run package:metadata
 
 | Artifact in `dist/` | Function |
 | --- | --- |
-| `btc-live-chromium-v1.24.1-candidate.zip` | Deterministic package of manifest and reviewed runtime directories |
+| `btc-live-chromium-v1.24.2-candidate.zip` | Deterministic package of manifest and reviewed runtime directories |
 | `SHA256SUMS.txt` | SHA-256 digest for the runtime ZIP |
 | `BUILD_INFO.json` | Manifest version, candidate status, source SHA (when available) and artifact metadata |
 

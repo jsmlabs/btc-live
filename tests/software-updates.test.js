@@ -10,6 +10,10 @@ test('strict version comparison and pre-release precedence', () => {
  assert.equal(compareVersions('1.22.0-rc.2','1.22.0-rc.10'), -1);
  assert.equal(compareVersions('1.22.0','1.22.0-rc.1'), 1);
  assert.equal(compareVersions('v1.22.0','1.22.0'), 0);
+ assert.equal(compareVersions('1.24.1+build.20','1.24.1+build.1'), 0);
+ assert.equal(compareVersions('1.24.2-rc.1+build.5','1.24.2-rc.2'), -1);
+ assert.deepEqual(parseVersion('v1.24.1+build.20')?.pre, []);
+ assert.equal(parseVersion('1.24.1+bad..build'), null);
  for (const invalid of ['1.2','1.2.3.4','01.2.3','1.2.3-01','hi','1.2.3<script>']) assert.equal(parseVersion(invalid), null);
 });
 test('select only released eligible versions', () => {
@@ -196,4 +200,90 @@ test('manual force can check when automatic daily checks are disabled', async ()
  assert.equal(forced.status,'UNSUPPORTED');
  assert.equal(forced.enabled,false);
  assert.equal(requests,1);
+});
+
+test('release discovery continues beyond the first page when previews hide a stable release', async () => {
+ let stored = {}, urls = [];
+ const api = {runtime:{getManifest:()=>({version:'1.24.1'})},storage:{local:{
+  get:async()=>stored,set:async x=>{stored={...stored,...x}}
+ }}};
+ const previews = Array.from({length:100},(_,i)=>release('v1.25.0-rc.'+(i+1),true));
+ const controller = createUpdateController({api,fetchFn:async url=>{
+  urls.push(url);
+  return {ok:true,status:200,json:async()=>urls.length===1?previews:[release('v1.25.0')]};
+ }});
+ const state=await controller.check();
+ assert.equal(state.status,'UPDATE_AVAILABLE');
+ assert.equal(state.release.version,'1.25.0');
+ assert.deepEqual(urls.map(u=>new URL(u).searchParams.get('page')),['1','2']);
+ assert.ok(urls.every(u=>new URL(u).searchParams.get('per_page')==='100'));
+});
+
+test('discovery selects the highest semantic release even if a later page contains it', async () => {
+ let persisted={},page=0;
+ const api={runtime:{getManifest:()=>({version:'1.24.1'})},storage:{local:{
+  get:async()=>persisted,set:async x=>{persisted={...persisted,...x}}
+ }}};
+ const first=Array.from({length:100},(_,i)=>release('v1.25.0-rc.'+(i+1),true));
+ const controller=createUpdateController({api,fetchFn:async()=>{
+  page++;
+  return {ok:true,status:200,json:async()=>page===1?first:[release('v1.26.0+build.5')]};
+ }});
+ const state=await controller.check({force:true});
+ assert.equal(state.status,'UPDATE_AVAILABLE');
+ assert.equal(state.release.version,'1.26.0+build.5');
+});
+
+test('truncated release listing never claims a complete successful check', async () => {
+ let stored={},calls=0;
+ const api={runtime:{getManifest:()=>({version:'1.24.1'})},storage:{local:{
+  get:async()=>stored,set:async x=>{stored={...stored,...x}}
+ }}};
+ const full=Array.from({length:100},(_,i)=>release('v1.25.0-rc.'+(i+1),true));
+ const controller=createUpdateController({api,fetchFn:async()=>{
+  calls++;
+  return {ok:true,status:200,json:async()=>full};
+ }});
+ const state=await controller.check();
+ assert.equal(calls,5);
+ assert.equal(state.status,'NOT_CHECKED');
+ assert.equal(state.error,'CHECK_FAILED');
+ assert.equal(state.lastSuccessAt,null);
+});
+
+test('pagination API rate limits preserve cooldown and do not claim no eligible releases', async () => {
+ let stored={},page=0;
+ const api={runtime:{getManifest:()=>({version:'1.24.1'})},storage:{local:{
+  get:async()=>stored,set:async x=>{stored={...stored,...x}}
+ }}};
+ const first=Array.from({length:100},(_,i)=>release('v1.25.0-rc.'+(i+1),true));
+ const controller=createUpdateController({api,fetchFn:async()=>{
+  page++;
+  return page===1 ? {ok:true,status:200,json:async()=>first} : {
+   ok:false,status:429,headers:{get:()=> '120'}
+  };
+ }});
+ const state=await controller.check();
+ assert.equal(page,2);
+ assert.equal(state.error,'RATE_LIMITED');
+ assert.equal(state.status,'NOT_CHECKED');
+ assert.ok(state.retryAfter>Date.now());
+ await controller.check();
+ assert.equal(page,2);
+});
+
+test('malformed later release pages cause retryable errors rather than incomplete success', async () => {
+ let stored={},page=0;
+ const api={runtime:{getManifest:()=>({version:'1.24.1'})},storage:{local:{
+  get:async()=>stored,set:async x=>{stored={...stored,...x}}
+ }}};
+ const first=Array.from({length:100},(_,i)=>release('v1.25.0-rc.'+(i+1),true));
+ const controller=createUpdateController({api,fetchFn:async()=>{
+  page++;
+  return {ok:true,status:200,json:async()=>page===1?first:{message:'bad response'}};
+ }});
+ const state=await controller.check();
+ assert.equal(state.status,'NOT_CHECKED');
+ assert.equal(state.error,'CHECK_FAILED');
+ assert.equal(state.lastSuccessAt,null);
 });

@@ -5,7 +5,7 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const manifest=JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8'));
 const assert=(ok,msg)=>{if(!ok)throw Error(msg)};
 assert(manifest.manifest_version===3,'Manifest V3 required');
-assert(manifest.version==='1.23.0','Unexpected manifest version, review release metadata');
+assert(manifest.version==='1.24.0','Unexpected manifest version, review release metadata');
 const allowedPermissions=new Set(['storage','notifications','alarms']);
 assert(Array.isArray(manifest.permissions)&&manifest.permissions.length===allowedPermissions.size&&new Set(manifest.permissions).size===allowedPermissions.size&&manifest.permissions.every(x=>allowedPermissions.has(x)),'Unexpected or missing extension permission');
 assert(JSON.stringify(manifest.host_permissions)==='["https://fapi.binance.com/*","https://api.github.com/*"]','Host permission drift');

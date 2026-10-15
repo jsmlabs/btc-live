@@ -1,5 +1,7 @@
 # Alert semantics and failure modes
 
+> Scope: candidate behavior and intended contracts. Real Chromium lifecycle and notification delivery acceptance remain open; see [Testing](TESTING.md).
+
 ## Two different execution models
 
 1. **Existing price alerts:** Dashboard/popup evaluation and a sampled MV3 background REST polling path. The background poller is not a continuous market stream; checks may be delayed, skipped or suppressed by browser lifecycle.

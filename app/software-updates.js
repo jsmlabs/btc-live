@@ -86,9 +86,13 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
           headers: { Accept: 'application/vnd.github+json' }, signal: controller.signal, redirect: 'error', cache: 'no-store'
         });
         if (response.status === 403 || response.status === 429) {
-          let retry = Number(response.headers?.get('retry-after'));
-          if (!Number.isFinite(retry) || retry <= 0) retry = 3600;
-          return write({ ...state, error: 'RATE_LIMITED', retryAfter: time + Math.min(86400, Math.max(60, retry)) * 1000 });
+          const header = response.headers?.get('retry-after');
+          const seconds = header !== null && header !== undefined && /^\d+(?:\.\d+)?$/.test(header.trim())
+            ? Number(header.trim()) : NaN;
+          const retryMs = Number.isFinite(seconds) ? seconds * 1000
+            : typeof header === 'string' ? Date.parse(header) - time : NaN;
+          const delayMs = Number.isFinite(retryMs) && retryMs > 0 ? retryMs : 3600000;
+          return write({ ...state, error: 'RATE_LIMITED', retryAfter: time + Math.min(86400000, Math.max(60000, delayMs)) });
         }
         if (!response.ok) throw Error('GitHub release lookup failed');
         const result = selectRelease(await response.json(), installed, state.channel);

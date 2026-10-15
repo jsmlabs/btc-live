@@ -82,3 +82,29 @@ test('failures are throttled but a manual retry still runs', async () => {
  await controller.check({force:true});
  assert.equal(count,2);
 });
+
+test('HTTP-date Retry-After is honored with bounded rate-limit delay', async () => {
+ let persisted = {};
+ const time = Date.now();
+ const api = {runtime:{getManifest:()=>({version:'1.22.0'})},storage:{local:{
+  get:async()=>persisted,set:async x=>{persisted={...persisted,...x}}
+ }}};
+ const controller = createUpdateController({api,now:()=>time,fetchFn:async()=>({
+  ok:false,status:429,headers:{get:()=>new Date(time + 2 * 60 * 60 * 1000).toUTCString()}
+ })});
+ const state = await controller.check();
+ assert.equal(state.error,'RATE_LIMITED');
+ assert.ok(Math.abs(state.retryAfter - (time + 2 * 60 * 60 * 1000)) < 1000);
+});
+test('invalid Retry-After uses conservative one-hour fallback', async () => {
+ let persisted = {};
+ const time = Date.now();
+ const api = {runtime:{getManifest:()=>({version:'1.22.0'})},storage:{local:{
+  get:async()=>persisted,set:async x=>{persisted={...persisted,...x}}
+ }}};
+ const controller = createUpdateController({api,now:()=>time,fetchFn:async()=>({
+  ok:false,status:403,headers:{get:()=> 'not-a-date'}
+ })});
+ const state = await controller.check();
+ assert.equal(state.retryAfter,time + 3600000);
+});

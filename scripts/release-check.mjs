@@ -20,12 +20,15 @@ async function walk(dir){
   if(e.isSymbolicLink())throw Error('Symlinks not supported: '+absolute);
   if(e.isDirectory())await walk(absolute);
   else if(e.isFile())extension.push(path.relative(root,absolute).split(path.sep).join('/'));
+  else throw Error('Unsupported runtime directory entry: '+absolute);
  }
 }
 for(const dir of runtimeDirs)await walk(path.join(root,dir));
 
 assert(extension.length>50,'Unexpectedly small extension');
 const files=new Set(extension);
+assert(files.size===extension.length,'Duplicate runtime file path detected');
+for(const rel of extension)assert(rel==='manifest.json'||rel.split('/')[0]&&runtimeDirs.has(rel.split('/')[0]),'Unexpected package root: '+rel);
 const entry=[manifest.action?.default_popup,manifest.background?.service_worker,...Object.values(manifest.icons??{}),...Object.values(manifest.action?.default_icon??{})];
 for(const f of entry)assert(files.has(f),'Missing extension entry: '+f);
 for(const htmlFile of extension.filter(f=>f.endsWith('.html'))){const html=await readFile(path.join(root,htmlFile),'utf8');for(const m of html.matchAll(/\b(?:src|href)\s*=\s*(["'])([^"']+)\1/g)){const ref=m[2];if(/^(?:https?:|data:|#|mailto:)/.test(ref))continue;const resolved=path.posix.normalize(path.posix.join(path.posix.dirname(htmlFile),ref.split(/[?#]/)[0]));assert(files.has(resolved),`Missing local asset ${htmlFile}: ${ref}`)}}

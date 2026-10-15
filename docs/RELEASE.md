@@ -6,8 +6,9 @@
 
 | Area | Recorded evidence | Current decision |
 | --- | --- | --- |
-| Automated verification on integrated `main` | [Commit `a7920d2` CI](https://github.com/jsmlabs/btc-live/actions/runs/38689981950) succeeded | **Passed for that exact commit**; re-check after future changes |
-| Static release check, candidate ZIP integrity and reproducibility | [Main CI run `38689981950`](https://github.com/jsmlabs/btc-live/actions/runs/38689981950) | **Passed for that exact commit** |
+| Automated verification on integrated `main` | [Commit `d511e91` CI](https://github.com/jsmlabs/btc-live/actions/runs/38690697919) succeeded | **Passed for that exact commit**; re-check after future changes |
+| Static release check, candidate ZIP integrity and reproducibility | [Main CI run `38690697919`](https://github.com/jsmlabs/btc-live/actions/runs/38690697919) | **Passed for that exact commit** |
+| Local Markdown link integrity | [Main CI run `38690697919`](https://github.com/jsmlabs/btc-live/actions/runs/38690697919) | **Passed for that exact commit** |
 | Chromium popup/dashboard | No accepted end-to-end evidence recorded | **Blocked** |
 | Binance feed and depth recovery | No accepted live/reconnect sequence recorded | **Blocked** |
 | MV3 lifecycle and multi-tab notifications | No accepted suspension/race evidence recorded | **Blocked** |

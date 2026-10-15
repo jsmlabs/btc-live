@@ -67,6 +67,7 @@ function stopEventPlayback() {
 }
 function drawEvents() {
   const captured = eventRecorder.snapshot();
+  eventById('Panel').dataset.replayState = captured.status.toLowerCase();
   eventView.render(eventFrames, eventPosition, `${eventPlaying ? 'PLAYBACK · ' : ''}${captured.status}${!captured.trustedCapture ? ' · UNVERIFIED IMPORT' : ''}`);
   eventById('Start').disabled = captured.status === 'RECORDING';
   eventById('Stop').disabled = captured.status !== 'RECORDING';
@@ -236,6 +237,7 @@ let diagnosticsTimer = null;
 const replayById = (id) => document.getElementById(`dashboardReplay${id}`);
 function drawReplay() {
   const recording = recorder.snapshot();
+  replayById('Panel').dataset.replayState = recording.status.toLowerCase();
   if (recorder.snapshot().status === 'RECORDING') replayPosition = Math.max(0, recording.frames.length - 1);
   replayView.render(recording, replayPosition, replayPlaying ? `PLAYBACK / ${recording.status}` : recording.status);
   const hasFrames = recording.frames.length > 0;
@@ -831,7 +833,10 @@ function cleanup() {
   runtime.dispose('Dashboard closed');
 }
 
-const analyticsViews = bindAnalyticsViews(document);
+const analyticsViews = bindAnalyticsViews(document, { onChange() {
+  liquidityPaint.schedule();
+  flowPaint.schedule();
+} });
 bindUi();
 advancedAlerts.initialize().catch(error=>console.warn('Advanced rule initialization failed',error));
 alertCenter.refresh().catch((error) => console.warn('BTC Live alert center initialization failed', error));

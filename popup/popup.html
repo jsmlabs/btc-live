@@ -267,8 +267,10 @@
 
       <div class="settings-actions">
         <button id="testNotificationButton" class="secondary-button" type="button">Test notification</button>
-        <button id="resetSettingsButton" class="secondary-button" type="button">Reset defaults</button>
+        <button id="resetSettingsButton" class="secondary-button" type="button" aria-describedby="settingResetScope">Reset app settings</button>
       </div>
+
+      <p id="settingResetScope" class="settings-scope-note">Resets display and notification settings. Saved targets, replay sessions and dashboard layout are retained.</p>
 
       <p id="settingNotificationFeedback" class="operation-feedback" role="status" hidden></p>
 

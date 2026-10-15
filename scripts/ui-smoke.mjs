@@ -134,6 +134,23 @@ try {
   await page.keyboard.press('Home');
   assert.equal(await nav('live').getAttribute('aria-pressed'), 'true');
   results.push('workspace keyboard navigation');
+  await nav('analytics').click();
+  await page.locator('[data-analytics-view="orderflow"]').click();
+  assert.equal(await page.locator('#analytics-liquidity').isVisible(), false);
+  assert.equal(await page.locator('.flow-chart-wrap').isVisible(), true);
+  assert.equal(await page.locator('.flow-behavior').isVisible(), false);
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await page.locator('#analyticsViewTitle').textContent(), 'Liquidity behavior');
+  assert.equal(await page.locator('.flow-chart-wrap').isVisible(), false);
+  assert.equal(await page.locator('.flow-heading').isVisible(), false);
+  assert.equal(await page.locator('.flow-behavior').isVisible(), true);
+  await shot('analytics-behavior');
+  await page.keyboard.press('Home');
+  assert.equal(await page.locator('#analytics-liquidity').isVisible(), true);
+  assert.equal(await page.locator('.flow-chart-wrap').isVisible(), true);
+  assert.equal(await page.locator('.flow-behavior').isVisible(), true);
+  results.push('Analytics filters isolate executed flow and resting liquidity; keyboard selection updates visible context');
+  await nav('live').click();
   const references = page.locator('.chart-reference-levels');
   assert.equal(await references.getAttribute('open'), null);
   await references.locator('summary').click();
@@ -308,6 +325,34 @@ try {
     assert.ok(await page.locator('#dashboardEventBookmarkNote').evaluate(node => node.clientWidth) >= 140, `bookmark input width at ${width}`);
   }
   results.push('replay text inputs retain usable width');
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.locator('#dashboardEventStart').click();
+  assert.equal(await page.locator('#dashboardEventPanel').getAttribute('data-replay-state'), 'recording');
+  await page.locator('#dashboardEventStop').click();
+  await page.locator('#dashboardEventSessionName').fill('UI smoke event session');
+  await page.locator('#dashboardEventSaveSession').click();
+  await page.waitForFunction(() => document.getElementById('dashboardEventSessionFeedback').textContent.includes('Saved locally: UI smoke event session'));
+  await page.selectOption('#dashboardEventSessions', { index: 1 });
+  await page.locator('#dashboardEventLoadSession').click();
+  await page.waitForFunction(() => document.getElementById('dashboardEventSessionFeedback').textContent.includes('Loaded local saved session:'));
+  assert.match(await page.locator('#dashboardEventState').textContent(), /UNVERIFIED IMPORT/);
+  await shot('replay-loaded-session');
+  page.once('dialog', dialog => dialog.accept());
+  await page.locator('#dashboardEventDeleteSession').click();
+  await page.waitForFunction(() => document.getElementById('dashboardEventSessionFeedback').textContent.includes('Selected saved session deleted'));
+  await page.locator('#dashboardEventClear').click();
+  await page.locator('#dashboardReplayModeSamples').click();
+  await page.locator('#dashboardReplayStart').click();
+  assert.equal(await page.locator('#dashboardReplayPanel').getAttribute('data-replay-state'), 'recording');
+  await page.locator('#dashboardReplayStop').click();
+  await page.locator('#dashboardReplayClear').click();
+  await page.locator('#dashboardReplayModeEvents').click();
+  results.push('event record/stop/save/load/delete and sample record/stop/clear preserve offline replay boundaries');
+
+  await nav('settings').click();
+  assert.equal(await page.locator('.keyboard-reference').isVisible(), true);
+  assert.equal(await page.locator('#dashboardResetSettings').getAttribute('aria-describedby'), 'dashboardResetScope');
+  assert.match(await page.locator('#dashboardResetScope').textContent(), /notification/);
 
   for (const width of [408, 360, 320]) {
     await page.setViewportSize({ width, height: 800 });

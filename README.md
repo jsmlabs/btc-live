@@ -78,7 +78,9 @@ There is **no install/build requirement** for loading unpacked source. For a ver
 - **Layout:** Standard · Wide · Stacked; density: Compact · Comfortable · Analysis.
 - **Navigation:** Desktop sidebar, scrollable tablet bar and a two-row phone navigation with all six workspaces visible. Use arrow keys, Home and End within navigation.
 - **View options:** Workspace preset, dashboard density and panel layout are grouped in one menu. Dashboard density stays selected during market updates.
-- **Workspaces:** Simple, Advanced and Custom presets; available views and command-palette entries depend on the preset.
+- **Workspaces:** Simple, Advanced and Custom presets; available views and command-palette entries depend on the preset. Analytics has focused Liquidity / Order flow / Behavior views.
+- **Replay:** Numbered capture, local session and inspection steps; recording limits remain in an inline disclosure.
+- **Settings:** Keyboard reference and explicit reset scope for display and notification defaults.
 - **Shortcuts:** `Ctrl+K` / `Cmd+K` where supported opens the command palette; `F` toggles focus mode outside text fields; `Escape` exits focus or an expanded chart. Hold `Alt` for optional OHLC drawing snap.
 
 ### How to interpret market data

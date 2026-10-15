@@ -220,8 +220,8 @@
     </section>
 
     <nav class="analytics-overview panel" data-workspace-panel="analytics" aria-label="Analytics sections">
-      <div><span class="eyebrow muted">MARKET ANALYTICS</span><h2>Market intelligence</h2><p>Visible liquidity and executed trades are separate observations. Values are only shown when the relevant feeds are valid.</p></div>
-      <div class="analytics-shortcuts" role="group" aria-label="Analytics views"><button type="button" class="analytics-view-button" data-analytics-view="all" aria-pressed="true">Overview</button><button type="button" class="analytics-view-button" data-analytics-view="liquidity" aria-pressed="false">Liquidity</button><button type="button" class="analytics-view-button" data-analytics-view="orderflow" aria-pressed="false">Order flow</button><button type="button" class="analytics-view-button" data-analytics-view="behavior" aria-pressed="false">Behavior</button></div>
+      <div><span class="eyebrow muted">MARKET ANALYTICS</span><h2 id="analyticsViewTitle">Market intelligence</h2><p id="analyticsViewDescription" role="status" aria-live="polite">Visible liquidity and executed trades are separate observations. Values are only shown when the relevant feeds are valid.</p></div>
+      <div class="analytics-shortcuts" role="group" aria-label="Analytics views" aria-describedby="analyticsViewDescription"><button type="button" class="analytics-view-button" data-analytics-view="all" aria-pressed="true">Overview</button><button type="button" class="analytics-view-button" data-analytics-view="liquidity" aria-pressed="false">Liquidity</button><button type="button" class="analytics-view-button" data-analytics-view="orderflow" aria-pressed="false">Order flow</button><button type="button" class="analytics-view-button" data-analytics-view="behavior" aria-pressed="false">Behavior</button></div>
     </nav>
     <section id="analytics-liquidity" class="liquidity-section" data-workspace-panel="analytics" aria-label="Visible BTCUSDT order book liquidity">
       <article id="dashboardLiquidityPanel" class="panel liquidity-panel" data-liquidity-mode="bars">
@@ -319,11 +319,13 @@
         <div class="replay-heading">
           <div>
             <div class="eyebrow muted">OBSERVATION CAPTURE · LOCAL MEMORY ONLY</div>
-            <h2>Market Recorder & Replay <span class="liquidity-beta">SAMPLED · NOT TICK REPLAY</span></h2>
-            <p class="flow-description">Explicit opt-in. Up to 240 synchronized *observation times* at 2s intervals; independent feeds are not atomic. No background recording or historical backfill.</p>
+            <h2>Sample replay <span class="liquidity-beta">PERIODIC OBSERVATIONS</span></h2>
+            <p class="flow-description">Capture periodic observations, then inspect the recorded price, flow and depth. Recording starts only when you choose Record.</p>
+            <details class="replay-boundaries"><summary>Capture limits &amp; data boundaries</summary><p>Explicit opt-in. Up to 240 synchronized observation times at 2s intervals; independent feeds are not atomic. No background recording or historical backfill.</p></details>
           </div>
           <span id="dashboardReplayStatus" class="liquidity-status" role="status" aria-live="polite">NO RECORDING</span>
         </div>
+        <div class="replay-step-heading"><span aria-hidden="true">01</span><div><h3>Capture or import</h3><p>Record observations or choose a compatible local JSON file.</p></div></div>
         <div class="replay-controls" aria-label="Recorder and replay controls">
           <button id="dashboardReplayStart" class="button secondary" type="button">Record</button>
           <button id="dashboardReplayStop" class="button secondary" type="button" disabled>Stop</button>
@@ -333,6 +335,7 @@
           <label class="button secondary replay-import">Import JSON <input id="dashboardReplayImport" type="file" accept=".json,application/json" aria-label="Import a recording JSON file"></label>
           <button id="dashboardReplayClear" class="button secondary" type="button">Clear</button>
         </div>
+        <div class="replay-step-heading"><span aria-hidden="true">02</span><div><h3>Inspect the recording</h3><p>Seek through captured observations. Missing data stays unavailable.</p></div></div>
         <div class="replay-timeline">
           <input id="dashboardReplayPosition" type="range" min="0" max="0" step="1" value="0" disabled aria-label="Replay observation position">
           <span id="dashboardReplayTimeline" aria-live="off">0 / 0</span>
@@ -355,11 +358,13 @@
         <div class="replay-heading">
           <div>
             <div class="eyebrow muted">EVENT RECEIPT LOG · USD-M FUTURES · OPT-IN</div>
-            <h2>Deterministic Event Replay <span class="liquidity-beta">EVENTS V3</span></h2>
-            <p class="flow-description">Independent depth/trade feeds, ordered by local receipt. Max 2,400 events or 4 MiB per capture. Save locally only when requested; no background capture; no exchange-wide atomic ordering, history backfill or trading signals.</p>
+            <h2>Event replay <span class="liquidity-beta">RECEIPT-ORDER EVENTS</span></h2>
+            <p class="flow-description">Capture an event session, save it on this device and inspect it locally. Replay remains separate from live prices and alerts.</p>
+            <details class="replay-boundaries"><summary>Capture limits &amp; data boundaries</summary><p>Independent depth/trade feeds, ordered by local receipt. Max 2,400 events or 4 MiB per capture. Save locally only when requested; no background capture; no exchange-wide atomic ordering, history backfill or trading signals. Event format V3.</p></details>
           </div>
           <span id="dashboardEventState" class="liquidity-status" role="status" aria-live="polite">IDLE</span>
         </div>
+        <div class="replay-step-heading"><span aria-hidden="true">01</span><div><h3>Capture or import</h3><p>Record the observed feeds or open a compatible event file.</p></div></div>
         <div class="replay-controls" aria-label="Event recorder controls">
           <button id="dashboardEventStart" class="button secondary" type="button">Record events</button>
           <button id="dashboardEventStop" class="button secondary" type="button" disabled>Stop</button>
@@ -370,7 +375,7 @@
           <button id="dashboardEventClear" class="button secondary" type="button">Clear</button>
         </div>
         <div class="replay-session-controls" aria-label="Local replay session management">
-          <div class="eyebrow muted">SAVED SESSIONS · LOCAL INDEXEDDB · EXPLICIT OPT-IN</div>
+          <div class="replay-step-heading"><span aria-hidden="true">02</span><div><h3>Save &amp; load</h3><p>Sessions are stored only when you choose Save locally.</p></div></div>
           <div class="replay-controls">
             <label class="liquidity-control">Session name <input id="dashboardEventSessionName" type="text" maxlength="64" value="Futures event capture" aria-label="Name saved replay session"></label>
             <button id="dashboardEventSaveSession" class="button secondary" type="button" disabled>Save locally</button>
@@ -380,6 +385,7 @@
           </div>
           <p id="dashboardEventSessionFeedback" class="flow-footnote" role="status" aria-live="polite">Saved sessions persist only in this browser profile. Max 12 sessions / 24 MiB stored. No automatic recording or uploads.</p>
         </div>
+        <div class="replay-step-heading"><span aria-hidden="true">03</span><div><h3>Inspect &amp; compare</h3><p>Seek, step or bookmark recorded events. Comparisons are descriptive.</p></div></div>
         <div class="replay-timeline">
           <input id="dashboardEventPosition" type="range" min="0" max="0" step="1" value="0" disabled aria-label="Event position">
           <span id="dashboardEventCount" aria-live="off">0 / 0</span>
@@ -512,7 +518,7 @@
         <div class="panel-header">
           <div>
             <div class="eyebrow muted">LOCAL</div>
-            <h2>Display Settings</h2>
+            <h2>Appearance &amp; preferences</h2>
           </div>
         </div>
         <label class="setting-row" for="dashboardWorkspaceLanding"><span><strong>Custom Landing View</strong><small>Only used by the Custom workspace preset.</small></span><select id="dashboardWorkspaceLanding" aria-label="Custom start view"><option value="live">Live</option><option value="analytics">Analytics</option><option value="replay">Replay</option><option value="alerts">Alerts</option><option value="diagnostics">Diagnostics</option><option value="settings">Settings</option></select></label>
@@ -523,7 +529,18 @@
           <label class="setting-row"><span><strong>Show 24h Range</strong><small>Display price position inside the 24h range.</small></span><input id="dashboardSettingRange" type="checkbox"></label>
           <label class="setting-row"><span><strong>Price Animation</strong><small>Flash when a newer price arrives.</small></span><input id="dashboardSettingAnimation" type="checkbox"></label>
         </div>
-        <div class="settings-actions-inline"><button id="dashboardResetSettings" class="button tertiary" type="button">Reset defaults</button></div>
+        <div class="settings-actions-inline"><button id="dashboardResetSettings" class="button tertiary" type="button" aria-describedby="dashboardResetScope">Reset app settings</button></div>
+        <p id="dashboardResetScope" class="settings-scope-note">Resets display and notification settings. Saved targets, replay sessions and dashboard layout are retained.</p>
+        <section class="keyboard-reference" aria-labelledby="keyboardReferenceTitle">
+          <div class="panel-header"><div><div class="eyebrow muted">KEYBOARD</div><h3 id="keyboardReferenceTitle">Shortcut reference</h3></div></div>
+          <dl>
+            <div><dt><kbd>Ctrl</kbd> / <kbd>Cmd</kbd> + <kbd>K</kbd></dt><dd>Open the command palette</dd></div>
+            <div><dt><kbd>F</kbd></dt><dd>Toggle focus mode outside editable fields</dd></div>
+            <div><dt><kbd>Esc</kbd></dt><dd>Close a menu or expanded chart; exit focus mode</dd></div>
+            <div><dt><kbd>←</kbd> <kbd>→</kbd> <kbd>Home</kbd> <kbd>End</kbd></dt><dd>Choose a workspace or focused Analytics view</dd></div>
+            <div><dt><kbd>←</kbd> <kbd>→</kbd> · <kbd>+</kbd> <kbd>-</kbd> · <kbd>Home</kbd></dt><dd>With chart focused: inspect candles, zoom, return live</dd></div>
+          </dl>
+        </section>
         <details class="onboarding-help"><summary>Getting started / data and privacy</summary>
           <div><p><strong>Live:</strong> Validated Binance Futures market prices and the chart. <strong>Analytics:</strong> visible resting orders and executed taker trades. Neither predicts liquidations.</p>
           <p><strong>Replay:</strong> Sample recordings and independent event recordings; imported sessions are unverified and never influence alerts. Saving a session requires explicit action.</p>

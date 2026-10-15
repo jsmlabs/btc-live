@@ -41,6 +41,7 @@ svg[aria-hidden="true"] { flex-shrink: 0; }
 :is(.operation-feedback, .alert-feedback)[data-tone="negative"] { color: var(--negative); }
 :is(.operation-feedback, .alert-feedback)[data-tone="neutral"] { color: var(--text-secondary); }
 button[aria-busy="true"] { cursor: progress; }
+.settings-scope-note { margin: 10px 0 0; color: var(--text-muted); font-size: 11px; line-height: 1.6; }
 
 @media (forced-colors: active) {
   :is(button, a, input, select, summary):focus-visible { outline-color: Highlight; }

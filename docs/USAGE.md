@@ -29,6 +29,10 @@ Open **View options** beside the workspace title for the workspace preset, dashb
 
 **Workspace presets:** Simple shows a reduced set of tabs; Advanced exposes all available workspaces; Custom permits a configured landing workspace. If a view is hidden by the current preset, the command palette omits that view. Alert delivery preferences remain in **Alerts**.
 
+**Analytics views:** Overview combines the available observations; Liquidity shows displayed resting orders; Order flow focuses on executions; Behavior shows resting-liquidity changes without the execution controls. Select a view with Left/Right, Home or End while its button is focused. Switching views redraws the visible plots without starting another feed.
+
+**Settings:** The keyboard reference lists global and chart-focused shortcuts. **Reset app settings** resets display and notification settings; it retains saved targets, replay sessions and the separate dashboard layout preferences.
+
 ## Chart controls
 
 Open **Reference prices** to inspect current and 24-hour reference values without permanently expanding the toolbar. **Expand chart** opens the existing chart in a native modal: background controls are inactive until it closes. **Restore chart** or Escape returns it to its original workspace and scroll position. The chart and its drawings are retained. On short screens, the expanded panel can scroll.
@@ -54,6 +58,8 @@ Standard price/percentage alerts can use sampled background REST checks. **Advan
 Target actions show saving, success and failure messages. Pending submissions cannot be duplicated; failed saves preserve form input. **Pause / Resume** controls each target, and paused targets are labelled accordingly. **Clear history** is disabled when there are no events. The explicit **Test notification** action reports API availability, acceptance or rejection; acceptance does not prove OS delivery.
 
 ## Recording and replay
+
+Replay follows a visible sequence: **Capture or import**, **Save & load** for event sessions, then **Inspect & compare**. Sample Replay uses capture and inspection steps. Limits and provenance details remain available in **Capture limits & data boundaries**. A recording badge identifies active capture; playback and imports are never labelled live.
 
 Supported sessions are saved locally; event replay can step and seek and supports temporary bookmarks and limited comparisons. A comparison reports coverage/events and price movement, **not trading performance**. Import and storage limits may reject corrupt or oversized sessions. Browser/profile deletion or quota issues can erase local recordings.
 

@@ -96,6 +96,34 @@ html.chart-expanded { overflow: hidden; }
 .workspace-intro p { font-size: 12px; }
 .analytics-overview { margin: 0 0 14px; padding: 18px; }
 .analytics-overview h2 { font-size: 18px; }
+.analytics-shortcuts { flex: 0 0 auto; }
+body:has(.analytics-overview[data-analytics-active-view="orderflow"]) .flow-behavior { display: none; }
+body:has(.analytics-overview[data-analytics-active-view="orderflow"]) .flow-layout { grid-template-columns: 1fr; }
+body:has(.analytics-overview[data-analytics-active-view="behavior"]) .flow-heading { display: none; }
+body:has(.analytics-overview[data-analytics-active-view="behavior"]) .order-flow-panel { padding: 0; border: 0; background: transparent; }
+body:has(.analytics-overview[data-analytics-active-view="behavior"]) .flow-layout { margin-top: 0; }
+body:has(.analytics-overview[data-analytics-active-view="behavior"]) .flow-behavior { padding: 20px; background: var(--bg-surface-raised); }
+.replay-heading { align-items: flex-start; }
+.replay-heading > div { min-width: 0; }
+.replay-heading > .liquidity-status { flex: 0 0 auto; padding: 6px 9px; border: 1px solid var(--border-strong); border-radius: 6px; font-size: 10px; white-space: nowrap; }
+.replay-panel[data-replay-state="recording"] { border-color: var(--accent-border); }
+.replay-panel[data-replay-state="recording"] .replay-heading > .liquidity-status { color: var(--accent); border-color: var(--accent-border); background: var(--accent-soft); }
+.replay-step-heading { display: flex; align-items: center; gap: 10px; margin: 22px 0 0; padding-top: 18px; border-top: 1px solid var(--border); }
+.replay-step-heading > span { display: grid; flex: 0 0 28px; height: 28px; place-items: center; border: 1px solid var(--accent-border); border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.replay-step-heading h3 { margin: 0; color: var(--text); font-size: 13px; font-weight: 650; }
+.replay-step-heading p { margin: 4px 0 0; color: var(--text-secondary); font-size: 11px; line-height: 1.6; }
+.replay-session-controls { margin-top: 20px; padding: 16px; }
+.replay-session-controls > .replay-step-heading { margin-top: 0; padding-top: 0; border-top: 0; }
+.replay-controls { align-items: flex-end; gap: 10px; }
+.replay-boundaries { margin-top: 10px; max-width: 700px; color: var(--text-muted); font-size: 11px; line-height: 1.6; }
+.replay-boundaries summary { width: fit-content; cursor: pointer; color: var(--text-secondary); }
+.replay-boundaries p { margin: 8px 0 0; padding: 10px 12px; border-left: 2px solid var(--border-strong); background: var(--bg-control); }
+.keyboard-reference { margin-top: 22px; padding: 18px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-control); }
+.keyboard-reference h3 { margin: 4px 0 0; color: var(--text); font-size: 15px; }
+.keyboard-reference dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; margin: 18px 0 0; }
+.keyboard-reference dl > div { min-width: 0; }
+.keyboard-reference dt { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; min-height: 24px; color: var(--text-secondary); letter-spacing: 0; text-transform: none; }
+.keyboard-reference dd { margin: 7px 0 0; color: var(--text-secondary); font-size: 11px; line-height: 1.6; }
 .liquidity-description, .flow-description, .flow-footnote, .diagnostics-disclosure { font-size: 11px; line-height: 1.65; }
 .liquidity-control, .liquidity-control select { font-size: 11px; }
 .replay-controls :is(button, select, input), .replay-session-controls :is(button, select, input) { min-height: 36px; }
@@ -158,6 +186,8 @@ html.chart-expanded { overflow: hidden; }
   .health-item { border-bottom: 0; padding-bottom: 0; }
 }
 @media (max-width: 800px) {
+  .analytics-shortcuts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .analytics-shortcuts .analytics-view-button { min-width: 0; min-height: 40px; }
   .dashboard-shell, .dashboard-shell[data-layout="wide"] { width: calc(100% - 32px); padding: 0 0 20px; }
   .topbar { min-height: 78px; }
   .brand-subtitle, .brand-divider, .command-trigger kbd { display: none; }
@@ -177,6 +207,8 @@ html.chart-expanded { overflow: hidden; }
   .diagnostics-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
+  .keyboard-reference { padding: 14px; }
+  .keyboard-reference dl { grid-template-columns: 1fr; }
   .workspace-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; width: 100%; overflow: visible; }
   .workspace-link { justify-content: center; min-height: 44px; padding: 8px 6px; font-size: 12px; }
   .workspace-link svg { display: none; }

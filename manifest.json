@@ -25,10 +25,11 @@
     "alarms"
   ],
   "host_permissions": [
-    "https://fapi.binance.com/*"
+    "https://fapi.binance.com/*",
+    "https://api.github.com/*"
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://fapi.binance.com wss://fstream.binance.com"
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src https://api.github.com https://fapi.binance.com wss://fstream.binance.com"
   },
   "background": {
     "service_worker": "background/service-worker.js",

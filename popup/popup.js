@@ -1,3 +1,5 @@
+import { mountSoftwareUpdates } from '../ui/software-update-panel.js';
+let updatePanelDispose = () => {};
 import { createBtcLiveRuntime } from '../app/runtime.js';
 import { createNotificationManager } from '../app/notifications.js';
 import { ALERT_HISTORY_STORAGE_KEY } from '../storage/alert-history.js';
@@ -72,6 +74,7 @@ function handleStorageChange(changes, areaName) {
 }
 
 function bindUi() {
+  updatePanelDispose = mountSoftwareUpdates({ container: document.querySelector('#settingsView .settings-list'), compact: true, api });
   document.getElementById('dashboardButton').addEventListener('click', openDashboard);
   document.getElementById('openTerminalButton').addEventListener('click', openDashboard);
   document.getElementById('settingsButton').addEventListener('click', openSettings);
@@ -138,3 +141,5 @@ window.addEventListener('unload', cleanup, { once: true });
 runtime.start().catch((error) => {
   console.error('BTC Live initialization failed', error);
 });
+
+window.addEventListener('pagehide', () => updatePanelDispose(), { once: true });

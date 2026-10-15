@@ -43,3 +43,7 @@ Advanced alerts evaluate live metrics only while a dashboard is open; price aler
 Automated Node tests, static release checks and reproducible packaging are distinct from real Chromium, live Binance recovery, MV3 suspension, performance and migration acceptance. See [testing](docs/TESTING.md) and [release requirements](docs/ACCEPTANCE.md).
 
 [README](README.md) · [Technical architecture](docs/ARCHITECTURE.md) · [Privacy](PRIVACY.md)
+
+## Software updates
+
+The MV3 background worker also checks official published GitHub Releases on startup, installation and a daily alarm. Popup and dashboard settings use a shared status panel. Release metadata is validated and stored separately from market and alert state; availability does not imply automatic installation. See [detailed architecture](docs/ARCHITECTURE.md).

@@ -25,3 +25,7 @@
 Use only the maintained scripts listed in [Release](RELEASE.md) for candidate verification and packaging. Current topics are organized in the [documentation index](INDEX.md).
 
 [Contributing](../CONTRIBUTING.md) · [Support](../SUPPORT.md) · [Security](../SECURITY.md)
+
+## Update discovery releases
+
+Publishing a GitHub Release makes it discoverable by installed BTC Live clients. Tags and pre-release flags must match the shipped extension manifest version and the established release-gate approval. Never publish a development candidate as a stable release. Discovery cannot perform installation or override browser-store update handling.

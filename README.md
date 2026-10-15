@@ -138,6 +138,10 @@ npm run package:metadata
 
 `npm run release:gate` **intentionally fails** while required real-world release evidence is missing. Final acceptance uses a separate, commit-bound approval file, not the committed pending template. A green CI badge confirms automation only.
 
+## Software updates
+
+BTC Live checks the official GitHub Releases API for eligible newer versions on startup and at most daily during normal use. Popup Settings and dashboard Settings contain **Software Updates**, with the installed version, available version, channel, check status and a manual check. Stable excludes drafts and pre-releases; Preview additionally permits explicitly published prereleases. A Git commit, tag or CI development-candidate ZIP alone is not a public update. When no qualifying release exists, the status is **No eligible published release**, not Up to date. Checks use the public GitHub API without authentication; the extension requests `https://api.github.com/*` and permits that origin in its connect-src CSP. GitHub rate limits and network failures are nonfatal, and the previous result can be stale. The feature opens official release notes only; it never installs software or executes remote code. Browser-store installations continue updating through the store.
+
 ## Privacy, safety and release scope
 
 BTC Live is a monitoring interface, **not** a trading platform, signal service or substitute for order risk controls. Market-data gaps, browser lifecycle and failed notifications can prevent timely observations. Preferences and supported recordings are stored locally, but browser profile access and exported copies require appropriate care.

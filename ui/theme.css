@@ -47,3 +47,10 @@ button[aria-busy="true"] { cursor: progress; }
   :is(button, a, input, select, summary):focus-visible { outline-color: Highlight; }
   :is(button, input, select, summary) { forced-color-adjust: auto; }
 }
+
+.software-updates { margin: 14px 0; padding: 14px; border: 1px solid var(--border, #30343b); border-radius: 10px; background: var(--surface, #101419); }
+.software-updates p { font-size: 12px; line-height: 1.5; color: var(--text-muted, #a5aab2); }
+.software-updates .settings-actions-inline { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.software-updates a { font-size: 12px; color: var(--accent, #f3a23a); text-decoration: underline; }
+.software-updates .setting-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.software-updates select { max-width: 130px; }

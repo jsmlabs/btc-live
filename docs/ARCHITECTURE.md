@@ -57,3 +57,9 @@ Static checks, Node test fixtures and the optional mocked browser smoke harness 
 
 [Source testing](TESTING.md) · [Alert contract](ALERTS.md) · [Privacy](PRIVACY.md) · [Release gates](RELEASE.md)
 
+
+## GitHub software update discovery
+
+`app/software-updates.js` validates public GitHub Releases metadata and compares semantic versions with the installed `runtime.getManifest().version`. Only a published, non-draft GitHub Release whose prerelease flag matches its tag semantics is eligible. No release is distinct from Up to date. The background MV3 worker coordinates message requests and a daily browser alarm; view instances do not poll. Storage is isolated under `btcLiveSoftwareUpdates` and contains check state, timestamps, channel and preferences, not account identifiers. Remote release notes are never injected into DOM HTML. Navigation is limited to a synthesized URL under the official repository. `https://api.github.com/*` is the only additional host permission and `https://api.github.com` is added to connect-src. GitHub checks cannot alter market data, chart, alert, replay or execution state.
+
+The extension can discover a release, but it cannot safely self-install it or establish the authenticity of an arbitrary attached ZIP. A stable release remains blocked by the separate manual acceptance gates.

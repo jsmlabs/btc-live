@@ -7,7 +7,7 @@ const manifest=JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8')
 test('Manifest V3 permissions preserve least-privilege baseline',()=>{
  assert.equal(manifest.manifest_version,3);
  assert.deepEqual(manifest.permissions,['storage','notifications','alarms']);
- assert.deepEqual(manifest.host_permissions,['https://fapi.binance.com/*']);
+ assert.deepEqual(manifest.host_permissions,['https://fapi.binance.com/*','https://api.github.com/*']);
 });
 test('Background and popup entrypoints stay stable',()=>{
  assert.equal(manifest.background.service_worker,'background/service-worker.js');

@@ -16,7 +16,7 @@ jobs:
           node-version: '22'
       - run: npm run verify
       - run: npm run release:check
-      - run: npm run package:extension
+      - run: node scripts/package-extension.mjs --skip-verify
       - name: Validate candidate ZIP
         run: |
           python3 - <<'PY'
@@ -30,6 +30,9 @@ jobs:
               assert names==sorted(names) and len(names)==len(set(names))
               assert 'manifest.json' in names
               assert len(names)>50
+              allowed={'app','background','dashboard','icons','market','popup','storage','ui','utils'}
+              assert all(name=='manifest.json' or name.split('/')[0] in allowed for name in names)
+              assert all(not name.startswith('/') and '..' not in name.split('/') for name in names)
               assert all(not n.startswith(('tests/','docs/','scripts/','store-assets/','.github/')) for n in names)
               assert all(i.date_time==(1980,1,1,0,0,0) for i in z.infolist())
               assert z.testzip() is None

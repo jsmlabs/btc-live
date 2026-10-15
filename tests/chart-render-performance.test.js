@@ -39,7 +39,7 @@ test('repeated identical snapshots avoid SVG rebuilding but still update sync ag
   renderBtcChart({ ...base, candles: base.candles.map(c => ({ ...c })) }, { ...market }, NOW + 120_000);
   assert.equal(dom.counts.rebuilds, 1);
   assert.equal(dom.counts.nodes, nodeCount);
-  assert.equal(dom.getElementById('dashboardChartStatus').textContent, 'Live · synced 2m ago');
+  assert.equal(dom.getElementById('dashboardChartStatus').textContent, 'STALE · Kline stream delayed');
 });
 
 test('chart rebuilds on price, candle, reference, interval, mode and volume changes', (t) => {

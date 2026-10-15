@@ -3,7 +3,7 @@
 **BTCUSDT market terminal for Chromium (Manifest V3).** BTC Live displays public Binance USDⓈ-M Futures prices, trades and depth data, with charting, order-flow research, local recordings and optional notifications. No exchange credentials or order placement are involved.
 
 > [!IMPORTANT]
-> **Version and release status:** The extension manifest is **1.22.0**. This branch is a **v16 Phase 01-10 development candidate**, not a released v16 build. The candidate has not passed all browser, live-market, lifecycle and long-session acceptance gates. For the published/stable implementation, use [main](https://github.com/jsmlabs/btc-live/tree/main); for the integration discussion, see [PR #3](https://github.com/jsmlabs/btc-live/pull/3). Do not treat candidate features or screenshots as verified production behavior.
+> **Version and release status (2026-10-15):** `main` now contains the **v16 Phase 01-10 development candidate**, integrated through [PR #3](https://github.com/jsmlabs/btc-live/pull/3). The extension manifest intentionally remains **1.22.0**; this does **not** designate the v16 candidate as a stable or Chrome Web Store release. Chromium integration, live Binance feeds, MV3 lifecycle, multi-tab operation, migration and sustained-load acceptance still require documented evidence. The historical v1.22.0 release notes describe an earlier baseline, not the current `main` feature set.
 
 ## What it does
 
@@ -19,9 +19,9 @@
 
 BTC Live does **not** submit trades, require Binance API keys, guarantee notifications, or predict market direction.
 
-## Install the development candidate
+## Install the source from `main` (development / test use)
 
-1. Clone this branch (or download its source archive).
+1. Clone [the repository's `main` branch](https://github.com/jsmlabs/btc-live/tree/main) or download its source archive.
 2. Open `chrome://extensions` in a supported Chromium browser and enable **Developer mode**.
 3. Choose **Load unpacked** and select the folder containing `manifest.json`.
 4. Open the BTC Live toolbar popup, then **Open Dashboard**.
@@ -39,7 +39,7 @@ npm run release:check
 npm run package:extension
 ```
 
-**Packaging:** `package:extension` now writes `dist/btc-live-chromium-v1.22.0-candidate.zip` with an explicit runtime-only allowlist, sorted files and fixed ZIP timestamps. CI independently checks entry integrity, manifest, runtime-only paths and exclusions and uploads the candidate artifact. Packaging is **not** release approval.
+**Packaging:** `package:extension` now writes `dist/btc-live-chromium-v1.22.0-candidate.zip` with an explicit runtime-only allowlist, sorted files and fixed ZIP timestamps. The CI workflow is configured to check entry integrity, manifest, runtime-only paths, exclusions and matching SHA-256 hashes from two builds, then upload the candidate artifact. Successful execution must be confirmed from the corresponding Actions run. Packaging is **not** release approval.
 
 | Command | Purpose | What it does **not** prove |
 | --- | --- | --- |
@@ -47,7 +47,7 @@ npm run package:extension
 | `npm run release:check` | Static release and packaging contract checks | Approval to publish v16 |
 | `npm run package:extension` | Create deterministic candidate ZIP after verification | Store acceptance or runtime compatibility |
 
-The candidate Phase-10 environment previously reported **45 deterministic passing tests**. This is historical candidate evidence, **not** a claim that the integrated branch or current CI has passed. Review [Testing](docs/TESTING.md) and [Release readiness](docs/RELEASE.md) for the required gates.
+An isolated Phase-10 checkout previously reported **45 passing deterministic tests**. This is historical evidence, **not** proof that all current `main` tests, CI jobs, or runtime acceptance gates pass. Review [Testing](docs/TESTING.md) and [Release readiness](docs/RELEASE.md) for the required gates.
 
 ## System boundaries
 
@@ -83,6 +83,6 @@ The extension uses public market endpoints, local browser storage, notifications
 
 ## Contributing
 
-Make focused, reversible changes and include regression tests for changed behavior. Preserve storage and manifest compatibility, constrained browser permissions, live/replay isolation, feed validity checks and notification de-duplication. Submit the candidate only after the required manual acceptance evidence is recorded. Static verification alone does not certify live extension behavior.
+Make focused, reversible changes and include regression tests for changed behavior. Preserve storage and manifest compatibility, constrained browser permissions, live/replay isolation, feed validity checks and notification de-duplication. Do not tag or distribute this candidate as a stable v16 release until the required manual acceptance evidence is recorded. Static verification alone does not certify live extension behavior.
 
 [MIT license](LICENSE) · Independent project; not affiliated with or endorsed by Binance.

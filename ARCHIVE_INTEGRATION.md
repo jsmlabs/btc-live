@@ -2,11 +2,11 @@
 
 ## Status (reviewed 2026-10-15)
 
-**Implementation has not been merged into `main`.** This document is the integration contract for the separately delivered package, not a release declaration.
+**Historical integration record:** This document preserves the original import contract for a separately supplied archive. Since that record was written, the v16 Phase 01–10 candidate has been merged into `main` by [PR #3](https://github.com/jsmlabs/btc-live/pull/3). Do not treat this historical import status as the current source state or as stable release approval. See [release readiness](docs/RELEASE.md).
 
 
 
-The separately supplied archive `btc-live_v2.2(1).zip` contains 69 runtime files. **The archive has not been imported into this GitHub repository by this documentation commit.** Its `manifest.json` declares version `1.22.0`, despite the archive filename. Do not advertise or tag this snapshot as 2.2.0 without an explicit version decision.
+The separately supplied archive `btc-live_v2.2(1).zip` contains 69 runtime files. **At the time of the original archive review, that ZIP had not been imported by the documentation-only commit.** Its `manifest.json` declares version `1.22.0`, despite the archive filename. Do not advertise or tag this snapshot as 2.2.0 without an explicit version decision.
 
 ## Safe integration procedure
 

@@ -1,38 +1,38 @@
 # Contributing to BTC Live
 
-BTC Live is a local-first Chromium Manifest V3 market-monitoring extension. `main` contains the **v16 Phase 01–10 development candidate**; `manifest.json` still reports **1.22.0**. Integrated code is not necessarily production-approved.
+BTC Live is a local-first Chromium Manifest V3 application consuming public BTCUSDT Binance Futures data. The maintained integration branch is **`main`**. Current source contains the **v16 Phase 01–10 development candidate** (manifest `1.22.0`) and is not yet a public-release approval.
 
-## Before making changes
+## Prepare a change
 
-1. Read the [README](README.md), [architecture](docs/ARCHITECTURE.md), [test strategy](docs/TESTING.md) and [release gates](docs/RELEASE.md).
-2. Establish the exact `main` commit, relevant browser build and expected behavior. Reproduce the observed defect before changing code.
-3. Prefer the smallest robust fix. Preserve APIs, storage compatibility, permission boundaries, feed validity and unrelated behavior.
-4. Add deterministic regression/failure-path tests when practical and update relevant documentation.
-5. Record which checks were actually executed and distinguish simulated checks from real-browser or live-feed acceptance.
+1. Read the [README](README.md), [technical architecture](docs/ARCHITECTURE.md), [testing strategy](docs/TESTING.md) and [branch policy](docs/REPOSITORY.md).
+2. Pin the current Git SHA. Reproduce or precisely define the intended behavior and relevant failure path.
+3. Keep the patch small, reversible and compatible with the runtime, storage and MV3 model. Avoid speculative dependency additions or version bumps.
+4. Do not remove validation, replay/live separation, trust-boundary enforcement, safe notification failure handling or least-privilege browser permissions.
+5. Add deterministic tests for the original problem and adjacent malformed, stale, unauthorized (where applicable) and legitimate paths.
 
-`main` is the only **maintained integration branch**. Do not merge the obsolete `maintenance/v1.0.x` line: it targets a different Spot-era product and Firefox build system. See [repository workflow](docs/REPOSITORY.md).
+## Verify locally
 
-## Verification
-
-Node.js **20+** (CI uses **22**). Loading the unpacked Chromium extension requires no npm install or build step.
+Requires **Node.js 20+** and npm. From the root:
 
 ```bash
 npm run verify
 npm run docs:check
 npm run release:check
 npm run package:extension
+npm run package:metadata
 ```
 
-The generated archive is a **development candidate**, not a production-approved release. CI passing does not establish Chromium UI correctness, live Binance availability, notification delivery, migration or long-session performance.
+Review the entire Git diff before committing. Ensure the package contains only intended runtime files and no secrets, user data or test fixtures.
 
-## Invariants
+## Keep documents in sync
 
-- Manifest V3; narrowly scoped permissions and CSP; no remote code, page injection, API keys, account access, tracking SDKs or order execution.
-- Validate untrusted Binance REST/WebSocket events. Missing/stale market values are not zero; depth requires snapshot/sequence continuity.
-- Replay never fires live alerts; advanced alert evaluation requires an open live dashboard and valid metrics.
-- Respect MV3 worker suspension, background sampling, Web Locks coordination, notification failure and local storage limits.
-- Avoid dependency additions, unnecessary architecture rewrites, unreviewed version bumps and unjustified performance or security claims.
+Update README/user steps for visible behavior, architecture for interface/data-flow changes, security/privacy for altered permissions/storage/networks, and the changelog for substantive changes. Historical phase records are **not** current build instructions. Do not change the extension semver, create tags or claim customer readiness without the [release procedure](docs/RELEASE.md).
 
-Use the [PR template](.github/pull_request_template.md) and [bug report form](.github/ISSUE_TEMPLATE/bug_report.yml). Include issue, cause, implementation, tests, compatibility and residual risks. Redact secrets, local personal information and session exports. Consult [SUPPORT.md](SUPPORT.md) and [SECURITY.md](SECURITY.md) for reporting channels.
+## Review and maintainership
 
-Contributions are distributed under the [MIT License](LICENSE).
+- Use the [pull-request template](.github/pull_request_template.md) with an exact SHA and observed checks.
+- The default `main` branch is the only intended maintained branch; stale Spot/Firefox maintenance history must not be merged into the current candidate.
+- CI verifies source/build constraints. Real browser/live Binance, notification, migration, performance and store acceptance are **additional**, manual requirements.
+- Route ordinary bugs through [Support](SUPPORT.md) and sensitive vulnerabilities through [Security](SECURITY.md).
+
+The project is MIT licensed. Contributions must respect upstream licensing and third-party trademarks.

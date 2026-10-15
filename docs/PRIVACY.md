@@ -1,31 +1,44 @@
-# Privacy and data handling - development candidate
+# Privacy implementation notes
 
-> Scope: v16 Phase 01–10 in `main` with manifest `1.22.0`. This is **not** a released store package or an independent privacy-audit certification. Review the exact final extension before distribution.
+These notes supplement the canonical [Privacy Policy](../PRIVACY.md) for the `main` development candidate. They describe intended source behavior, **not** a completed independent privacy assessment of a published store build.
 
-BTC Live reads public BTCUSDT Binance USDⓈ-M Futures market data. It does not require a Binance account, API key, wallet access or trading permission.
+## Local data flow
 
-## Browser access
+```text
+Public Binance Futures API/streams
+             |
+      Runtime validation
+             |
+     UI + local state
+        /        \
+Chrome extension  IndexedDB
+storage           replay sessions
+             |
+  Optional native OS notifications
+```
 
-| Declaration | Purpose |
+Market connectivity uses public exchange endpoints and does not require authenticated trading access. Display preferences, chart/workspace state, enabled rules and alert history are kept in extension storage. Supported recorded sessions/events can be persisted in browser IndexedDB. Browser permissions, operating-system notification surfaces, profile access and user exports define additional exposure.
+
+## Permission review
+
+| Source declaration | Operational requirement |
 | --- | --- |
-| `storage` | Local preferences, alerts/history, diagnostics and supported sessions |
-| `notifications` | Native browser/OS alerts |
-| `alarms` | Periodically scheduled price checks, subject to browser lifecycle |
-| `https://fapi.binance.com/*` | Public Futures REST data |
-| CSP `wss://fstream.binance.com` | Public Futures WebSocket streams |
+| `storage` | Locally persisted settings and state |
+| `notifications` | Native alert display when allowed |
+| `alarms` | Sampled background checks subject to Chromium scheduling |
+| `https://fapi.binance.com/*` | Binance USDⓈ-M Futures REST |
+| CSP `wss://fstream.binance.com` | Futures WebSocket |
 
-There are no content scripts or project-operated account, tracking or analytics services declared in the reviewed candidate. Public Binance endpoints and network intermediaries may receive standard connection metadata.
+There is no content-script or page-content-reading permission in the reviewed manifest. Do not expand endpoint, execution or storage permissions without recording the change, reviewing data disclosure and validating the final package.
 
-## Local state and exports
+## Retention, integrity and disclosure
 
-Browser extension storage holds display/chart/workspace preferences, rules, alerts and available diagnostics. IndexedDB can contain recorded market events and replay sessions. A local profile, exported session, screenshot, notification or debug log can disclose observations and preferences even when the underlying exchange data are public.
+- **Preferences/history:** browser-managed local extension storage; validity and quota/failure handling belong to the storage layer.
+- **Recordings:** local IndexedDB with import limits, schema validation and session integrity handling. Exported files are under the user's control.
+- **Logs and support bundles:** may expose screen content, rule settings or trade observations. Redact unrelated identifiers before publishing.
+- **Notifications:** the OS may retain previews/history depending on device policy.
+- **Deletion and migration:** profile/extension removal can cause data loss; a public upgrade requires an observed migration and rollback test.
 
-Protect profile access, control exports and avoid sharing unredacted diagnostics. Browser storage limits, profile deletion, extension removal, OS behavior and local cleanup determine persistence and availability. No cloud backup or guaranteed retention is promised.
+**Privacy acceptance** is a mandatory customer-release condition, not inferred from these descriptions. Check the exact final manifest, network behavior, Chrome Web Store privacy questionnaire and user-visible disclosures. Record findings in [Release acceptance](ACCEPTANCE.md).
 
-## Reliability and disclosure
-
-Stale/missing data must be treated as unavailable. Advanced alerts need a live open dashboard; sampled background checks are not continuous and may miss conditions or fail to deliver notifications.
-
-Before customer publication, reconcile the store privacy answers and current policy with the exact packaged and accepted extension.
-
-[Privacy Policy](../PRIVACY.md) · [Security](../SECURITY.md) · [Acceptance](ACCEPTANCE.md)
+[Privacy policy](../PRIVACY.md) · [Security](../SECURITY.md) · [Architecture](ARCHITECTURE.md)

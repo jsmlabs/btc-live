@@ -1,28 +1,31 @@
-## Problem and scope
+## Purpose and behavior
 
-Link a reproducible issue or explain the confirmed objective, observed behavior and required outcome.
+Explain the observed problem or requested feature, expected result, scope, reproduction, affected interfaces and failure modes.
 
-## Change summary
+## Implementation
 
-Describe the minimal fix, affected interfaces and data contracts, and any documentation or release metadata updates.
+Summarize changed paths, key design decisions, storage/API/permission impacts, compatibility and any reversible migration.
 
-## Verification
+## Verification at the exact source SHA
 
 - [ ] `npm run verify`
 - [ ] `npm run docs:check`
 - [ ] `npm run release:check`
 - [ ] `npm run package:extension`
-- [ ] Relevant regression and failure paths reviewed
-- [ ] Impacted README/guides/changelog updated
+- [ ] `npm run package:metadata`
+- [ ] Original problem and relevant failure/regression paths checked
+- [ ] README, user guides, security/privacy and changelog reconciled as applicable
+- [ ] Final diff inspected for unrelated changes, secrets and package drift
 
-Give the **exact tested commit SHA** and concrete results. Leave unexecuted checks unchecked.
+**Tested SHA:** `<full commit>`
 
-## Security, compatibility and release boundaries
+**Observed results:** Provide concrete outcomes and links. Leave skipped/unavailable steps **unchecked**; do not claim browser acceptance from Node tests.
 
-- [ ] Permissions, CSP, credentials and no-trading boundary preserved
-- [ ] Feed freshness/depth validation and live-alert/replay isolation preserved
-- [ ] Storage and MV3 lifecycle impacts considered
-- [ ] Browser/live-feed/multi-tab/migration/load acceptance gaps explicitly stated
-- [ ] No unsupported stable-release or store-publication claims
+## Release and security boundaries
 
-Refer to [CONTRIBUTING.md](CONTRIBUTING.md) and [release gates](docs/RELEASE.md). `main` is the only maintained integration branch.
+- [ ] External market data remains validated and stale/invalid dependencies fail closed.
+- [ ] Least-privilege MV3 permissions, CSP and local-state security are preserved.
+- [ ] Replay cannot trigger live alerts; notification-delivery semantics remain accurate.
+- [ ] No stable release/tag/store claims without [manual acceptance](../docs/ACCEPTANCE.md).
+
+[Contributing](../CONTRIBUTING.md) · [Documentation](../docs/INDEX.md) · [Release guide](../docs/RELEASE.md)

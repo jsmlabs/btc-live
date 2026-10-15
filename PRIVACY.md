@@ -1,39 +1,47 @@
-# Privacy Policy - BTC Live
+# BTC Live privacy policy
 
-> **Scope:** This document describes the repository's v16 development candidate (manifest `1.22.0`), **not** a guarantee that the same package is already available in the Chrome Web Store. Privacy disclosures must be reviewed again against the exact approved customer build.
+**Applicable scope:** The source currently on `main` (v16 Phase 01–10 development candidate; manifest `1.22.0`). This policy must be rechecked against the **actual approved package** before store publication. A GitHub manifest version is not proof of an installed store release.
 
-BTC Live is designed to show **public BTCUSDT Binance USDⓈ-M Futures market data** directly in a Chromium extension. It does not require a login, wallet connection, Binance credentials or API keys, and does not place orders.
+## What BTC Live does
 
-## Data handling
+BTC Live displays public **BTCUSDT Binance USDⓈ-M Futures** market data in a local-first Chromium extension. It does **not** ask for a Binance account, API key, wallet connection, brokerage credentials or payment information, and it does not place orders.
 
-| Category | Intended use | Location |
+## Data stored on your device
+
+| Data | Purpose | Browser surface |
 | --- | --- | --- |
-| Interface, chart and workspace settings | Remember user preferences | Browser extension storage |
-| Configured alerts, cooldown/rearm state and history | Evaluate and display alerts | Browser extension storage |
-| Session and feed diagnostics | Troubleshooting and status display | Browser extension state/storage |
-| Recorded events and replay sessions | Local playback and comparison | IndexedDB in the browser profile |
-| Notification text | Show configured alert content | Browser and operating-system notification interface |
+| Display, layout and chart preferences | Restore your preferred interface | Extension local storage |
+| Price/advanced alert rules and internal state | Evaluate thresholds and cooldowns | Extension local storage |
+| Trigger history and diagnostics | Show local status and troubleshooting | Extension storage |
+| Market captures and supported replay sessions | Local research and replay | IndexedDB |
+| Alert text | Deliver enabled notifications | Browser/operating-system notification UI |
 
-The extension has **no project-operated account system or market-data backend**, and the reviewed manifest does not request browsing-history, cookies, page-content or wallet access. The candidate is designed without developer-operated telemetry, ads, trackers or analytics SDKs. Public Binance endpoints receive network requests needed to provide market data; standard network metadata may be visible to the exchange and network intermediaries.
+Your browser profile, device administrator, backups or exported copies may expose these records. Even observations based on public prices can reveal personal preferences. Protect the profile, inspect exports before sharing them and review browser storage retention.
 
-## Permissions and external connections
+BTC Live does **not** provide an independent cloud backup or guarantee that locally stored records survive profile deletion, extension removal, storage quota pressure or corruption.
 
-| Declaration | Purpose |
+## Network requests and permissions
+
+The current Manifest V3 source requests:
+
+| Access | Why it is requested |
 | --- | --- |
-| `storage` | Save preferences, rules and supported local state |
-| `notifications` | Display permitted native alerts |
-| `alarms` | Schedule sampled background price checks |
-| `https://fapi.binance.com/*` | Fetch public USDⓈ-M Futures REST data |
-| `wss://fstream.binance.com` (CSP) | Subscribe to public Futures market streams |
+| `storage` | Local preferences, alert state and supported history |
+| `notifications` | Native browser/OS alerts after user permission |
+| `alarms` | Browser-scheduled sampled price checks |
+| `https://fapi.binance.com/*` | Read-only public Futures REST endpoints |
+| `wss://fstream.binance.com` | Futures live data endpoint allowed by extension CSP |
 
-There are no content scripts or order-submission permissions in the reviewed candidate manifest. Browser profile access, OS notifications, exports, screenshots and diagnostics can expose saved observations or preferences. Users should control local storage, exported copies and access to their devices.
+The reviewed candidate has **no extension permission** to read page contents, browser history or cookies, and declares no project-operated remote account or analytics service. Public Binance endpoints receive necessary network connections; the provider and network intermediaries may observe normal connection metadata. Do not interpret the lack of a developer-operated account as absolute anonymity.
 
-## Reliability and retention
+## Notifications and risk limitations
 
-Recorded sessions and settings persist according to browser storage behavior and application-supported cleanup paths; do not assume browser storage provides encrypted backup or indefinite retention. Browser closure, extension removal, profile deletion, quota pressure or corruption can result in loss of locally stored state. Background checks are sampled, not continuous.
+Enabled native notifications display alert content outside the extension UI, potentially on lock screens or connected devices. Market feeds and browser scheduling can fail; BTC Live provides no continuous data, alert-delivery or financial decision guarantee. Advanced flow rules require an open dashboard.
 
-## Changes and contact
+## Changes and reporting
 
-Before a public release, verify this policy, extension permissions and the store privacy questionnaire against the **exact published package**. For a private security concern, see [SECURITY.md](SECURITY.md). For usage issues, see [SUPPORT.md](SUPPORT.md).
+Any new remote service, permission, storage practice or public release must receive an appropriate disclosure update and store-privacy review **before** customers receive it.
 
-[Detailed data handling](docs/PRIVACY.md) · [Release status](docs/RELEASE.md)
+For product problems consult [Support](SUPPORT.md); for sensitive vulnerabilities consult [Security](SECURITY.md). See [technical privacy notes](docs/PRIVACY.md) and [current release status](docs/RELEASE.md).
+
+BTC Live is independently developed and is not affiliated with or endorsed by Binance.

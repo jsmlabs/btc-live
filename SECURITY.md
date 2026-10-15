@@ -1,59 +1,41 @@
-> **Scope (2026-10-15):** `main` includes the v16 Phase 01–10 candidate while `manifest.json` remains **1.22.0**. Depth, recordings, replay, additional persisted state, and feed parsers require browser and security acceptance before any stable v16 release. Historical [archive integration notes](ARCHIVE_INTEGRATION.md) are not the current integration status. See [release gates](docs/RELEASE.md) and [privacy](docs/PRIVACY.md).
+# Security policy
 
-# Security Policy
+> [!IMPORTANT]
+> **Development-candidate scope.** Manifest `1.22.0`, integrated v16 Phase 01–10 source. The automated checks enforce selected source and package constraints but are **not** evidence of a complete security audit or a production-approved release.
 
-## Security model
+## Security architecture
 
-BTC Live follows a minimal-permission, local-first Manifest V3 architecture.
+BTC Live is a read-only Chromium Manifest V3 extension that consumes **public** Binance USDⓈ-M Futures feeds. It does not request Binance login, API keys, wallet permissions or order execution access.
 
-Security invariants:
+| Boundary | Security objective |
+| --- | --- |
+| Host access | Restrict the manifest to `https://fapi.binance.com/*`; allow expected Futures WSS via CSP |
+| Executable code | Local extension scripts; no remote executable JS or `eval` execution paths |
+| Browser permissions | `storage`, `notifications` and `alarms` only |
+| Market data | Treat REST/WS responses as untrusted; validate symbol, numbers, order/time/sequence validity |
+| Depth analytics | Invalidate metrics when snapshots or diff continuity are broken |
+| Storage/imports | Sanitize persisted objects, reject malformed/oversized replay data, handle quota errors |
+| Alert ownership | Live-only advanced evaluation, controlled state, Web Locks for cooperating dashboards |
+| Distribution | Deterministic runtime-only ZIP, manifest/CSP checks and package integrity |
 
-- HTTPS/WSS only
-- no remote executable JavaScript
-- no `eval()`, `new Function()`, or equivalent dynamic code execution
-- no inline scripts or inline event handlers
-- no content scripts
-- no arbitrary page injection
-- no Binance credentials or API keys
-- no user account data
-- no analytics, telemetry, advertising, or tracking SDKs
-- zero runtime package dependencies
-- validation of external market-data payloads before state updates
-- deterministic candidate package with a constrained runtime directory allowlist
+A connected WebSocket is not a trust assertion; neither a simulated test nor a UI label can override data validity. Browser-supplied user preferences are not an authentication/authorization boundary for exchange actions: the extension has no trading action in scope.
 
-## External data
+## Known operational limitations
 
-Binance USDⓈ-M Futures REST responses and WebSocket events are treated as untrusted external input. Runtime validation covers symbols, finite numeric values, order-book relationships, timestamps, sequencing metadata, OHLCV relationships, and kline interval boundaries.
+Advanced-rule triggers are claimed before native notification attempts. This reduces duplicate attempts across cooperating dashboards but **can lose delivery** if permissions/OS transport fail. MV3 worker suspension and background scheduling can miss price movements; do not promise exactly-once or continuous alert coverage.
 
-Ticker statistics and top-of-book updates use independent ordering/state ownership so invalid or stale data cannot silently replace newer validated market state.
+Replay imports and saved market observations can be corrupted, malformed or privacy-sensitive. Users should avoid sharing unredacted diagnostics.
 
-## Permissions
+## Required release security review
 
-BTC Live v1.22.0 requests exactly:
+Before publishing a customer build, verify the **exact final artifact** in Chromium, including permissions, active network destinations, extension lifecycle, malformed exchange payloads, corrupt local storage, oversized imports, multi-tab behavior and notification-denial paths. Archive observed evidence in [Release acceptance](docs/ACCEPTANCE.md).
 
-- `storage`
-- `notifications`
-- `alarms`
+Automated `npm run release:check` verifies only static manifest/resource rules. Build checksums establish artifact integrity, **not** complete security.
 
-Host permission:
+## Reporting vulnerabilities
 
-- `https://fapi.binance.com/*`
+Use GitHub's **private vulnerability reporting** option if it is available for this repository. Avoid publishing exploitable details in a public issue before coordination. Include the affected source/release version, browser, minimally reproducible steps, observed impact and scope, but do **not** share credentials, tokens or sensitive recordings.
 
-Extension-page CSP permits connections only to:
+For non-security bugs see [Support](SUPPORT.md). For permitted contributions read [Contributing](CONTRIBUTING.md).
 
-- `https://fapi.binance.com`
-- `wss://fstream.binance.com`
-
-The background service worker exists only to support persistent market-alert scheduling and does not introduce additional host access.
-
-## Dependency policy
-
-The extension has no runtime npm dependencies. Development verification uses only Node.js built-ins and repository source files.
-
-## Release security acceptance
-
-The candidate checks enforce a limited manifest permission set, CSP, restricted extension exposures, and deterministic runtime packaging. These are **static controls**, not an end-to-end security audit. Before a stable customer release, exercise actual Chromium MV3 lifecycle, malformed/stale market payloads, corrupted browser storage, replay imports, permission denial and notification failures. Keep evidence in the [release acceptance matrix](docs/ACCEPTANCE.md).
-
-## Reporting a security issue
-
-Do not publish a suspected vulnerability with exploit details before it can be reviewed. Include the affected version, browser/version, reproduction steps, expected behavior, actual behavior, and impact when reporting a security issue through the repository's private security-reporting channel if enabled.
+[Privacy policy](PRIVACY.md) · [Architecture](docs/ARCHITECTURE.md) · [Release guide](docs/RELEASE.md)

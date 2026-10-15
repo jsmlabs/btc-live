@@ -1,16 +1,17 @@
-# Store asset inventory (historical)
+# Store asset inventory - historical references
 
-> **Not approved for the v16 development candidate.** This folder contains images from previous product/store iterations. Some may reference Binance Spot or a UI not present in the current candidate. The expanded workspace code is now present in `main`, but that does **not** make these graphics current release evidence.
+> [!WARNING]
+> These assets originated in earlier BTC Live design and store iterations. They are **not approved as screenshots or artwork of the current development candidate**. Some may show prior Binance Spot labeling or a different user interface.
 
-| File | Existing intended use |
-| --- | --- |
-| `promo-440x280.png` | Historical promotional tile |
-| `screenshot-1-1280x800.png` | Historical primary feature preview |
-| `screenshot-2-1280x800.png` | Historical market-data preview |
-| `screenshot-3-1280x800.png` | Historical privacy-focused preview |
-| `real-popup.png` | Archived browser popup capture; not current candidate acceptance |
-| `asset-preview.png` | Internal reference contact sheet |
+| File | Original intended use | Current decision |
+| --- | --- | --- |
+| `promo-440x280.png` | Small promotional tile | Review/replace for final build |
+| `screenshot-1-1280x800.png` | Product overview | Replace with real accepted UI |
+| `screenshot-2-1280x800.png` | Market data view | Replace with real Futures view |
+| `screenshot-3-1280x800.png` | Privacy/features | Recreate against accepted package |
+| `real-popup.png` | Earlier popup capture | Historical reference only |
+| `asset-preview.png` | Internal design contact sheet | Historical reference only |
 
-The extension's **packaged icons** are in `icons/` (16, 32, 48 and 128 px). Generate replacement store screenshots **only after** actual browser acceptance at the intended release commit. Never fabricate prices, states, fills, endorsements or trading performance.
+Extension runtime icons are stored separately in [`icons/`](../icons/icon128.png). Historical graphics remain available for design provenance, **not** proof of final Chromium acceptance.
 
-[Store asset policy](../STORE_ASSETS.md) · [Release gate](../docs/RELEASE.md)
+For size, authenticity, branding and store submission policy see [Store assets](../STORE_ASSETS.md). For feature publication status see [Release](../docs/RELEASE.md).

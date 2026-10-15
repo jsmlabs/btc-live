@@ -1,42 +1,46 @@
-# BTC Live - store asset and visual release policy
+# BTC Live brand and store assets
 
-> [!CAUTION]
-> The v16 development candidate has been integrated into `main`, but **is not yet approved for store publication**. Existing images in [`store-assets/`](store-assets/README.md) are historical and may show Binance Spot or an older UI. **Do not reuse them as evidence of current candidate behavior.**
+**Release status:** Historical images in [`store-assets/`](store-assets/README.md) are references, **not approved screenshots of the current v16 candidate**. Produce new evidence only from the actual intended customer build after interactive Chromium testing.
 
-## Identity
+## Visual identity
 
 | Element | Direction |
 | --- | --- |
-| Background | Near-black, aligned with the actual extension UI |
-| Accent | Restrained warm Bitcoin-orange (design reference `#F3A23A`) |
-| Text | High-contrast white/neutral on dark surfaces |
-| Identity | Original BTC Live icon and accurate Futures-market labels |
-| Claims | Public market monitoring and research only; no execution or return promises |
+| Product | BTC Live - browser-based Bitcoin market monitoring |
+| Surface | Near-black terminal background, matching actual UI |
+| Primary text | High-contrast white / neutral |
+| Accent | Restrained warm amber, design reference `#F3A23A` |
+| Tone | Technical, clean, legible, measured |
+| Identity | Original BTC Live symbol, never Binance's protected identity |
+| Integrity | No fabricated candles/prices, performance claims, user reviews or trade returns |
 
-No Binance protected logos, fabricated trade outcomes, invented prices, artificial reviews, fake connectivity statuses, or implied endorsement.
+Accessibility and truthful representation take precedence over decorative effects.
 
-## Required release-specific assets
+## Capture plan
 
-| Asset | Requirement |
-| --- | --- |
-| Extension icons | Confirm packaged PNG sizes 16, 32, 48 and 128 px |
-| Popup screenshot | Real approved build showing BTCUSDT Futures price, data source and status |
-| Dashboard screenshot | Actual chart/workspace and diagnostics with a verifiable observed session |
-| Alert/settings screenshot | Real supported rules, browser limitations and saved settings |
-| Chrome Web Store screenshots | Capture at an accepted resolution (typically 1280×800), inspect store requirements |
-| Promotional tile | If required, create an original 440×280 asset matching approved branding |
+| Asset | Show | Acceptance |
+| --- | --- | --- |
+| Extension icon set | 16, 32, 48 and 128 px actual packaged PNGs | Correct size/clarity and no third-party mark |
+| Popup screenshot | Real BTCUSDT Futures price view and feed state | Browser-captured, current interface, readable |
+| Live dashboard | Chart, timeframe, diagnostics and market context | Authentic data/labels, no clipped controls |
+| Analytics view | Observed trades and available depth | Explain descriptive scope; no invented signals |
+| Alerts/settings | Supported rules, permission expectations and customization | Reproduced with reviewed build |
+| Promo tile | Original 440 × 280 px artwork where needed | No unsupported product claim |
+| Store screenshots | Appropriate current Web Store dimensions (often 1280 × 800) | Confirm current store constraints before upload |
 
-Capture a **tested build at the final release SHA** in a real browser. Check small-screen legibility, visual hierarchy, clipping, chart labels, spacing, contrast and accessibility. Screenshots must be unaltered representations of the released product (privacy-sensitive values may be redacted transparently).
+## Evidence requirements
 
-## Store submission gate
+Record the **exact source SHA**, browser version, captured build and time/context for each screenshot. Use live validated or clearly labeled demonstration data; do not present a fake stream as live. Protect user information in screenshots and diagnostic panels.
 
-- [ ] Store screenshots match the approved package and its actual UI.
-- [ ] Features shown are covered by real-browser acceptance, not just mocked tests.
-- [ ] Manifest version, package, public listing and screenshots describe the same release.
-- [ ] Permissions, privacy questionnaire, support and security links reviewed.
-- [ ] No legacy Spot wording or outdated v1.0.x/v1.21.x imagery presented as current.
-- [ ] Store review and public publication states confirmed separately.
+Visual QA must inspect mobile/narrow and wide layouts, text contrast, keyboard focus, labels, charts, icons and accessible statuses. Historical asset filenames do not imply new release approval.
 
-The design archive/branding references may guide **visual styling** but are not acceptance evidence. Check [release readiness](docs/RELEASE.md) and [acceptance](docs/ACCEPTANCE.md) before promoting assets.
+## Publication checklist
 
-[Store listing](STORE_LISTING.md) · [README](README.md) · [Asset inventory](store-assets/README.md)
+- [ ] Store imagery from the **final accepted** Chromium package.
+- [ ] Current Futures market labels; no obsolete Spot UI presented as current.
+- [ ] Approved features and market states, no misleading financial promises.
+- [ ] Icons/promo assets checked at small sizes and on dark/light store backgrounds.
+- [ ] Privacy, support, descriptions and permissions match the exact published version.
+- [ ] Store submission and review outcomes verified separately.
+
+[Store copy](STORE_LISTING.md) · [Asset inventory](store-assets/README.md) · [Release acceptance](docs/ACCEPTANCE.md)

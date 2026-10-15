@@ -46,7 +46,7 @@
 
 BTC Live turns public market observations into a focused research workspace. **It is a monitoring tool, not a trading platform, prediction service or automated execution system.**
 
-## 🚀 Quick start
+## Quick start
 
 **For candidate testing, use a separate Chromium browser profile.** Existing-install upgrades and storage migration have not yet passed acceptance.
 
@@ -65,7 +65,7 @@ BTC Live turns public market observations into a focused research workspace. **I
 
 [Read the usage guide →](docs/USAGE.md)
 
-## 🧭 Explore the terminal
+## Explore the terminal
 
 | Workspace | Capabilities | What to know |
 | :-- | :-- | :-- |
@@ -128,7 +128,7 @@ The application tracks feed freshness and synchronizes order-book snapshots with
 
 [Architecture and trust boundaries →](docs/ARCHITECTURE.md)
 
-## 🛠️ Development and verification
+## Development and verification
 
 **Requirements:** Node.js **20+** and npm. GitHub Actions uses **Node.js 22**. Run these from the repository root:
 
@@ -150,7 +150,7 @@ The packaging command writes `dist/btc-live-chromium-v1.22.0-candidate.zip`. The
 
 **Verification boundary:** Passing Node tests, static release checks, packaging or GitHub Actions does **not** prove Chromium runtime behavior, access to live Binance feeds, alert delivery or release approval. Consult [the latest workflow results](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml) for evidence at the exact commit and [the testing matrix](docs/TESTING.md) for remaining manual acceptance.
 
-## 🔐 Privacy and safety boundaries
+## Privacy and safety boundaries
 
 - **No exchange credentials:** Public Futures endpoints only; BTC Live cannot place trades or submit orders.
 - **Minimal declared access:** `storage`, `notifications`, `alarms` and `https://fapi.binance.com/*`; the extension CSP allows the corresponding Binance REST and Futures WebSocket endpoints.

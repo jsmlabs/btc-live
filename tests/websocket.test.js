@@ -214,3 +214,71 @@ test('combined market stream ignores oversized untrusted frames without parsing 
   assert.equal(parseCombinedMessage(' '.repeat(65_537), NOW), null);
   assert.equal(parseCombinedMessage(JSON.stringify({data:{e:'unknown'}}), NOW), null);
 });
+
+test('socket close exception recovers only the affected feed', (t) => {
+  const original = globalThis.WebSocket;
+  const sockets = [];
+  const jobs = [];
+  class ThrowingSocket {
+    static CONNECTING = 0; static OPEN = 1; static CLOSED = 3;
+    constructor(url) {
+      this.url = url;
+      this.readyState = 0;
+      this.handlers = {};
+      sockets.push(this);
+    }
+    addEventListener(type, fn) { (this.handlers[type] ??= []).push(fn); }
+    emit(type) {
+      if (type === 'open') this.readyState = 1;
+      for (const fn of this.handlers[type] ?? []) fn({});
+    }
+    close() { throw Error('Synchronous close failure'); }
+  }
+  globalThis.WebSocket = ThrowingSocket;
+  t.after(() => { globalThis.WebSocket = original; });
+  const errors = [];
+  const changes = [];
+  const socket = createBinanceSocket({
+    onError: (error, feed) => errors.push({ message: error.message, feed }),
+    onFeedStatus: (feed, status) => changes.push(feed + ':' + status),
+    setTimeoutFn: (fn) => { jobs.push(fn); return jobs.length; },
+    clearTimeoutFn: () => {}
+  });
+  sockets[0].emit('open');
+  sockets[1].emit('open');
+  assert.doesNotThrow(() => sockets[0].emit('error'));
+  assert.equal(errors[0].feed, 'market');
+  assert.equal(errors[1].message, 'Synchronous close failure');
+  assert.ok(changes.includes('market:RECONNECTING'));
+  assert.equal(socket.readyState, ThrowingSocket.CONNECTING);
+  assert.equal(jobs.length, 1);
+  jobs.shift()();
+  assert.equal(sockets.length, 3);
+  assert.equal(sockets[2].url, MARKET_STREAM_URL);
+  assert.doesNotThrow(() => socket.close());
+  assert.ok(errors.some((error) => error.feed === 'book' && error.message === 'Synchronous close failure'));
+});
+
+test('explicit book reconnect tolerates a synchronous close exception', (t) => {
+  const original = globalThis.WebSocket;
+  const sockets = [];
+  const jobs = [];
+  class ThrowingSocket {
+    static CONNECTING = 0; static OPEN = 1; static CLOSED = 3;
+    constructor(url) { this.url = url; this.readyState = 1; this.handlers = {}; sockets.push(this); }
+    addEventListener(type, fn) { (this.handlers[type] ??= []).push(fn); }
+    close() { throw Error('close failed'); }
+  }
+  globalThis.WebSocket = ThrowingSocket;
+  t.after(() => { globalThis.WebSocket = original; });
+  const errors = [];
+  const socket = createBinanceSocket({
+    onError: (error, feed) => errors.push(feed + ':' + error.message),
+    setTimeoutFn: (fn) => { jobs.push(fn); return jobs.length; },
+    clearTimeoutFn: () => {}
+  });
+  assert.equal(socket.reconnectFeed('book'), true);
+  assert.deepEqual(errors, ['book:close failed']);
+  assert.equal(jobs.length, 1);
+  assert.doesNotThrow(() => socket.close());
+});

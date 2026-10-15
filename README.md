@@ -52,7 +52,7 @@ Use a **separate browser profile** for candidate evaluation. Migration from an e
 
 2. Open `chrome://extensions` in Chromium, switch on **Developer mode** and select **Load unpacked**.
 3. Select the cloned directory containing `manifest.json`.
-4. Open BTC Live from the toolbar, then use **Open Dashboard** for the full terminal.
+4. Open BTC Live from the toolbar, then use **Open market terminal** for the full terminal.
 5. Confirm feed connectivity, freshness and notification permissions before interpreting data or testing alerts.
 
 There is **no install/build requirement** for loading unpacked source. For a verified CI package instead, download the **`btc-live-candidate-zip` artifact** from [GitHub Actions](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml), verify the included `SHA256SUMS.txt`, extract the inner extension ZIP and load the extracted directory. **Do not submit that candidate ZIP to the store as a stable release.**
@@ -75,8 +75,10 @@ There is **no install/build requirement** for loading unpacked source. For a ver
 - **Intervals:** 1m · 5m · 15m · 30m · 1h · 4h.
 - **Styles:** Candlestick · Line · Area; chart drawing, pan/zoom, crosshair and overlays.
 - **Layout:** Standard · Wide · Stacked; density: Compact · Comfortable · Analysis.
-- **Workspaces:** Simple, Advanced and Custom presets; available tabs depend on the preset.
-- **Shortcuts:** `Ctrl+K` / `Cmd+K` where supported opens the command palette; `F` toggles chart focus outside text fields. Hold `Alt` for optional OHLC drawing snap.
+- **Navigation:** A desktop sidebar becomes a horizontally scrollable workspace bar on smaller screens. Use arrow keys, Home and End within navigation.
+- **View options:** Workspace preset, dashboard density and panel layout are grouped in one menu. Dashboard density stays selected during market updates.
+- **Workspaces:** Simple, Advanced and Custom presets; available views and command-palette entries depend on the preset.
+- **Shortcuts:** `Ctrl+K` / `Cmd+K` where supported opens the command palette; `F` toggles focus mode outside text fields; `Escape` exits focus or an expanded chart. Hold `Alt` for optional OHLC drawing snap.
 
 ### How to interpret market data
 

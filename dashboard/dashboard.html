@@ -6,18 +6,23 @@
   <meta name="color-scheme" content="dark">
   <title>BTC Live Dashboard</title>
   <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="../ui/theme.css">
+  <link rel="stylesheet" href="workspace.css">
 </head>
 <body>
+  <a class="skip-link" href="#dashboardWorkspaceTitle">Skip to workspace</a>
   <main id="dashboardShell" class="dashboard-shell" data-density="comfortable" aria-label="BTC Live dashboard">
     <header class="topbar">
       <div class="brand-block">
         <img src="../icons/icon48.png" width="38" height="38" alt="">
         <div>
-          <div class="eyebrow">BTC LIVE</div>
-          <div class="brand-title">Bitcoin Market Dashboard</div>
+          <div class="brand-title">BTC Live<span class="brand-divider" aria-hidden="true">/</span><span class="brand-subtitle">Market terminal</span></div>
+          <div class="brand-caption">Bitcoin intelligence. On your device.</div>
         </div>
       </div>
       <div class="topbar-actions">
+        <span class="market-badge">BTCUSDT <span>PERPETUAL</span></span>
+        <button id="terminalCommand" type="button" class="button command-trigger" aria-label="Open command palette" aria-haspopup="dialog" aria-controls="terminalPalette" aria-keyshortcuts="Control+K Meta+K"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg><span>Commands</span><kbd>Ctrl+K</kbd></button>
         <div id="dashboardStatusPill" class="status-pill" data-tone="neutral" role="status" aria-live="polite" aria-atomic="true">
           <span class="status-dot" aria-hidden="true"></span>
           <span id="dashboardStatusText">INITIAL</span>
@@ -26,42 +31,51 @@
       </div>
     </header>
 
+    <div class="terminal-body">
     <nav id="dashboardWorkspaceNav" class="workspace-nav" aria-label="Trading workspace sections">
+      <span class="nav-label">WORKSPACE</span>
       <div class="workspace-links" aria-label="Available workspaces">
-        <button class="workspace-link" type="button" data-workspace-target="live" aria-pressed="true">Live</button>
-        <button class="workspace-link" type="button" data-workspace-target="analytics" aria-pressed="false">Analytics</button>
-        <button class="workspace-link" type="button" data-workspace-target="replay" aria-pressed="false">Replay</button>
-        <button class="workspace-link" type="button" data-workspace-target="alerts" aria-pressed="false">Alerts</button>
-        <button class="workspace-link" type="button" data-workspace-target="diagnostics" aria-pressed="false">Diagnostics</button>
-        <button class="workspace-link" type="button" data-workspace-target="settings" aria-pressed="false">Settings</button>
+        <button class="workspace-link" type="button" data-workspace-target="live" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span>Live</span></button>
+        <button class="workspace-link" type="button" data-workspace-target="analytics" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16M9 15V9m5 6V5m5 10v-7"/></svg><span>Analytics</span></button>
+        <button class="workspace-link" type="button" data-workspace-target="replay" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9a8 8 0 1 1 0 7m0-12v5h5m2 0 5 3-5 3Z"/></svg><span>Replay</span></button>
+        <button class="workspace-link" type="button" data-workspace-target="alerts" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h14l-2-3V9a5 5 0 0 0-10 0v5Zm5 3h4"/></svg><span>Alerts</span></button>
+        <button class="workspace-link" type="button" data-workspace-target="diagnostics" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8m-4-3v3M6 11h3l2-4 3 7 2-3h2"/></svg><span>Diagnostics</span></button>
+        <button class="workspace-link" type="button" data-workspace-target="settings" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/></svg><span>Settings</span></button>
       </div>
-      <label class="workspace-preset-label" for="dashboardWorkspacePreset">Workspace
-        <select id="dashboardWorkspacePreset" aria-label="Workspace preset">
-          <option value="simple">Simple</option><option value="advanced" selected>Advanced</option><option value="custom">Custom</option>
-        </select>
-      </label>
+      <div class="nav-note"><span class="nav-note-mark" aria-hidden="true"></span><strong>Local by design</strong><span>Public market data.<br>No account required.</span></div>
     </nav>
-    <div class="terminal-controls" aria-label="Terminal presentation controls">
-      <label for="terminalDensity">Density <select id="terminalDensity" aria-label="Information density"><option value="compact">Compact</option><option value="comfortable">Comfortable</option><option value="analysis">Analysis</option></select></label>
-      <label for="terminalLayout">Layout <select id="terminalLayout" aria-label="Panel layout"><option value="standard">Standard</option><option value="wide">Wide</option><option value="stacked">Stacked</option></select></label>
-      <button id="terminalFocus" type="button" class="button secondary" aria-pressed="false" aria-keyshortcuts="F">Chart focus</button>
-      <button id="terminalCommand" type="button" class="button secondary" aria-keyshortcuts="Control+K Meta+K">Commands <kbd>Ctrl+K</kbd></button>
+    <div class="workspace-content">
+    <div class="workspace-heading">
+      <div><div class="eyebrow">BTCUSDT / FUTURES</div><h1 id="dashboardWorkspaceTitle" tabindex="-1">Market overview</h1></div>
+      <div class="terminal-controls" aria-label="Terminal presentation controls">
+        <button id="terminalFocus" type="button" class="button secondary" aria-pressed="false" aria-keyshortcuts="F">Focus mode</button>
+        <details id="terminalViewOptions" class="presentation-menu"><summary>View options</summary>
+          <div class="presentation-menu-content">
+            <label for="dashboardWorkspacePreset">Workspace preset<select id="dashboardWorkspacePreset"><option value="simple">Simple</option><option value="advanced" selected>Advanced</option><option value="custom">Custom</option></select></label>
+            <label for="terminalDensity">Information density<select id="terminalDensity"><option value="compact">Compact</option><option value="comfortable">Comfortable</option><option value="analysis">Analysis</option></select></label>
+            <label for="terminalLayout">Panel layout<select id="terminalLayout"><option value="standard">Standard</option><option value="wide">Wide</option><option value="stacked">Stacked</option></select></label>
+            <p>Preferences are saved on this device.</p>
+          </div>
+        </details>
+      </div>
     </div>
     <dialog id="terminalPalette" class="terminal-palette" aria-label="Command palette">
       <div class="terminal-palette-content">
         <label for="terminalCommandQuery">Command palette</label>
-        <input id="terminalCommandQuery" autocomplete="off" placeholder="Search workspace, layout or action" aria-controls="terminalCommandList">
+        <input id="terminalCommandQuery" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" autocomplete="off" placeholder="Search workspace, layout or action" aria-controls="terminalCommandList">
         <div id="terminalCommandList" role="listbox" aria-label="Available commands"></div>
         <p class="terminal-command-help">↑ ↓ select · Enter execute · Esc close</p>
+        <button id="terminalPaletteClose" class="button palette-close" type="button">Close <kbd>Esc</kbd></button>
       </div>
     </dialog>
+    <p id="terminalActionFeedback" class="action-feedback" role="status" hidden></p>
     <p id="dashboardWorkspaceContext" class="workspace-context" role="status" aria-live="polite">Live market overview · Futures data, independent of replay.</p>
 
     <section class="hero-grid" data-workspace-panel="live" aria-label="Bitcoin market overview">
       <article class="hero-card">
         <div class="hero-heading">
           <div>
-            <div class="eyebrow muted">BTC / USDT</div>
+            <div class="eyebrow muted">BITCOIN <span class="instrument-tag">BTC / USDT</span></div>
             <div class="price-row">
               <strong id="dashboardPrice" class="hero-price">—</strong>
               <span class="quote">USDT</span>
@@ -176,7 +190,7 @@
               <button id="dashboardChartZoomOut" class="chart-control" type="button" aria-label="Zoom out">−</button>
               <button id="dashboardChartReset" class="chart-control" type="button" aria-label="Reset chart view">Reset</button>
               <button id="dashboardChartLive" class="chart-control" type="button" aria-label="Return to latest candle">Return Live</button>
-              <button id="dashboardChartFocus" class="chart-control" type="button" aria-pressed="false">Focus</button>
+              <button id="dashboardChartFocus" class="chart-control" type="button" aria-pressed="false">Expand chart</button>
             </div>
           </div>
         </div>
@@ -291,9 +305,9 @@
       </article>
     </section>
 
-    <section class="replay-section" data-workspace-panel="replay">
+    <section class="replay-section" data-workspace-panel="replay" aria-label="Session market observations and replay">
       <div class="workspace-intro"><div class="eyebrow muted">LOCAL RECORDINGS</div><h2>Replay Studio</h2>
-        <p>Two distinct recording formats. Sample Replay stores periodic observations; Event Replay reconstructs bounded Futures depth and trades in receipt order. Neither affects live alerts.</p></div> aria-label="Session market observations and replay">
+        <p>Two distinct recording formats. Sample Replay stores periodic observations; Event Replay reconstructs bounded Futures depth and trades in receipt order. Neither affects live alerts.</p></div>
       <div class="replay-mode-switch" aria-label="Replay format">
         <button type="button" id="dashboardReplayModeSamples" aria-pressed="false">Sample Replay</button>
         <button type="button" id="dashboardReplayModeEvents" aria-pressed="true">Event Replay &amp; Sessions</button>
@@ -432,9 +446,9 @@
         <article class="panel alert-manager-panel" aria-label="Price target alerts">
           <div class="panel-header"><div><div class="eyebrow muted">ALERTS</div><h2>Price Targets</h2></div><span id="dashboardTargetCount" class="alert-count">0/0 active</span></div>
           <form id="dashboardTargetForm" class="alert-target-form">
-            <select id="dashboardTargetDirection" aria-label="Target direction"><option value="above">Above</option><option value="below">Below</option></select>
-            <input id="dashboardTargetPrice" type="number" min="100" max="10000000" step="0.01" inputmode="decimal" placeholder="Price" aria-label="Target price in USDT" required>
-            <input id="dashboardTargetLabel" type="text" maxlength="48" placeholder="Label (optional)" aria-label="Target label">
+            <label class="form-field"><span>Direction</span><select id="dashboardTargetDirection" aria-label="Target direction"><option value="above">Above</option><option value="below">Below</option></select></label>
+            <label class="form-field"><span>Target price · USDT</span><input id="dashboardTargetPrice" type="number" min="100" max="10000000" step="0.01" inputmode="decimal" placeholder="Price" aria-label="Target price in USDT" required></label>
+            <label class="form-field form-field-wide"><span>Label · optional</span><input id="dashboardTargetLabel" type="text" maxlength="48" placeholder="Label (optional)" aria-label="Target label"></label>
             <button class="button tertiary" type="submit">Add target</button>
           </form>
           <div id="dashboardTargetFeedback" class="alert-feedback" role="status" aria-live="polite"></div>
@@ -446,11 +460,11 @@
         <div class="panel-header"><div><div class="eyebrow muted">RULE ENGINE</div><h2>Advanced Live Alerts</h2></div></div>
         <p class="flow-footnote">Evaluated only while the dashboard and required live feeds are running. No historical replay or background stream monitoring.</p>
         <form id="advancedAlertForm" class="alert-target-form">
-          <select id="advancedAlertType" aria-label="Metric"><option value="price">Price (USDT)</option><option value="cvd">CVD delta (BTC)</option><option value="volume">Executed volume (BTC)</option><option value="imbalance">Book imbalance (-1 to +1)</option></select>
-          <select id="advancedAlertDirection" aria-label="Relation"><option value="above">At or above</option><option value="below">At or below</option></select>
-          <input id="advancedAlertThreshold" type="number" required step="any" placeholder="Threshold" aria-label="Threshold">
-          <select id="advancedAlertWindow" aria-label="Flow window"><option value="10">10s</option><option value="30">30s</option><option value="60" selected>60s</option><option value="300">300s</option></select>
-          <select id="advancedAlertCooldown" aria-label="Cooldown"><option value="60">1 min</option><option value="300" selected>5 min</option><option value="900">15 min</option></select>
+          <label class="form-field"><span>Metric</span><select id="advancedAlertType" aria-label="Metric"><option value="price">Price (USDT)</option><option value="cvd">CVD delta (BTC)</option><option value="volume">Executed volume (BTC)</option><option value="imbalance">Book imbalance (-1 to +1)</option></select></label>
+          <label class="form-field"><span>Condition</span><select id="advancedAlertDirection" aria-label="Relation"><option value="above">At or above</option><option value="below">At or below</option></select></label>
+          <label class="form-field"><span>Threshold · metric units</span><input id="advancedAlertThreshold" type="number" required step="any" placeholder="Threshold" aria-label="Threshold"></label>
+          <label class="form-field"><span>Observation window</span><select id="advancedAlertWindow" aria-label="Flow window"><option value="10">10s</option><option value="30">30s</option><option value="60" selected>60s</option><option value="300">300s</option></select></label>
+          <label class="form-field"><span>Repeat cooldown</span><select id="advancedAlertCooldown" aria-label="Cooldown"><option value="60">1 min</option><option value="300" selected>5 min</option><option value="900">15 min</option></select></label>
           <button class="button tertiary" type="submit">Add rule</button>
         </form>
         <p id="advancedAlertFeedback" class="alert-feedback" role="status" aria-live="polite"></p>
@@ -498,7 +512,7 @@
         </div>
         <label class="setting-row" for="dashboardWorkspaceLanding"><span><strong>Custom Landing View</strong><small>Only used by the Custom workspace preset.</small></span><select id="dashboardWorkspaceLanding" aria-label="Custom start view"><option value="live">Live</option><option value="analytics">Analytics</option><option value="replay">Replay</option><option value="alerts">Alerts</option><option value="diagnostics">Diagnostics</option><option value="settings">Settings</option></select></label>
         <div class="settings-list">
-          <label class="setting-row"><span><strong>Compact Layout</strong><small>Reduce spacing across popup and dashboard.</small></span><input id="dashboardSettingCompact" type="checkbox"></label>
+          <label class="setting-row"><span><strong>Compact Popup</strong><small>Reduce popup spacing. Set dashboard density in View options.</small></span><input id="dashboardSettingCompact" type="checkbox"></label>
           <label class="setting-row"><span><strong>Show Bid / Ask</strong><small>Display best bid, ask and spread.</small></span><input id="dashboardSettingBidAsk" type="checkbox"></label>
           <label class="setting-row"><span><strong>Show 24h Volume</strong><small>Display rolling quote volume.</small></span><input id="dashboardSettingVolume" type="checkbox"></label>
           <label class="setting-row"><span><strong>Show 24h Range</strong><small>Display price position inside the 24h range.</small></span><input id="dashboardSettingRange" type="checkbox"></label>
@@ -518,6 +532,8 @@
       <span>BTC LIVE · V1.22.0</span>
       <span>Binance USDⓈ-M Futures · Local settings · No tracking</span>
     </footer>
+    </div>
+    </div>
   </main>
   <script type="module" src="dashboard.js"></script>
 </body>

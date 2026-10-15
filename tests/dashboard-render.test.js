@@ -75,4 +75,8 @@ test('dashboard renderer exposes market, feed health and settings', (t) => {
   assert.equal(elements.get('dashboardBidAskCard').hidden, false);
   assert.equal(elements.get('dashboardSettingCompact').checked, true);
   assert.equal(elements.get('dashboardStatusPill').getAttribute('aria-label'), 'Connection status: LIVE');
+
+  elements.get('dashboardShell').dataset.terminalDensity = 'analysis';
+  renderDashboard({ state, settings, reconnectAttempt: 0, nextRetryAt: null, online: true }, NOW + 1000);
+  assert.equal(elements.get('dashboardShell').dataset.density, 'analysis', 'market repaints preserve the chosen terminal density');
 });

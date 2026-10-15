@@ -34,6 +34,19 @@ python scripts/browser-smoke.py
 
 Requires separately installed Python Playwright and Chromium. The test uses an **in-page synthetic WebSocket**, not the installed Manifest V3 extension or actual Binance connectivity. Passing it is browser DOM smoke evidence **only**.
 
+### Full-interface DOM regression harness
+
+```bash
+# Optional local developer dependency; not included in the extension runtime.
+npm install --no-save --package-lock=false playwright
+npx playwright install chromium
+npm run test:ui
+```
+
+`test:ui` starts an ephemeral loopback server and launches Chromium through Playwright. All external HTTP and WebSocket traffic is intercepted. Deterministic synthetic REST fixtures, idle sockets and a mock browser-storage API exercise the actual popup/dashboard modules without contacting Binance or creating native notifications. Mock preferences live only in the isolated browser context and are discarded on exit.
+
+Coverage includes all six workspaces at 320/390/560/800/1024/1440/1920px, page overflow, navigation keys, density across market repaints, command filtering/selection/dismissal/focus return, focus mode, chart expansion, disclosure dismissal, target create/remove, popup settings and offline rendering. `CHROMIUM_PATH` optionally selects an installed executable; `UI_SCREENSHOT_DIR` optionally saves local QA screenshots. These screenshots contain **synthetic prices**, not live observations. DOM geometry checks and visual review do not certify all accessibility requirements, live streams or installed-extension behavior.
+
 ## Real-browser acceptance matrix
 
 Use [`SMOKE-TEST.md`](SMOKE-TEST.md) and [`ACCEPTANCE.md`](ACCEPTANCE.md), recording for each case: UTC time, exact SHA and package digest, OS/browser version, source fixtures or live endpoints, actions, expected/actual outcome, relevant console/trace and reviewer.

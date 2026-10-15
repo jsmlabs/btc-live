@@ -285,7 +285,7 @@ button, input, select { color-scheme: dark; }
 .liquidity-controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 7px; }
 .liquidity-control { display: grid; gap: 6px; min-height: 34px; color: var(--text-muted); font-size: 9px; font-weight: 690; }
 .liquidity-control select { height: 31px; min-width: 106px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-control); color: var(--text); padding: 0 24px 0 9px; font: inherit; font-size: 10px; cursor: pointer; }
-.liquidity-control input { width: 16px; height: 16px; margin: 6px 5px 4px; accent-color: var(--accent); cursor: pointer; }
+.liquidity-control input[type="checkbox"] { width: 16px; height: 16px; margin: 6px 5px 4px; accent-color: var(--accent); cursor: pointer; }
 .liquidity-retry { align-self: flex-end; min-height: 31px; }
 .liquidity-metadata, .liquidity-stats { display: flex; align-items: center; flex-wrap: wrap; gap: 16px; }
 .liquidity-metadata { margin-top: 14px; padding: 9px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }

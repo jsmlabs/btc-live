@@ -1,0 +1,74 @@
+.app-shell { width: 408px; }
+.view { padding: 14px; }
+.header { min-height: 44px; padding: 0 0 10px; }
+.asset-mark { width: 38px; height: 38px; border-radius: 10px; }
+.asset-mark img { width: 27px; height: 27px; }
+.eyebrow { font-size: 9px; }
+.pair { font-size: 16px; margin-top: 5px; }
+.popup-market-tag { margin-left: 5px; color: var(--accent); font-size: 8px; }
+.status-pill { min-height: 30px; font-size: 9px; }
+.icon-button { width: 34px; min-height: 34px; }
+.price-block { margin-top: 10px; padding: 15px 14px; border-color: var(--border-strong); background: linear-gradient(110deg, #f3a23a08, transparent 75%), var(--bg-surface-raised); }
+.price-caption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 5px; margin-bottom: 10px; color: var(--text-secondary); font-size: 9px; letter-spacing: .08em; font-weight: 650; }
+.price-caption span { color: var(--text-muted); font-size: 8px; }
+.current-price { font-size: 46px; font-weight: 600; line-height: 1.05; }
+.change-line { margin-top: 10px; font-size: 12px; }
+.metric-label { font-size: 9px; }
+.stats-grid { gap: 7px; margin-top: 8px; }
+.metric-card { padding: 10px; border-radius: 8px; }
+.metric-value { margin-top: 9px; font-size: 13px; }
+.range-card { padding: 12px; }
+.range-fill { background: linear-gradient(90deg, #735527, var(--accent)); }
+.range-marker { background: var(--accent); }
+.range-scale { color: var(--text-muted); font-size: 9px; }
+.market-cell { padding: 10px; }
+.market-value { font-size: 12px; }
+.market-cell:first-child .market-value { color: var(--success); }
+.market-cell:nth-child(2) .market-value { color: var(--danger); }
+.market-subvalue { font-size: 10px; }
+.volume-row { min-height: 42px; padding: 0 13px; }
+.open-terminal-button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 50px; margin-top: 10px; padding: 10px 12px; border: 1px solid var(--accent-border); border-radius: 9px; background: var(--accent-soft); color: var(--text-primary); text-align: left; font-size: 12px; font-weight: 650; cursor: pointer; }
+.open-terminal-button small { display: block; margin-top: 5px; color: var(--text-secondary); font-size: 10px; font-weight: 400; }
+.open-terminal-button svg { width: 19px; height: 19px; fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.open-terminal-button:hover { border-color: var(--accent); background: #f3a23a1c; }
+.footer { margin-top: 10px; padding-top: 10px; color: var(--text-muted); font-size: 9px; }
+.state-row:has(.state-message[hidden]):has(.retry-button[hidden]) { display: none; }
+.state-message { font-size: 11px; line-height: 1.5; }
+.settings-header { position: sticky; top: 0; z-index: 2; margin: 0; padding: 12px 0; background: var(--bg-canvas); }
+.settings-group-title { margin: 22px 0 6px; color: var(--accent); font-size: 10px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.setting-row { padding: 12px 0; min-height: 62px; gap: 16px; }
+.setting-row strong { font-size: 12px; font-weight: 600; }
+.setting-row small { margin-top: 4px; font-size: 11px; line-height: 1.5; }
+.alert-center { padding: 14px; }
+.alert-center-heading { align-items: flex-start; }
+.alert-center-heading small { font-size: 10px; line-height: 1.5; }
+.alert-target-form input, .alert-target-form select, .setting-row-control select { font-size: 12px; min-height: 36px; }
+.form-field { display: grid; gap: 6px; min-width: 0; color: var(--text-secondary); font-size: 10px; }
+.form-field-wide { grid-column: 1 / -1; }
+.form-field :is(input, select) { width: 100%; }
+.alert-target-form button[type="submit"] { background: var(--accent); color: #191106; border-color: var(--accent); }
+.alert-empty { font-size: 11px; line-height: 1.5; padding: 20px 8px; }
+.secondary-button { font-size: 11px; }
+.privacy-note span { font-size: 10px; line-height: 1.5; }
+.app-shell[data-density="compact"] .view { padding: 12px; }
+.app-shell[data-density="compact"] .price-caption { margin-bottom: 12px; }
+.app-shell[data-density="compact"] .settings-header { margin: 0; padding: 10px 0; }
+@media (max-width: 390px) {
+  .app-shell { width: 100vw; }
+  .view { padding: 14px; }
+  .asset-identity { gap: 7px; }
+  .header-actions { gap: 4px; }
+  .pair { font-size: 14px; }
+  .popup-market-tag { display: none; }
+  .current-price { font-size: 40px; }
+  .metric-card, .market-cell { padding: 12px 8px; }
+  .metric-value { font-size: 12px; }
+  .settings-header { margin: 0; padding: 12px 0; }
+}
+@media (max-width: 350px) {
+  .asset-mark { width: 30px; height: 34px; }
+  .asset-mark img { width: 23px; height: 23px; }
+  .status-pill { font-size: 8px; padding: 0 6px; gap: 5px; }
+  .icon-button { width: 30px; }
+  .metric-value, .market-value { font-size: 11px; }
+}

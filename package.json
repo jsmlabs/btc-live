@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.js",
+    "test:ui": "node scripts/ui-smoke.mjs",
     "verify": "node scripts/verify.mjs",
     "package:extension": "node scripts/package-extension.mjs",
     "release:check": "node scripts/release-check.mjs",

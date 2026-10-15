@@ -8,6 +8,10 @@ export function createAdvancedAlertCenter({root=document,now=()=>Date.now(),noti
   const get=id=>root.getElementById(id);
   function render(){
     const list=get('advancedAlertRules');if(!list)return;list.replaceChildren();
+    if (!rules.length) {
+      const empty=root.createElement('li');empty.className='alert-empty';
+      empty.textContent='No advanced rules. Choose a metric and threshold to add one.';list.append(empty);
+    }
     for(const rule of rules){
       const li=root.createElement('li');li.className='advanced-alert-rule';
       const span=root.createElement('span');span.textContent=`${rule.type.toUpperCase()} ${rule.direction} ${rule.threshold} (${rule.windowSeconds}s, cooldown ${rule.cooldownSeconds}s)`;

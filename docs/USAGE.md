@@ -8,7 +8,7 @@
 2. Clone [BTC Live](https://github.com/jsmlabs/btc-live) or download the source branch.
 3. Navigate to `chrome://extensions`; enable Developer mode.
 4. Select **Load unpacked** and choose the folder containing `manifest.json`.
-5. Click the toolbar icon for the popup; choose **Open Dashboard** to access the full terminal.
+5. Click the toolbar icon for the popup; choose **Open market terminal** to access the full terminal.
 
 **From an Actions build:** Download the artifact matching the source SHA, verify `SHA256SUMS.txt`, unpack the inner candidate ZIP, then load the extracted extension directory. A ZIP itself cannot be selected by Load unpacked. There is no npm build required for use; a network path to the public Binance Futures endpoints is required for data.
 
@@ -21,9 +21,13 @@
 | Replay | Load a recorded session, scrub/step and compare supported data | Bookmarks are session-local; replay never notifies |
 | Alerts | Configure price targets and supported advanced metrics | Advanced checks operate only with an open live dashboard |
 | Diagnostics | Inspect reconnects, transport/feed state and freshness | A connected WebSocket does not establish a valid depth book |
-| Settings | Personalize view and notification preferences | Local presentation options do not affect exchange data |
+| Settings | Personalize display and landing preferences | Local presentation options do not affect exchange data |
 
-**Workspace presets:** Simple shows a reduced set of tabs; Advanced exposes all available workspaces; Custom permits a configured landing workspace. If a view is hidden by the current preset, command navigation does not override that restriction.
+Navigation uses a sidebar on large screens and a scrollable workspace bar on smaller screens. Within navigation, use arrow keys, Home or End. A keyboard-visible **Skip to workspace** link bypasses navigation.
+
+Open **View options** beside the workspace title for the workspace preset, dashboard density and panel layout. The popup has a labelled **Open market terminal** button in addition to its dashboard icon.
+
+**Workspace presets:** Simple shows a reduced set of tabs; Advanced exposes all available workspaces; Custom permits a configured landing workspace. If a view is hidden by the current preset, the command palette omits that view. Alert delivery preferences remain in **Alerts**.
 
 ## Chart controls
 
@@ -33,10 +37,11 @@ The chart supports **1m, 5m, 15m, 30m, 1h and 4h** intervals with candles, line 
 | --- | --- |
 | `Ctrl+K` / `Cmd+K` (where supported) | Open command palette |
 | Arrow keys, Enter, Escape | Navigate/execute/dismiss palette entries |
-| `F` (outside editable controls) | Toggle chart-focus presentation |
+| `F` (outside editable controls) | Toggle focus mode, hiding overview cards |
+| **Expand chart** / `Escape` | Enlarge / restore the chart; Escape also exits focus mode |
 | `Alt` while drawing/editing | Optional snap to observed OHLC values |
 
-Layouts are **Standard / Wide / Stacked**; densities are **Compact / Comfortable / Analysis**. These are responsive presets, **not** freely dockable panels. Actual keyboard, touch and resize behavior still needs real-browser acceptance.
+Layouts are **Standard / Wide / Stacked**; densities are **Compact / Comfortable / Analysis**. Dashboard density persists across market repaints and takes precedence over the legacy compact-layout setting. **Compact Popup** in Settings controls popup spacing. Menus close on an outside click or Escape; Escape returns keyboard focus to the menu summary. These are responsive presets, **not** freely dockable panels. Actual keyboard, touch and resize behavior still needs real-browser acceptance.
 
 ## How data and alerts work
 

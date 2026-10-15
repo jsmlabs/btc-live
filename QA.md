@@ -9,7 +9,7 @@
 | --- | --- | --- |
 | Static + deterministic Node | `npm run verify` | Syntax and unit/regression behavior only |
 | Documentation + package | `npm run docs:check`, `npm run release:check`, package and checksum scripts | Internal links, manifest/resource policies, repeatable artifact |
-| Simulated DOM | Optional Python/Playwright `scripts/browser-smoke.py` | Mock transport and chart behavior, **not live extension** |
+| Simulated DOM | Optional `npm run test:ui` and Python/Playwright `scripts/browser-smoke.py` | Responsive popup/workspaces, keyboard/focus, mock storage/REST and chart behavior, **not live extension** |
 | Real Chromium / Binance / migration | [Manual smoke worksheet](docs/SMOKE-TEST.md) | Required for actual customer approval |
 
 ## Candidate release QA

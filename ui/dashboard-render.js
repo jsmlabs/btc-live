@@ -19,7 +19,8 @@ function getNode(id) {
 export function renderDashboard(snapshot, now = Date.now()) {
   const { state, settings, nextRetryAt, online } = snapshot;
   const shell = getNode('dashboardShell');
-  shell.dataset.density = settings.compactLayout ? 'compact' : 'comfortable';
+  // Terminal presentation owns dashboard density once initialized.
+  shell.dataset.density = shell.dataset.terminalDensity ?? (settings.compactLayout ? 'compact' : 'comfortable');
 
   const status = statusView(online ? state.connectionStatus : 'OFFLINE');
   const statusPill = getNode('dashboardStatusPill');

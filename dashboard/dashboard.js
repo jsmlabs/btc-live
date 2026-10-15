@@ -1,6 +1,7 @@
 import {createAdvancedAlertCenter} from '../ui/advanced-alert-center.js';
 import { clampReplayPosition, addReplayBookmark, compareReplaySessions } from '../ui/replay-research.js';
 import { createTerminalExperience } from '../ui/terminal-experience.js';
+import { bindDisclosureMenus } from '../ui/disclosure-menus.js';
 import { createWorkspaceController, createReplayModeController } from '../ui/workspace.js';
 import { bindAnalyticsViews } from '../ui/analytics-views.js';
 import { WORKSPACE_STORAGE_KEY, loadWorkspace, saveWorkspace, sanitizeWorkspace } from '../storage/workspace-preferences.js';
@@ -462,6 +463,7 @@ const depthRuntime = createBinanceDepthRuntime({ onEvent(event, at) { appendMark
 const api = globalThis.browser ?? globalThis.chrome ?? null;
 let workspaceController = null;
 let terminalExperience = null;
+let disclosureMenus = null;
 let replayModeController = null;
 function isWorkspaceVisible(view) { return workspaceController?.active() === view; }
 function updateWorkspaceDiagnostics() {
@@ -555,6 +557,23 @@ function bindSettings() {
   });
 }
 
+function setChartExpanded(active) {
+  document.querySelector('.chart-panel').classList.toggle('chart-focus', active);
+  const button = document.getElementById('dashboardChartFocus');
+  button.setAttribute('aria-pressed', String(active));
+  button.textContent = active ? 'Restore chart' : 'Expand chart';
+  drawChart();
+}
+
+function onChartExpandKey(event) {
+  if (event.key !== 'Escape' || event.defaultPrevented || !document.querySelector('.chart-panel').classList.contains('chart-focus')) return;
+  // An open chart menu handles Escape before leaving the expanded view.
+  if (document.activeElement?.closest('.chart-menu[open]')) return;
+  event.preventDefault();
+  setChartExpanded(false);
+  document.getElementById('dashboardChartFocus').focus();
+}
+
 function bindChart() {
   for (const [id, interval] of [
     ['dashboardChartInterval1m', '1m'],
@@ -600,13 +619,10 @@ function bindChart() {
   document.getElementById('dashboardChartZoomOut').addEventListener('click',()=>{chartViewport.zoom(-1,total());redraw();});
   document.getElementById('dashboardChartReset').addEventListener('click',()=>{chartViewport.reset(total());redraw();});
   document.getElementById('dashboardChartLive').addEventListener('click',()=>{chartViewport.toLive(total());redraw();});
-  document.getElementById('dashboardChartFocus').addEventListener('click',( )=>{
-    const panel=document.querySelector('.chart-panel');
-    const active=panel.classList.toggle('chart-focus');
-    document.getElementById('dashboardChartFocus').setAttribute('aria-pressed',String(active));
-    document.getElementById('dashboardChartFocus').textContent=active?'Exit Focus':'Focus';
-    drawChart();
+  document.getElementById('dashboardChartFocus').addEventListener('click', () => {
+    setChartExpanded(!document.querySelector('.chart-panel').classList.contains('chart-focus'));
   });
+  document.addEventListener('keydown', onChartExpandKey);
   const svg=document.getElementById('dashboardChartSvg');
   chartInteractions=bindChartInteractions({svg,tooltip:document.getElementById('dashboardChartTooltip'),viewport:chartViewport,count:total,onChange:redraw});
   chartDrawings=bindChartDrawings({svg,store:chartDrawingStore,getInterval:()=>latestChart?.preferences.interval??'5m',onChange:()=>{},
@@ -720,6 +736,8 @@ function bindUi() {
   } });
   workspaceController = createWorkspaceController({
     onNavigate(view) {
+      if (view !== 'live' && terminalExperience?.focus()) terminalExperience.setFocus(false);
+      if (view !== 'live' && document.querySelector('.chart-panel').classList.contains('chart-focus')) setChartExpanded(false);
       if (view === 'analytics') { liquidityPaint.schedule(); flowPaint.schedule(); }
       if (view === 'replay') {
         if (replayModeController.active() === 'samples') drawReplay(); else drawEvents();
@@ -731,7 +749,9 @@ function bindUi() {
       saveWorkspace(value).catch(error => console.warn('BTC Live workspace preferences failed to persist', error));
     }
   });
-  terminalExperience = createTerminalExperience({ navigate: (view) => workspaceController?.navigate(view, { user: true }) ?? false, onFocus: () => drawChart() });
+  terminalExperience = createTerminalExperience({ navigate: (view) => workspaceController?.navigate(view, { user: true }) ?? false,
+    availableViews: () => workspaceController?.available() ?? [], onFocus: () => drawChart() });
+  disclosureMenus = bindDisclosureMenus(document);
   loadWorkspace().then(workspace => workspaceController?.restore(workspace))
     .catch(error => console.warn('BTC Live workspace preferences unavailable', error));
   document.getElementById('dashboardDiagnosticsRetryPrice').addEventListener('click', () => runtime.retryNow());
@@ -819,6 +839,8 @@ function cleanup() {
   api?.storage?.onChanged?.removeListener(handleStorageChange);
   chartDrawings?.dispose();
   terminalExperience?.dispose();
+  disclosureMenus?.dispose();
+  document.removeEventListener('keydown', onChartExpandKey);
   chartInteractions?.dispose();
   window.removeEventListener('resize', drawChart);
   chartRuntime.dispose();

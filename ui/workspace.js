@@ -8,6 +8,8 @@ const descriptions = Object.freeze({
   diagnostics: 'Connection states and recovery counters · validate live feeds before release.',
   settings: 'Local display preferences and onboarding · no account or telemetry.'
 });
+const titles = Object.freeze({ live: 'Market overview', analytics: 'Market analytics', replay: 'Replay studio',
+  alerts: 'Alert center', diagnostics: 'Feed diagnostics', settings: 'Settings' });
 
 // Pure visibility controller. It does not start/stop feeds, change alerts or manipulate recordings.
 export function createWorkspaceController({ root = document, onNavigate = () => {}, onPreferenceChange = () => {} } = {}) {
@@ -15,6 +17,7 @@ export function createWorkspaceController({ root = document, onNavigate = () => 
   const presetSelect = root.getElementById('dashboardWorkspacePreset');
   const landingSelect = root.getElementById('dashboardWorkspaceLanding');
   const context = root.getElementById('dashboardWorkspaceContext');
+  const title = root.getElementById('dashboardWorkspaceTitle');
   const links = [...nav.querySelectorAll('[data-workspace-target]')];
   const panels = [...root.querySelectorAll('[data-workspace-panel]')];
   let preferences = sanitizeWorkspace(null);
@@ -35,6 +38,7 @@ export function createWorkspaceController({ root = document, onNavigate = () => 
     for (const panel of panels) panel.hidden = panel.dataset.workspacePanel !== active;
     root.getElementById('dashboardShell')?.setAttribute('data-workspace-ready', 'true');
     context.textContent = descriptions[active];
+    if (title) title.textContent = titles[active];
     onNavigate(active);
   }
   function persist() { onPreferenceChange({ ...preferences }); }
@@ -59,15 +63,16 @@ export function createWorkspaceController({ root = document, onNavigate = () => 
     if (link) navigate(link.dataset.workspaceTarget, { user: true });
   }
   function onNavKey(event) {
-    if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+    if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key)) return;
     const available = links.filter(link => !link.hidden);
     const index = available.indexOf(event.target);
     if (index < 0) return;
     event.preventDefault();
     const dest = event.key === 'Home' ? 0 : event.key === 'End' ? available.length - 1 :
-      (index + (event.key === 'ArrowRight' ? 1 : -1) + available.length) % available.length;
+      (index + (['ArrowRight','ArrowDown'].includes(event.key) ? 1 : -1) + available.length) % available.length;
     navigate(available[dest].dataset.workspaceTarget, { user: true });
     available[dest].focus();
+    available[dest].scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   }
   const onPreset = () => setPreferences({ ...preferences, preset: presetSelect.value }, { user: true });
   const onLanding = () => {
@@ -86,7 +91,7 @@ export function createWorkspaceController({ root = document, onNavigate = () => 
       const next = sanitizeWorkspace(value);
       if (next.preset !== preferences.preset || next.landingView !== preferences.landingView) setPreferences(next);
     },
-    active: () => active, preferences: () => ({ ...preferences }),
+    active: () => active, available: () => allowedWorkspaceViews(preferences.preset), preferences: () => ({ ...preferences }),
     dispose() { nav.removeEventListener('click', onNavClick); nav.removeEventListener('keydown', onNavKey); presetSelect.removeEventListener('change', onPreset); landingSelect.removeEventListener('change', onLanding); }
   };
 }

@@ -71,6 +71,7 @@ function handleStorageChange(changes, areaName) {
 
 function bindUi() {
   document.getElementById('dashboardButton').addEventListener('click', openDashboard);
+  document.getElementById('openTerminalButton').addEventListener('click', openDashboard);
   document.getElementById('settingsButton').addEventListener('click', openSettings);
   document.getElementById('closeSettingsButton').addEventListener('click', closeSettings);
   document.getElementById('retryButton').addEventListener('click', () => runtime.retryNow());

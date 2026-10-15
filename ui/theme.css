@@ -1,0 +1,42 @@
+/* Shared product palette. Loaded after the component styles in both surfaces. */
+:root {
+  color-scheme: dark;
+  --bg-canvas: #080a0d;
+  --bg-surface: #101419;
+  --bg-surface-raised: #151a21;
+  --bg-surface-subtle: #1d2530;
+  --bg-control: #0c1016;
+  --bg-chart: #090d12;
+  --text: #f4f6f8;
+  --text-primary: #f4f6f8;
+  --text-secondary: #b4bfcc;
+  --text-muted: #919faf;
+  --text-faint: #8694a5;
+  --border: #262e39;
+  --border-strong: #384453;
+  --accent: #f3a23a;
+  --accent-soft: #f3a23a12;
+  --accent-border: #f3a23a5c;
+  --positive: #5dcead;
+  --success: #5dcead;
+  --negative: #f18d99;
+  --danger: #f18d99;
+  --warning: #e8bd76;
+  --focus: #f3a23a;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --shadow-panel: 0 6px 24px #0000001f;
+}
+
+button, input, select, summary, a { -webkit-tap-highlight-color: transparent; }
+button, select, summary { touch-action: manipulation; }
+input, select { accent-color: var(--accent); }
+:is(button, a, input, select, summary):focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+input::placeholder { color: var(--text-faint); opacity: 1; }
+:is(button, input, select):disabled { opacity: .55; cursor: not-allowed; }
+svg[aria-hidden="true"] { flex-shrink: 0; }
+
+@media (forced-colors: active) {
+  :is(button, a, input, select, summary):focus-visible { outline-color: Highlight; }
+  :is(button, input, select, summary) { forced-color-adjust: auto; }
+}

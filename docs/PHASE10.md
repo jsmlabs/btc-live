@@ -6,7 +6,7 @@ Status: **RELEASE CANDIDATE / NOT PRODUCTION-VERIFIED**.
 
 - `npm run verify` performs syntax/reference checks and deterministic tests.
 - `npm run release:check` checks manifest contracts, restrictive permissions/CSP, local HTML references and unexpected large artifacts.
-- Two deterministic ZIP outputs are generated with a fixed timestamp, sorted entries and SHA-256 checksums.
+- Historical Phase-10 packaging evidence described deterministic ZIP outputs with fixed timestamps and SHA-256 checksums. **The current `npm run package:extension` command does not produce ZIPs**; it only verifies and prints packaging guidance. Reproducible artifact generation must be separately implemented or established before release.
 - Release checks do not prove runtime correctness or real market connectivity.
 
 ## Release blockers / evidence still required

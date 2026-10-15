@@ -1,11 +1,21 @@
-# Phase 05 - Chart Interaction Engine
+# Phase 05 - chart interaction engine
 
-## Scope implemented
-- Deterministic OHLC snapping helper with opt-in activation (`Alt` when placing/editing annotations, or `setSnapEnabled(true)`). No permanent global snap setting is introduced.
-- A shared, clamped candle hit-test helper for drawing interactions.
-- Pointer capture for chart panning and drawing dragging; pointer-cancel releases panning state.
-- Undo/redo restoration now replaces the entire validated drawing collection, protecting annotations on other timeframes and respecting the existing 80-drawing limit.
-- Regression tests for snapping, bounds, timeframe preservation and anchored viewport controls.
+**Historical engineering record.** Describes the chart controls implemented during this phase, not a completed real-browser usability test.
 
-## Boundaries
-The existing crosshair redraw synchronization, drawing tools, keyboard shortcuts and wheel-anchor zoom already existed and were retained. No new interface controls or storage-schema changes were necessary. SVG focus, touch behavior, drawing drag and actual browser rendering still need Chromium testing. Snap is only active when enabled explicitly or Alt is held and does not modify historical price data.
+## Interaction contracts
+
+- **OHLC snapping:** optional, enabled during editing/placing with `Alt` or explicitly through the drawing controller. Not a permanent default.
+- **Hit testing:** shared clamped candle-coordinate lookup, so selections stay within valid chart bounds.
+- **Pointer behavior:** capture for drawing drag/pan; pointer cancellation must release active interaction state.
+- **Undo/redo:** restore a fully validated collection without dropping drawings stored for other timeframes.
+- **Storage bounds:** existing collection limit of **80** annotations remains enforced.
+- **Viewport:** anchor-aware zoom and pan remain separate from market-data ingestion.
+
+Deterministic tests cover snapping, coordinate bounds, timeframe preservation and viewport anchors.
+
+## Acceptance left open
+
+Actual Chromium pointer capture, touch behavior, drag cancel, drawing persistence, keyboard focus, accessibility labels and live chart update interaction require real execution. A synthetic passing test is not proof of rendered correctness.
+
+[User guide](USAGE.md) · [Phase 06](PHASE06.md) · [Smoke test](SMOKE-TEST.md)
+

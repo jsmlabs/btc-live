@@ -1,20 +1,25 @@
-# Phase 02 - Feed Integrity & Recovery
+# Phase 02 - feed integrity and recovery
 
-## Scope and implementation
+**Historical engineering record.** The changes below describe the phase implementation and its regression intent; real exchange/browser acceptance is still a separate [release requirement](ACCEPTANCE.md).
 
-- `market/binance-depth.js`: buffered initial snapshot synchronization and `pu` sequence continuity remain in place. Update application now validates a candidate depth book before committing updates: crossed, empty-side or overflow candidates cannot mutate the last accepted book. `snapshot()` provides `ageMs` and `valid`, and never exposes a book after the freshness timeout even if the scheduled watchdog callback has not run. Invalid input or detected continuity failure reconnects and hides the book.
-- `market/binance-aggtrades.js`: `snapshot()` provides `ageMs` and `valid`; expired trade data is returned as `STALE` even between watchdog invocations. Trade ID deduplication and segment breaks remain unchanged. Aggregate trade IDs are **not** assumed contiguous.
-- `scripts/verify.mjs`: discovers and executes all `tests/*.test.js` rather than just the Phase 01 test.
-- `tests/feed-recovery.test.js`: deterministic mock socket, clock, and HTTP controls cover transactional update failure, delayed snapshot anchoring, immediate stale gating, broken `pu` continuity, late aborted snapshot completion, invalid events and trade age.
+## Changes recorded
 
-## Compatibility and limits
+- **Order-book depth:** `market/binance-depth.js` buffers updates while anchoring to a REST snapshot and checks diff continuity using the exchange's applicable `pu`/update identifiers.
+- **Transactional validity:** a crossed, empty-side or overflow candidate is rejected before changing the last accepted depth state.
+- **Immediate stale gating:** `snapshot()` includes `ageMs` and `valid`; invalid or expired books are withheld even if a periodic watchdog has not yet fired.
+- **Aggregate trades:** `market/binance-aggtrades.js` invalidates stale observations, retains deduplication/segment boundaries and **does not** assume IDs are strictly contiguous.
+- **Test discovery:** the verification runner was expanded to execute all `tests/*.test.js` files.
+- **Regressions:** deterministic controls exercised late snapshots, gaps, invalid events, reconnects and stale trade age.
 
-- No new permissions or dependencies. Existing `status`, `updatedAt`, `error`, `book` and `segment` fields are retained; `ageMs` and `valid` are additive.
-- Manifest remains `1.22.0` because this is a staged, partially supplied extension rather than a release.
-- No real Chromium/Firefox runs, no live Binance integration, no CI remote-run verification, no synthetic candle-feed recovery harness. The existing candle pipeline is unchanged. Underlying mutable `Map` objects of the internal depth book remain reachable to trusted in-process consumers; no additional API isolation is claimed.
-- The depth staleness timer still initiates reconnect as before. On-demand reads additionally gate stale snapshots before the timer fires.
-- No statistically validated live trading data or guarantees about upstream Binance availability.
+## Preserved invariants
 
-## Verification
+No new browser permissions or runtime dependencies were needed for this phase. Existing state fields were preserved; validity and age were additive. Invalid depth data must **never** silently surface as valid order flow.
 
-Run `npm run verify` in the project root. The static script checks manifest, relative imports, script syntax and HTML references, then runs all tests. For browser validation also complete `docs/SMOKE-TEST.md` and explicitly test disconnect/reconnect and background tab suspension.
+## Limits and current verification
+
+The historical tests used mocked clocks/network transport, not an actual Binance outage. Race handling, mutable in-process book maps, Chromium suspension and live reconnection still require final browser acceptance.
+
+Run `npm run verify` for today's source suite; use [Manual smoke testing](SMOKE-TEST.md) for exchange-based evidence.
+
+[Architecture](ARCHITECTURE.md) · [Phase 03](PHASE03.md)
+

@@ -1,46 +1,38 @@
-# Phase 01 baseline and interface inventory
+# Phase 01 - source baseline
 
-## Provenance and versions
+**Record type:** historical engineering checkpoint. This documents the **initial partial-extension input**, not the entire present `main` tree or a tested customer release.
 
-- Input: `btc-live-analytics-v15.1-partial-extension(1).zip`, explicitly labelled **partial-extension**.
-- Manifest version `1.22.0`; UI footer `V1.22.0`. Preserve version until release policy is agreed.
-- 63 original files; SHA-256 file-by-file baseline recorded in `baseline.json`.
-- Chromium Manifest V3 extension; main entries: `popup/popup.html`, `background/service-worker.js`; dashboard at `dashboard/dashboard.html`.
+## Source provenance
 
-## Trust and permissions
-
-- Permissions: `storage`, `notifications`, `alarms`.
-- Host permission: `https://fapi.binance.com/*`.
-- CSP: self-hosted scripts, Binance Futures HTTPS and WSS endpoints.
-- Background MV3 worker is not guaranteed to remain resident.
-
-## Module contracts (static inventory)
-
-| Component | Primary responsibility / contract |
+| Recorded input | Value |
 | --- | --- |
-| `market/validators.js` | Normalize and validate REST, trade, ticker and book ticker data |
-| `market/binance-depth.js` | Validate depth events / snapshots; sequence local book updates; expose independent depth runtime |
-| `market/market-state.js` | State transitions and freshness / health derivation |
-| `app/runtime.js` | Startup, socket lifetime, reconnect, settings/diagnostics and event callbacks |
-| `background/service-worker.js` | MV3 lifecycle and background alert coordination |
-| `storage/*.js` | Persistent user preferences, alerts, diagnostics and replay sessions |
-| `ui/event-replay.js` and `ui/market-recorder.js` | Recording and deterministic / sampled replay logic |
-| `ui/confluence.js` | Descriptive, non-predictive sample confluence |
-| `ui/chart*.js`, `ui/*render*.js` | Chart math/interactions, rendering and scheduling |
-| `dashboard/dashboard.js`, `popup/popup.js` | UI initialization and event wiring |
+| Original archive | `btc-live-analytics-v15.1-partial-extension(1).zip` |
+| Original package type | Explicitly **partial extension** |
+| Manifest/UI version | `1.22.0` / `V1.22.0`, despite differing filename label |
+| Initial inventory | 63 files |
+| Frozen source inventory | [`baseline.json`](baseline.json), containing original file hashes |
+| Extension platform | Chromium Manifest V3 |
 
-## User-facing areas
+The candidate now integrated into `main` contains additional files and changes. The original hash inventory must **not** be represented as a hash of the current source tree.
 
-Live chart, Analytics (Depth, Trades, Liquidity / Order Flow), Replay, Alerts, Diagnostics and Settings. Workspace and view availability depends on actual UI state and preferences; verify manually.
+## Initial module map
 
-## Known gaps and constraints
+| Component | Role |
+| --- | --- |
+| `market/validators.js`, `market/market-state.js` | Incoming market-data contracts and validity |
+| `market/binance-depth.js` | Depth snapshots and diff sequencing |
+| `app/runtime.js`, `background/service-worker.js` | Foreground lifecycle and MV3 sampled tasks |
+| `app/chart-runtime.js`, `ui/chart.js` | Candles, chart lifecycle and rendering |
+| `ui/market-recorder.js`, `ui/event-replay.js` | Recording/replay research |
+| `storage/` | Local preferences, notifications and session persistence |
 
-1. No original test suite or README in the input archive. Phase 01 adds baseline tests.
-2. No browser-integrated test harness in the input; explicit manual checklist added, not falsely claimed executed.
-3. No standalone release version policy; `v15.1` archive name conflicts with manifest `1.22.0`.
-4. Live endpoints, service-worker lifecycle, browser rendering, and notification permissions require real browser testing.
-5. Data contracts and storage migrations need deeper per-module inventory before later phases modify schemas.
+## Original gaps
 
-## Baseline protection
+The input was missing a complete repository test suite and operational README. It could not establish actual Chromium MV3 behavior, live Binance feeds, store publication, migration or notification delivery. Phase 01 created an independent baseline and deterministic test starting point, without declaring the archive a ready release.
 
-Phase 01 only adds developer artifacts. Do not change source modules as part of setting up tests; require explicit regression review for later edits.
+## How to use this record
+
+Use `baseline.json` only to compare against the **original archived input**. Use [Architecture](ARCHITECTURE.md), [Testing](TESTING.md) and [Release](RELEASE.md) for present-day requirements.
+
+[Historical phases](INDEX.md) · [Source README](../README.md)
+

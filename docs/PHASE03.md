@@ -1,22 +1,25 @@
-# Phase 03 - Architecture & Observability
+# Phase 03 - architecture and observability
 
-## Scope
+**Historical engineering record.** Phase 03 added bounded read-only runtime telemetry; it did **not** certify the performance of a production browser release.
 
-A bounded, dependency-free, read-only runtime telemetry component separates event accounting from socket orchestration. It exposes `snapshot().telemetry` alongside the pre-existing runtime snapshot. Existing `state`, `settings`, `diagnostics` and feed connection fields remain unchanged. This is an additive interface.
+## Added telemetry contract
 
-## Telemetry contract
+The telemetry component exposes a separate `snapshot().telemetry` value without replacing existing state, settings, diagnostics or feed connection fields.
 
-- Explicit event allowlist and fixed-size recent-event buffer (default 64).
-- Lifetime counters persist within the runtime instance even after the ring buffer rotates.
-- Records contain sequence, local timestamp, event type, and restricted numeric/status metadata only.
-- No raw WebSocket frames, URLs, error text, settings, credentials or market payloads are retained.
-- `snapshot()` returns detached copies; consumers cannot mutate internal counters/history.
-- Live and Replay computations remain unchanged. No UI replacement or broad refactor was justified by the current source.
+| Capability | Design boundary |
+| --- | --- |
+| Event tracking | Explicit event-name allowlist |
+| Recent history | Fixed-size circular buffer, default **64** records |
+| Counters | Lifetime counts for the runtime instance |
+| Details | Sequence, timestamp, status and restricted numeric metadata only |
+| Sensitive content | No raw WebSocket frames, URLs, settings, credentials or unfiltered errors |
+| Consumers | Detached snapshot copies to prevent UI mutation of internal state |
 
-## Verification
+Runtime integration and failure/success paths were covered by deterministic tests. Neither the telemetry reader nor the UI is a trust authority for exchange-data validity.
 
-Run `npm run verify`. Test coverage includes telemetry bounds, allowlist, isolation and runtime integration (snapshot success/failure, socket events and lifecycle). Browser integration and measured render timings are **not** established; browser smoke checklist remains required.
+## Deliberately deferred
 
-## Deferred from phase 03
+Real Chromium render times, event-queue profiling, CPU/memory budgets and complete shared Live/Replay computation need measured browser baselines and explicitly mapped replay fidelity. They were **not** completed merely by adding instrumentation.
 
-Render-duration and event-queue profiling require measured Chromium baseline and a defined performance budget. A shared Live/Replay calculation pipeline requires mapping replay data fidelity first, to avoid introducing superficially shared but semantically different calculations. Neither has been claimed as complete.
+[Performance](../PERFORMANCE.md) · [Architecture](ARCHITECTURE.md) · [Phase 04](PHASE04.md)
+

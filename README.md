@@ -1,29 +1,33 @@
-<p align="center">
-  <img src="icons/icon128.png" width="96" height="96" alt="BTC Live icon">
-</p>
+<div align="center">
 
-<h1 align="center">BTC Live</h1>
-<p align="center"><strong>Bitcoin Futures market intelligence, in your browser.</strong></p>
-<p align="center">
-  A local-first Chromium terminal for live BTCUSDT monitoring, charting, order-flow analysis, session replay and alerts.
-</p>
-<p align="center">
-  <a href="https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml"><img src="https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml/badge.svg?branch=main" alt="Automated verification status"></a>
-  <img src="https://img.shields.io/badge/status-development%20candidate-F3A23A" alt="Development candidate">
-  <img src="https://img.shields.io/badge/manifest-1.22.0-30343B" alt="Manifest version 1.22.0">
-  <img src="https://img.shields.io/badge/Chromium-Manifest%20V3-30343B" alt="Chromium Manifest V3">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-30343B" alt="MIT license"></a>
-</p>
-<p align="center">
-  <a href="#get-started">Get started</a> ·
-  <a href="#inside-the-terminal">Explore</a> ·
-  <a href="#build-and-verify">Build</a> ·
-  <a href="#documentation">Docs</a> ·
-  <a href="docs/RELEASE.md">Release status</a>
-</p>
+<img src="icons/icon128.png" width="88" height="88" alt="BTC Live logo">
+
+# BTC Live
+
+**A Bitcoin Futures market terminal, built for your browser.**
+
+Live BTCUSDT market observation · Charts and order flow · Local replay · Configurable alerts
+
+[![Verification](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml)
+![Chromium](https://img.shields.io/badge/Chromium-Manifest_V3-30343B?logo=googlechrome&logoColor=white)
+![Version](https://img.shields.io/badge/manifest-1.22.0-F3A23A)
+![Status](https://img.shields.io/badge/status-development_candidate-555)
+[![License](https://img.shields.io/badge/license-MIT-30343B)](LICENSE)
+
+[**Get started**](#get-started) · [**Explore workspaces**](#inside-the-terminal) · [**Architecture**](#architecture-at-a-glance) · [**Verification**](#build-and-verify) · [**Documentation**](#documentation)
+
+</div>
 
 > [!IMPORTANT]
-> **This repository is a development candidate, not an approved customer release.** The `main` branch contains the current extension candidate, and `manifest.json` identifies the extension as **1.22.0**. Successful automated tests do not establish live Chromium/MV3 behavior, real Binance connectivity, alert delivery, data migration or Chrome Web Store approval. See the [release criteria](docs/ACCEPTANCE.md).
+> **Development candidate, not an approved customer release.** The current `main` branch declares version **1.22.0** in `manifest.json`. Automated checks do not establish live Chromium/MV3 behavior, real Binance connectivity, alert delivery, migration safety or Chrome Web Store approval. See [release acceptance](docs/ACCEPTANCE.md).
+
+### Product snapshot
+
+| Market | Experience | Privacy | Execution |
+| :--- | :--- | :--- | :--- |
+| Public Binance USDⓈ-M Futures **BTCUSDT** | Popup + **six** terminal workspaces | Local preferences and supported recordings; no exchange API key needed | **Read-only market monitoring**; no trade placement |
+
+**Designed for observation, not execution.** The UI reports independent feed freshness and integrity states. Missing data is never proof of zero activity.
 
 ## What is BTC Live?
 
@@ -41,7 +45,7 @@ BTC Live brings public Binance **USDⓈ-M Futures BTCUSDT** market observations 
 
 ## Get started
 
-Use a **separate browser profile** for candidate evaluation. Migration from an existing installed version is not yet accepted.
+**No build step is required to load the source as an unpacked extension.** Use a **separate browser profile** for candidate evaluation. Migration from an existing installed version is not yet accepted.
 
 1. Clone the current source:
 
@@ -60,6 +64,8 @@ There is **no install/build requirement** for loading unpacked source. For a ver
 [Full installation and user guide →](docs/USAGE.md)
 
 ## Inside the terminal
+
+The six workspaces separate live observation, research, alerts and operational controls. Not all views or actions are available in every workspace preset.
 
 | Workspace | Designed for | Important boundary |
 | :-- | :-- | :-- |
@@ -100,24 +106,26 @@ Advanced rules are designed around **at-most-once notification attempts**, not e
 
 ## Architecture at a glance
 
-```text
-Public Binance Futures REST / WebSocket
-                 |
-        market/ validation & state
-                 |
-          app/ runtime & alerts
-                 |
-       ui/ chart, flow & replay
-              /       \
-         popup/       dashboard/
-
-background/   MV3 sampled price checks
-storage/      settings, rules & recordings
+```mermaid
+flowchart TD
+    B["Public Binance Futures REST + WebSocket"] --> M["market/ · Validation, synchronization & state"]
+    M --> A["app/ · Runtime and alert orchestration"]
+    A --> U["ui/ · Charts, order flow, liquidity & replay"]
+    U --> P["popup/ · Toolbar experience"]
+    U --> D["dashboard/ · Six workspaces"]
+    S["storage/ · Preferences and local recordings"] <--> A
+    W["background/ · MV3 sampled price checks"] --> S
+    classDef source fill:#30343B,stroke:#F3A23A,color:#F4F6F8
+    class B source
 ```
+
+The data pipeline is observation-only. Data validation, feed synchronization, browser lifecycle and notification permissions determine which views and alerts are actionable.
 
 The runtime is self-contained and uses no remote executable JavaScript. The manifest requests `storage`, `notifications`, `alarms` and host access to `https://fapi.binance.com/*`; its CSP permits public Futures WebSocket connectivity to `wss://fstream.binance.com`. [Technical architecture →](docs/ARCHITECTURE.md)
 
 ## Build and verify
+
+Automated checks cover source and packaging contracts; they do **not** replace hands-on browser acceptance or real exchange-feed testing.
 
 **Node.js 20+** and npm are needed for developer checks; GitHub Actions runs with Node.js 22.
 
@@ -152,6 +160,8 @@ BTC Live is a monitoring interface, **not** a trading platform, signal service o
 A stable release requires recorded acceptance of actual Chromium UI, live Binance feeds and recovery, multi-tab/MV3 alerts, recording/replay load, existing-install migration and store/privacy assets. No stable version, tag or store publication is claimed.
 
 ## Documentation
+
+Start with the [complete documentation index](docs/INDEX.md) for task-specific guides and release evidence.
 
 | Audience | Guide |
 | :-- | :-- |

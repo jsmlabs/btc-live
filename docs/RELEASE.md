@@ -70,3 +70,7 @@ This validates **record structure and same-SHA binding**, not evidence authentic
 **Never treat merging, tagging, a draft store listing, or passing static checks as proof of a released extension.**
 
 [Release checklist](../RELEASE_CHECKLIST.md) · [Testing](TESTING.md) · [Documentation index](INDEX.md)
+
+## Software-update discovery
+
+The extension reads official published GitHub Releases; the `main` branch and candidate CI artifacts never imply release approval. Only after the existing manual acceptance process may a stable GitHub Release be published. Version tags must correspond to the actual installed manifest version. Discovery does not install software. The GitHub Releases API is a new declared read-only host permission.

@@ -26,3 +26,15 @@ test('private build package identity and version match the extension manifest', 
  assert.equal(pkg.private,true);
  assert.equal(pkg.version,manifest.version);
 });
+
+test('manual release workflow remains approval-gated and never runs on push', async () => {
+ const workflow = await readFile(path.join(root,'.github/workflows/publish-approved-release.yml'),'utf8');
+ assert.match(workflow,/workflow_dispatch:/);
+ assert.doesNotMatch(workflow,/^  push:/m);
+ assert.doesNotMatch(workflow,/^  pull_request:/m);
+ assert.match(workflow,/environment: production-release/);
+ assert.match(workflow,/secrets\.RELEASE_ACCEPTANCE_JSON/);
+ assert.match(workflow,/RELEASE_ACCEPTANCE_FILE=dist\/release-approval\.json npm run release:gate/);
+ assert.match(workflow,/--target "\$GITHUB_SHA"/);
+ assert.match(workflow,/gh release create/);
+});

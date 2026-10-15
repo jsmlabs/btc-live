@@ -74,7 +74,16 @@ function handleStorageChange(changes, areaName) {
 }
 
 function bindUi() {
-  updatePanelDispose = mountSoftwareUpdates({ container: document.querySelector('#settingsView .settings-list'), compact: true, api });
+  const updateIndicator = document.createElement('button');
+  updateIndicator.type = 'button';
+  updateIndicator.className = 'software-update-indicator';
+  updateIndicator.hidden = true;
+  updateIndicator.addEventListener('click', openSettings);
+  document.querySelector('#mainView .footer')?.prepend(updateIndicator);
+  updatePanelDispose = mountSoftwareUpdates({
+    container: document.querySelector('#settingsView .settings-list'),
+    compact: true, indicator: updateIndicator, api
+  });
   document.getElementById('dashboardButton').addEventListener('click', openDashboard);
   document.getElementById('openTerminalButton').addEventListener('click', openDashboard);
   document.getElementById('settingsButton').addEventListener('click', openSettings);

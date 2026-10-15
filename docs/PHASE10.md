@@ -1,24 +1,30 @@
-# Phase 10 - Release & Regression
+# Phase 10 - release-engineering milestone
 
-Status: **historical Phase 10 development milestone / NOT PRODUCTION-VERIFIED**. The current build process produces provenance and checksums, while [release acceptance](ACCEPTANCE.md) remains mandatory.
+**Historical engineering record.** The phase introduced source/regression and packaging readiness work. It did **not** approve a production customer release. Current status and commands are maintained in [Release](RELEASE.md).
 
-## Executed verification
+## Candidate verification path
 
-- `npm run verify` performs syntax/reference checks and deterministic tests.
-- `npm run release:check` checks manifest contracts, restrictive permissions/CSP, local HTML references and unexpected large artifacts.
-- Historical Phase-10 packaging checks described deterministic ZIP output. The integrated branch now implements `npm run package:extension` to create one candidate ZIP with sorted entries and fixed timestamps. CI validates archive structure and contents, but no public release is approved until the candidate passes all release gates.
-- Release checks do not prove runtime correctness or real market connectivity.
+1. Check syntax, local module references and deterministic Node tests using `npm run verify`.
+2. Validate manifest permissions, CSP, extension resources and static contracts using `npm run release:check`.
+3. Build the deterministic runtime-only archive using `npm run package:extension`.
+4. Generate checksum and provenance metadata using `npm run package:metadata`.
+5. Confirm [GitHub Actions](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml) succeeds for the **exact candidate SHA**.
 
-## Release blockers / evidence still required
+These establish automated candidate-build validity, not actual browser functionality or public-store readiness.
 
-1. Chromium MV3 extension load and popup/dashboard visual smoke tests (including command palette, focus, responsive layout).
-2. Live Binance feed reconnect / stale and depth resync behavior.
-3. Cross-tab Web Locks race, alert permission-denied delivery and MV3 service-worker suspension/resume.
-4. Large-session replay responsiveness, memory growth and long-duration load measurements.
-5. Review of the existing installation path and confirm public distribution policy before a manifest version bump.
+## Pending approval gates
 
-The archived `v15.1` label is not treated as a manifest version. Manifest intentionally remains `1.22.0`. Do not claim public v16 release from these packages.
+| Gate | What cannot be inferred from a green build |
+| --- | --- |
+| Chromium interface | Popup/dashboard load, focus, responsive keyboard and drawing behavior |
+| Live market | Binance reconnect, data-age and depth snapshot/diff resynchronization |
+| Alerts | Multiple tabs, notification denial, MV3 worker sleep and alarm timing |
+| Recording/replay | Sustained memory/load, import bounds and isolation from live alerts |
+| Compatibility | Upgrade from a genuinely installed prior version and retained settings |
+| Store | Final-build screenshots, privacy/permissions and actual publication status |
 
-## Manual smoke checklist
+The historical labels `v15.1` and `v16 Phase 10` are not semver release approvals; `manifest.json` remains `1.22.0` until a separately approved version change.
 
-Use `docs/SMOKE-TEST.md` and preserve observations with browser/version, timestamp and actual evidence. Checklist items are not marked passed by static checks.
+Complete the [active checklist](../RELEASE_CHECKLIST.md), [browser worksheet](SMOKE-TEST.md) and [acceptance matrix](ACCEPTANCE.md) before stable tagging or store publication.
+
+[Historical phases](INDEX.md) · [Changelog](../CHANGELOG.md)

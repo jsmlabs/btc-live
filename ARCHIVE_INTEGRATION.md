@@ -1,27 +1,42 @@
-# BTC Live expanded-workspace archive integration
+# Expanded-workspace archive integration - historical record
 
-## Status (reviewed 2026-10-15)
+> [!NOTE]
+> This document preserves earlier archive-import provenance, **not an active instruction to overlay files**. The v16 Phase 01–10 candidate is already integrated into `main`. Integration does not constitute a stable customer release.
 
-**Historical integration record:** This document preserves the original import contract for a separately supplied archive. Since that record was written, the v16 Phase 01–10 candidate has been merged into `main` by [PR #3](https://github.com/jsmlabs/btc-live/pull/3). Do not treat this historical import status as the current source state or as stable release approval. See [release readiness](docs/RELEASE.md).
+## Original archive identity
 
+| Recorded item | Value |
+| --- | --- |
+| Separately supplied input | `btc-live_v2.2(1).zip` |
+| Historical input inventory | **69 runtime files** |
+| Archive manifest version | `1.22.0` |
+| Original validation | Static JS syntax and local import resolution |
+| Integration milestone | Candidate merged via [PR #3](https://github.com/jsmlabs/btc-live/pull/3) |
+| Customer release decision | **Pending** independent real-browser and migration acceptance |
 
+The filename contains `2.2` but the archive manifest did **not** declare release version `2.2.0`. At the time of the original documentation-only review, the complete archive was not yet pushed. The subsequent integration into `main` changed that status. Neither event proves store publication.
 
-The separately supplied archive `btc-live_v2.2(1).zip` contains 69 runtime files. **At the time of the original archive review, that ZIP had not been imported by the documentation-only commit.** Its `manifest.json` declares version `1.22.0`, despite the archive filename. Do not advertise or tag this snapshot as 2.2.0 without an explicit version decision.
+## Contracts guiding integration
 
-## Historical safe integration procedure (superseded)
+- Preserve regression tests, CI scripts, existing documentation and source history.
+- Validate public Binance Futures REST/WS payloads and bound depth/snapshot/reconnect behavior before deriving analytics.
+- Distinguish resting order-book levels from aggressive trade executions. Neither reveals hidden orders or real liquidation events.
+- Keep recorded replay isolated from live market state and notifications.
+- Validate persisted settings and imported recordings, maintaining privacy and permission boundaries.
+- Avoid unsupported version, performance and production-readiness claims.
 
-1. Pin the current `main` commit and inspect its full tree before modifying files.
-2. Overlay the 69 archive files by relative path; do not delete repository-only `tests/`, `scripts/`, `.github/`, `store-assets/`, existing documentation, package metadata or license.
-3. Inspect differences in modified existing runtime modules; ensure the new order-book, aggregate-trade, replay, dashboard and advanced-alert paths preserve existing behavior.
-4. At that time, expand the former `scripts/runtime-files.mjs` allowlist; **that script has since been retired**. The current `scripts/package-extension.mjs` builds from reviewed runtime directories.
-5. Add deterministic tests for depth snapshot/delta sequencing, stale-book degradation, aggregate-trade validation, replay import/export, storage quotas, live/replay separation, advanced alert rules and notification deduplication.
-6. Align `manifest.json`, `package.json`, popup/dashboard labels, changelog, README, privacy/security policies, release notes and store packaging on the **approved** version.
-7. Run `npm run verify`, `npm run release:check` and Chromium MV3 manual tests. Confirm updated CI is green before tagging or release publication.
+## Current build procedure
 
-## Data boundaries
+The former `scripts/runtime-files.mjs` and `scripts/build-store.mjs` are retired. Use:
 
-Order-book depth means currently displayed liquidity, not executed volume or liquidations. Aggregate trades mean reported executions, not resting orders. Replay must not drive live notifications or silently contaminate the live market state. All exchange payloads, persisted records and imported replay content are untrusted and require validation.
+```bash
+npm run verify
+npm run docs:check
+npm run release:check
+npm run package:extension
+npm run package:metadata
+```
 
-## Verification limitations
+This creates a reproducible **development candidate**, not an approved Chrome Web Store ZIP. Releasing it requires [manual acceptance](docs/ACCEPTANCE.md) and the current [release procedure](docs/RELEASE.md).
 
-The archive's 60 JavaScript modules passed `node --check` in Node.js 22.16.0 and its static relative module references resolved locally. These are not functional, integration, browser-runtime or security-audit results. The full archive code had **not** been pushed by the original documentation-only commit. The v16 candidate was subsequently integrated into `main` and remains subject to [release acceptance](docs/ACCEPTANCE.md).
+[README](README.md) · [Architecture](docs/ARCHITECTURE.md) · [Changelog](CHANGELOG.md)

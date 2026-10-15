@@ -1,9 +1,26 @@
-# Phase 08 - Advanced Alert Engine
+# Phase 08 - advanced alert rules
 
-Advanced live-only rules for price (USDT), signed taker CVD delta (BTC), executed trade volume (BTC) and visible order-book imbalance (-1..1).
+**Historical engineering record.** The current system distinguishes sampled standard price checks from dashboard-only advanced flow rules. Actual browser and OS notification delivery remains unverified for release.
 
-Rules and runtime cooldown/arming state are stored in `chrome.storage.local` and validated before use. Up to 30 rules; feed quality checks fail closed. Book imbalance is computed from current visible levels only, not participant intent. Trade windows must be complete since the latest feed segment. One trigger per armed threshold crossing; re-arm requires movement beyond the 1% hysteresis band (minimum floor for zero threshold). Failed delivery is recorded in alert history and does not imply successful notification.
+## Advanced rule contract
 
-Existing price notifications and background alarms remain unchanged. Advanced rules are processed only in an open dashboard with enabled notifications and live feed updates (at most one evaluation per second). MV3 background alarms do NOT guarantee live order-flow monitoring. Replay never calls the advanced engine.
+| Field | Allowed range / meaning |
+| --- | --- |
+| Types | `price`, `cvd`, `volume`, `imbalance` |
+| Direction | Above or below a configured threshold |
+| Count | Up to **30** validated rules |
+| Trade windows | **10, 30, 60 or 300 seconds** |
+| Imbalance | Visible book balance from **-1 to 1** |
+| Cooldown | Validated per-rule delay |
+| Hysteresis | Configurable threshold reset band |
+| State | Local extension storage, sanitized before evaluation |
 
-Caveats: Rule changes cannot guarantee atomic state across concurrently open dashboards; advanced state persistence and delivery are not transactional. Continuous feed observation, native notification delivery, browser restarts and multi-tab races require Chromium integration testing. No measured execution latency or delivery SLA.
+Rules require live validated price/trade/book inputs as applicable. Stale feed ages, incomplete trade windows, an invalid depth book or disabled notifications can suppress evaluation. Replay never calls the live advanced evaluator.
+
+## Lifecycle and delivery
+
+Advanced rules are observed only while an actual dashboard is open and live feed data is available. The MV3 background price-alert path has different sampled semantics. A triggered condition and attempted notification do not imply OS delivery.
+
+Concurrent dashboards, permission denial, browser restarts and suspension were not certified in this phase. Phase 09 added further locking protections.
+
+[Current alert contract](ALERTS.md) · [Phase 09](PHASE09.md) · [Acceptance](ACCEPTANCE.md)

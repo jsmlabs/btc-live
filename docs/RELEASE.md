@@ -3,6 +3,14 @@
 > [!IMPORTANT]
 > **Development candidate - NOT approved for customer publication.** Current `main` contains the extension development candidate, while `manifest.json` reports `1.24.0`. A green CI badge does not change its release status.
 
+## Development-candidate changes in 1.24.0
+
+- Avoid full order-book copies for incremental depth diff validation while preserving fail-closed candidate rejection.
+- Preserve render-scheduler redraw requests across rendering exceptions and bound combined WebSocket payload parsing.
+- Isolate the command-palette shortcut from other open dialogs and expose textarea keyboard focus.
+- Add deterministic regression coverage and bind the private build package version to the extension manifest.
+- No new extension permissions, trading capability, API-key access or stable-release approval.
+
 ## Release state
 
 | Milestone | Status | Required proof |

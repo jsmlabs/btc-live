@@ -1,3 +1,5 @@
+import { mountSoftwareUpdates } from '../ui/software-update-panel.js';
+let updatePanelDispose = () => {};
 import {createAdvancedAlertCenter} from '../ui/advanced-alert-center.js';
 import { clampReplayPosition, addReplayBookmark, compareReplaySessions } from '../ui/replay-research.js';
 import { createTerminalExperience } from '../ui/terminal-experience.js';
@@ -535,6 +537,7 @@ const runtime = createBtcLiveRuntime({
 });
 
 function bindSettings() {
+  updatePanelDispose = mountSoftwareUpdates({ container: document.querySelector('[data-workspace-panel="settings"] .settings-panel'), api });
   for (const [id, key] of [
     ['dashboardSettingCompact', 'compactLayout'],
     ['dashboardSettingBidAsk', 'showBidAsk'],
@@ -856,3 +859,5 @@ Promise.allSettled([runtime.start(), chartRuntime.start()]).then((results) => {
     if (result.status === 'rejected') console.error('BTC Live dashboard initialization failed', result.reason);
   }
 });
+
+window.addEventListener('pagehide', () => updatePanelDispose(), { once: true });

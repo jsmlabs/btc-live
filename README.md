@@ -39,7 +39,7 @@ npm run release:check
 npm run package:extension
 ```
 
-**Packaging:** `package:extension` now writes `dist/btc-live-chromium-v1.22.0-candidate.zip` with sorted files and fixed ZIP timestamps. CI independently checks entry integrity, manifest and exclusions and uploads the candidate artifact. Packaging is **not** release approval.
+**Packaging:** `package:extension` now writes `dist/btc-live-chromium-v1.22.0-candidate.zip` with an explicit runtime-only allowlist, sorted files and fixed ZIP timestamps. CI independently checks entry integrity, manifest, runtime-only paths and exclusions and uploads the candidate artifact. Packaging is **not** release approval.
 
 | Command | Purpose | What it does **not** prove |
 | --- | --- | --- |

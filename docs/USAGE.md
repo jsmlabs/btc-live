@@ -1,8 +1,10 @@
-# Using BTC Live
+# Using BTC Live (v16 development candidate)
+
+> The candidate's extension manifest is `1.22.0`; v16 features are **not yet production-approved**. Follow [release gates](RELEASE.md) before distributing this branch.
 
 ## First run
 
-Load the unpacked extension from the directory containing `manifest.json`, open the toolbar popup and then the full dashboard. A live connection needs access to public Binance Futures endpoints. Inspect the connection-state and feed-age diagnostics before interpreting order-flow metrics.
+In a dedicated Chromium test profile, open `chrome://extensions`, enable Developer mode and use **Load unpacked** on the directory containing `manifest.json`, open the toolbar popup and then the full dashboard. A live connection needs access to public Binance Futures endpoints. Inspect the connection-state and feed-age diagnostics before interpreting order-flow metrics.
 
 ## Market workspace
 

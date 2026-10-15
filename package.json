@@ -7,7 +7,9 @@
     "verify": "node scripts/verify.mjs",
     "package:extension": "node scripts/package-extension.mjs",
     "release:check": "node scripts/release-check.mjs",
-    "docs:check": "node scripts/check-docs.mjs"
+    "docs:check": "node scripts/check-docs.mjs",
+    "package:metadata": "node scripts/build-metadata.mjs",
+    "release:gate": "node scripts/release-gate.mjs"
   },
   "engines": {
     "node": ">=20"

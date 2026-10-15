@@ -7,11 +7,13 @@ const assert=(ok,msg)=>{if(!ok)throw Error(msg)};
 assert(manifest.manifest_version===3,'Manifest V3 required');
 assert(manifest.version==='1.22.0','Unexpected manifest version, review release metadata');
 const allowedPermissions=new Set(['storage','notifications','alarms']);
-assert((manifest.permissions??[]).every(x=>allowedPermissions.has(x)),'Unexpected permission');
+assert(Array.isArray(manifest.permissions)&&manifest.permissions.length===allowedPermissions.size&&new Set(manifest.permissions).size===allowedPermissions.size&&manifest.permissions.every(x=>allowedPermissions.has(x)),'Unexpected or missing extension permission');
 assert((manifest.host_permissions??[]).length===1&&manifest.host_permissions[0]==='https://fapi.binance.com/*','Host permission drift');
 const csp=manifest.content_security_policy?.extension_pages??'';
 assert(csp.includes("script-src 'self'")&&!/unsafe-eval|unsafe-inline|https?:[^ ]+\/.*script/i.test(csp),'CSP not sufficiently restricted');
 assert(manifest.background?.type==='module','Unexpected worker type');
+assert(!manifest.content_scripts && !manifest.externally_connectable && !manifest.web_accessible_resources,'Unexpected extension exposure');
+assert(csp==="script-src 'self'; object-src 'self'; connect-src https://fapi.binance.com wss://fstream.binance.com",'Unexpected CSP drift');
 const runtimeDirs=new Set(['app','background','dashboard','icons','market','popup','storage','ui','utils']);
 const extension=['manifest.json'];
 async function walk(dir){

@@ -53,8 +53,17 @@ jobs:
           sha256sum dist/*.zip > /tmp/btc-live-second.sha256
           diff -u /tmp/btc-live-first.sha256 /tmp/btc-live-second.sha256
           cat /tmp/btc-live-second.sha256
+      - name: Create candidate build checksums and provenance
+        run: npm run package:metadata
+      - name: Confirm candidate metadata
+        run: |
+          node --input-type=module -e "import fs from 'node:fs'; import assert from 'node:assert/strict'; const info=JSON.parse(fs.readFileSync('dist/BUILD_INFO.json')); assert.equal(info.release_status,'development-candidate'); assert.equal(info.commit,process.env.GITHUB_SHA); assert.match(info.artifact.sha256,/^[0-9a-f]{64}$/);"
+          cd dist && sha256sum -c SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
           name: btc-live-candidate-zip
-          path: dist/*.zip
+          path: |
+            dist/*.zip
+            dist/BUILD_INFO.json
+            dist/SHA256SUMS.txt
           if-no-files-found: error

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "manifest_version": "1.22.0",
+  "commit": null,
+  "decision": "pending",
+  "approved_by": null,
+  "approved_at": null,
+  "gates": [
+    {
+      "id": "chromium-ui",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "live-binance-feeds",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "depth-recovery",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "mv3-alert-lifecycle",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "recording-replay-load",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "existing-install-migration",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "id": "store-assets-privacy",
+      "status": "pending",
+      "evidence": []
+    }
+  ]
+}

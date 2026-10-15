@@ -1,7 +1,8 @@
 import { createBtcLiveRuntime } from '../app/runtime.js';
-import { createNativeNotification, createNotificationManager } from '../app/notifications.js';
+import { createNotificationManager } from '../app/notifications.js';
 import { ALERT_HISTORY_STORAGE_KEY } from '../storage/alert-history.js';
 import { ALERT_TARGETS_STORAGE_KEY } from '../storage/alert-targets.js';
+import { bindNotificationTest } from '../ui/notification-test.js';
 import { createAlertCenterController } from '../ui/alert-center.js';
 import { DEFAULT_SETTINGS, SETTINGS_STORAGE_KEY, sanitizeSettings } from '../storage/settings.js';
 import { renderMarket, renderSettings } from '../ui/render.js';
@@ -9,12 +10,13 @@ import { renderMarket, renderSettings } from '../ui/render.js';
 let latest = null;
 const api = globalThis.browser ?? globalThis.chrome ?? null;
 let cleanedUp = false;
+let notificationTest = null;
 const notificationManager = createNotificationManager({ source: 'popup' });
 const alertCenter = createAlertCenterController({
   ids: {
     form: 'settingTargetForm', direction: 'settingTargetDirection', price: 'settingTargetPrice', label: 'settingTargetLabel',
     feedback: 'settingTargetFeedback', targetList: 'settingTargetList', targetCount: 'settingTargetCount',
-    historyList: 'settingHistoryList', historyCount: 'settingHistoryCount', clearHistory: 'settingClearHistory'
+    historyList: 'settingHistoryList', historyCount: 'settingHistoryCount', clearHistory: 'settingClearHistory', historyFeedback: 'settingHistoryFeedback'
   }
 });
 
@@ -108,10 +110,7 @@ function bindUi() {
     runtime.updateSettings({ ...settings, notificationCooldownSeconds: Number(event.target.value) });
   });
 
-  document.getElementById('testNotificationButton').addEventListener('click', () => {
-    createNativeNotification({ id: 'btc-live-test', title: 'BTC Live notifications', message: 'Browser notifications are working.' })
-      .catch((error) => console.warn('BTC Live test notification failed', error));
-  });
+  notificationTest = bindNotificationTest({ button: document.getElementById('testNotificationButton'), feedback: document.getElementById('settingNotificationFeedback') });
 
   document.getElementById('resetSettingsButton').addEventListener('click', () => runtime.resetSettings());
   window.addEventListener('offline', runtime.handleOffline);
@@ -125,6 +124,7 @@ function cleanup() {
   window.removeEventListener('offline', runtime.handleOffline);
   window.removeEventListener('online', runtime.handleOnline);
   api?.storage?.onChanged?.removeListener(handleStorageChange);
+  notificationTest?.dispose();
   alertCenter.dispose();
   notificationManager.dispose();
   runtime.dispose('Popup closed');

@@ -35,6 +35,16 @@ function appendText(parent, tag, className, text) {
 
 export function createAlertCenterController({ ids, onTargetsChanged = () => {} } = {}) {
   let disposed = false;
+  let adding = false, clearing = false;
+  const pendingTargets = new Set();
+  function report(message, tone = 'neutral', history = false) {
+    if (disposed) return;
+    const node = getNode(history ? (ids.historyFeedback ?? ids.feedback) : ids.feedback);
+    if (!node) return;
+    node.textContent = message;
+    node.dataset.tone = tone;
+    node.hidden = !message;
+  }
 
   async function refreshTargets() {
     if (disposed) return;
@@ -79,7 +89,7 @@ export function createAlertCenterController({ ids, onTargetsChanged = () => {} }
       info.className = 'alert-target-info';
       const title = target.label || (target.direction === 'above' ? 'Above target' : 'Below target');
       appendText(info, 'strong', '', title);
-      appendText(info, 'small', '', `${target.direction === 'above' ? '↑' : '↓'} ${formatPrice(target.price)} USDT · ${target.triggered ? 'waiting to re-arm' : 'armed'}`);
+      appendText(info, 'small', '', `${target.direction === 'above' ? '↑' : '↓'} ${formatPrice(target.price)} USDT · ${!target.enabled ? 'paused' : target.triggered ? 'waiting to re-arm' : 'armed'}`);
 
       const actions = document.createElement('div');
       actions.className = 'alert-target-actions';
@@ -89,7 +99,7 @@ export function createAlertCenterController({ ids, onTargetsChanged = () => {} }
       toggle.dataset.action = 'toggle';
       toggle.dataset.targetId = target.id;
       toggle.dataset.enabled = String(target.enabled);
-      toggle.textContent = target.enabled ? 'On' : 'Off';
+      toggle.textContent = target.enabled ? 'Pause' : 'Resume';
       toggle.setAttribute('aria-label', `${target.enabled ? 'Disable' : 'Enable'} ${title}`);
 
       const remove = document.createElement('button');
@@ -99,6 +109,7 @@ export function createAlertCenterController({ ids, onTargetsChanged = () => {} }
       remove.dataset.targetId = target.id;
       remove.textContent = 'Remove';
       remove.setAttribute('aria-label', `Remove ${title}`);
+      toggle.disabled = remove.disabled = pendingTargets.has(target.id);
 
       actions.append(toggle, remove);
       item.append(info, actions);
@@ -112,6 +123,8 @@ export function createAlertCenterController({ ids, onTargetsChanged = () => {} }
     if (!list || !count) return;
     clearChildren(list);
     count.textContent = `${history.length} event${history.length === 1 ? '' : 's'}`;
+    const clear = getNode(ids.clearHistory);
+    if (clear) clear.disabled = clearing || history.length === 0;
 
     if (history.length === 0) {
       appendText(list, 'li', 'alert-empty', 'No alert events yet.');
@@ -135,20 +148,28 @@ export function createAlertCenterController({ ids, onTargetsChanged = () => {} }
 
   async function handleAdd(event) {
     event.preventDefault();
+    if (adding || disposed) return;
     const direction = getNode(ids.direction)?.value;
     const priceInput = getNode(ids.price);
     const labelInput = getNode(ids.label);
     const price = Number(priceInput?.value);
-    const feedback = getNode(ids.feedback);
+    const submit = getNode(ids.form)?.querySelector('button[type="submit"]');
+    adding = true;
+    if (submit) { submit.disabled = true; submit.setAttribute('aria-busy', 'true'); }
+    report('Saving target…');
     try {
       await addAlertTarget({ direction, price, label: labelInput?.value ?? '' });
       if (priceInput) priceInput.value = '';
       if (labelInput) labelInput.value = '';
-      if (feedback) feedback.textContent = '';
       await refreshTargets();
       await onTargetsChanged();
+      report('Price target saved.', 'positive');
+      if (!disposed && (document.activeElement === document.body || getNode(ids.form)?.contains(document.activeElement))) priceInput?.focus({ preventScroll: true });
     } catch (error) {
-      if (feedback) feedback.textContent = error instanceof Error ? error.message : 'Could not add price target.';
+      report(error instanceof Error ? error.message : 'Could not add price target.', 'negative');
+    } finally {
+      adding = false;
+      if (!disposed && submit) { submit.disabled = false; submit.removeAttribute('aria-busy'); }
     }
   }
 
@@ -156,18 +177,49 @@ export function createAlertCenterController({ ids, onTargetsChanged = () => {} }
     const button = event.target.closest?.('button[data-action][data-target-id]');
     if (!button) return;
     const id = button.dataset.targetId;
-    if (button.dataset.action === 'remove') {
-      await removeAlertTarget(id);
-    } else if (button.dataset.action === 'toggle') {
-      await updateAlertTarget(id, { enabled: button.dataset.enabled !== 'true' });
+    if (pendingTargets.has(id) || disposed) return;
+    pendingTargets.add(id);
+    const list = getNode(ids.targetList);
+    const buttons = [...list.querySelectorAll('button')];
+    const index = buttons.indexOf(button);
+    for (const sibling of buttons.filter(node => node.dataset.targetId === id)) sibling.disabled = true;
+    const removing = button.dataset.action === 'remove';
+    const enabling = button.dataset.enabled !== 'true';
+    try {
+      if (removing) await removeAlertTarget(id);
+      else if (button.dataset.action === 'toggle') await updateAlertTarget(id, { enabled: enabling });
+      await onTargetsChanged();
+      report(removing ? 'Price target removed.' : enabling ? 'Price target resumed.' : 'Price target paused.', 'positive');
+    } catch (error) {
+      report(error instanceof Error ? error.message : 'Could not update price target.', 'negative');
+    } finally {
+      pendingTargets.delete(id);
+      try { await refreshTargets(); }
+      catch { report('Could not reload price targets. Reopen this view to retry.', 'negative'); }
+      if (!disposed && (document.activeElement === document.body || document.activeElement === button || document.activeElement?.dataset?.targetId === id)) {
+        const next = [...list.querySelectorAll('button')];
+        const match = next.find(node => node.dataset.targetId === id && node.dataset.action === button.dataset.action);
+        (match ?? next[Math.min(index, next.length - 1)] ?? getNode(ids.price))?.focus({ preventScroll: true });
+      }
     }
-    await refreshTargets();
-    await onTargetsChanged();
   }
 
   async function handleClearHistory() {
-    await clearAlertHistory();
-    await refreshHistory();
+    if (clearing || disposed) return;
+    clearing = true;
+    const clear = getNode(ids.clearHistory);
+    clear.disabled = true;
+    report('Clearing history…', 'neutral', true);
+    try {
+      await clearAlertHistory();
+      report('Alert history cleared.', 'positive', true);
+    } catch (error) {
+      report(error instanceof Error ? error.message : 'Could not clear history.', 'negative', true);
+    } finally {
+      clearing = false;
+      try { await refreshHistory(); }
+      catch { clear.disabled = false; report('Could not reload alert history.', 'negative', true); }
+    }
   }
 
   function bind() {

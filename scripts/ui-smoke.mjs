@@ -40,6 +40,11 @@ try {
         },
         async set(next) {
           if (globalThis.__failTerminalSaves && Object.hasOwn(next, 'btcLiveTerminalV1')) throw Error('UI fixture storage failure');
+          if (Object.hasOwn(next, 'btcLiveAlertTargets')) {
+            if (globalThis.__failTargetSaves) throw Error('UI fixture target save failed');
+            if (globalThis.__targetSaveDelayMs) await new Promise(resolve => setTimeout(resolve, globalThis.__targetSaveDelayMs));
+          }
+          if (globalThis.__failHistorySaves && Object.hasOwn(next, 'btcLiveAlertHistory')) throw Error('UI fixture history save failed');
           const data = JSON.parse(localStorage.getItem(key) ?? '{}');
           const changes = Object.fromEntries(Object.entries(next).map(([name, newValue]) => [name, { oldValue: data[name], newValue }]));
           localStorage.setItem(key, JSON.stringify({ ...data, ...next }));
@@ -80,7 +85,7 @@ try {
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
-  const shot = async name => { if (captureDir) await page.screenshot({ path: path.join(captureDir, `${name}.png`), fullPage: true }); };
+  const shot = async (name, fullPage = true) => { if (captureDir) await page.screenshot({ path: path.join(captureDir, `${name}.png`), fullPage }); };
   const nav = view => page.locator(`[data-workspace-target="${view}"]`);
   const noOverflow = async label => {
     const dimensions = await page.evaluate(() => ({ width: document.documentElement.scrollWidth, viewport: innerWidth }));
@@ -92,6 +97,13 @@ try {
   await shot('dashboard-live-desktop');
   for (const width of [1920, 1440, 1024, 800, 560, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });
+    if (width <= 560) {
+      assert.equal(await nav('live').evaluate(button => button.getBoundingClientRect().height >= 44), true);
+      const visibleNav = await page.locator('.workspace-link').evaluateAll(buttons => buttons.every(button => {
+        const rect = button.getBoundingClientRect(); return rect.left >= 0 && rect.right <= innerWidth;
+      }));
+      assert.equal(visibleNav, true, `all workspaces discoverable at ${width}`);
+    }
     for (const view of ['live', 'analytics', 'replay', 'alerts', 'diagnostics', 'settings']) {
       await nav(view).click();
       await noOverflow(`${width}/${view}`);
@@ -122,6 +134,12 @@ try {
   await page.keyboard.press('Home');
   assert.equal(await nav('live').getAttribute('aria-pressed'), 'true');
   results.push('workspace keyboard navigation');
+  const references = page.locator('.chart-reference-levels');
+  assert.equal(await references.getAttribute('open'), null);
+  await references.locator('summary').click();
+  assert.equal(await page.locator('#dashboardChartLevelCurrent').isVisible(), true);
+  await references.locator('summary').click();
+  results.push('reference prices remain available through progressive disclosure');
 
   await page.locator('#terminalViewOptions summary').click();
   await page.selectOption('#terminalDensity', 'analysis');
@@ -176,22 +194,112 @@ try {
   assert.equal(await page.locator('#terminalFocus').getAttribute('aria-pressed'), 'false');
   await page.locator('#dashboardChartFocus').click();
   assert.equal(await page.locator('.chart-panel').evaluate(node => node.classList.contains('chart-focus')), true);
+  assert.equal(await page.locator('#dashboardChartDialog').evaluate(node => node.open), true);
+  assert.equal(await page.locator('#dashboardChartDialog').evaluate(node => node.matches(':modal')), true);
+  for (let i = 0; i < 30; i++) {
+    await page.keyboard.press(i < 20 ? 'Tab' : 'Shift+Tab');
+    assert.equal(await page.locator('#dashboardChartDialog').evaluate(node => node.contains(document.activeElement) || document.activeElement === document.body), true);
+  }
+  await nav('settings').evaluate(node => node.focus());
+  assert.equal(await page.locator('#dashboardChartDialog').evaluate(node => node.contains(document.activeElement) || document.activeElement === document.body), true);
   await page.keyboard.press('Escape');
   assert.equal(await page.locator('#dashboardChartFocus').getAttribute('aria-pressed'), 'false');
+  assert.equal(await page.locator('.chart-section > .chart-panel').count(), 1);
+  // Expanded charts remain scrollable on short screens, with a reachable restore action.
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.locator('#dashboardChartFocus').click();
+  await noOverflow('expanded chart short viewport');
+  const expandedBounds = await page.locator('#dashboardChartDialog').boundingBox();
+  assert.ok(expandedBounds.y >= 0 && expandedBounds.y + expandedBounds.height <= 568, 'expanded chart fits the short viewport');
+  await shot('expanded-chart-320', false);
+  await page.locator('#dashboardChartFocus').click();
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.locator('#dashboardChartFocus').click();
+  await page.keyboard.press('Control+k');
+  await query.fill('Open Analytics'); await query.press('Enter');
+  await page.waitForFunction(() => document.querySelector('[data-workspace-target="analytics"]').getAttribute('aria-pressed') === 'true');
+  assert.equal(await page.locator('#dashboardChartDialog').evaluate(node => node.open), false);
+  assert.equal(await page.locator('.chart-section > .chart-panel').count(), 1);
+  await page.waitForFunction(() => document.activeElement.id === 'dashboardWorkspaceTitle');
+  await nav('live').click();
+  await page.locator('#terminalFocus').click();
+  await page.locator('#dashboardChartFocus').click();
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#dashboardChartDialog').evaluate(node => node.open), false);
+  assert.equal(await page.locator('#terminalFocus').getAttribute('aria-pressed'), 'true');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#terminalFocus').getAttribute('aria-pressed'), 'false');
   await page.locator('.chart-menu').first().locator('summary').click();
   await page.locator('.chart-menu').nth(1).locator('summary').click();
   assert.equal(await page.locator('.chart-menu[open]').count(), 1);
   await page.locator('#dashboardWorkspaceTitle').click();
   assert.equal(await page.locator('.chart-menu[open]').count(), 0);
-  results.push('chart focus exits on navigation/Escape; disclosure menus dismiss and remain exclusive');
+  results.push('native chart modal isolates background controls, restores DOM, handles short viewports and exits before page focus mode; menus remain exclusive');
 
   await nav('alerts').click();
   await page.locator('#dashboardTargetPrice').fill('101000');
   await page.locator('#dashboardTargetLabel').fill('UI smoke fixture');
-  await page.locator('#dashboardTargetForm button[type="submit"]').click();
+  assert.equal(await page.locator('#dashboardClearHistory').isDisabled(), true);
+  await page.evaluate(() => {
+    globalThis.__targetSaveDelayMs = 150;
+    const form = document.getElementById('dashboardTargetForm'); form.requestSubmit(); form.requestSubmit();
+  });
   await page.waitForFunction(() => document.querySelector('#dashboardTargetList').textContent.includes('UI smoke fixture'));
+  assert.equal(await page.locator('#dashboardTargetList .alert-target-item').count(), 1);
+  await page.waitForFunction(() => document.querySelector('#dashboardTargetFeedback').dataset.tone === 'positive');
+  await page.evaluate(() => { globalThis.__targetSaveDelayMs = 0; });
+  await page.locator('#dashboardTargetList button[data-action="toggle"]').click();
+  await page.waitForFunction(() => document.querySelector('#dashboardTargetList').textContent.includes('paused'));
+  assert.equal(await page.locator('#dashboardTargetList button[data-action="toggle"]').textContent(), 'Resume');
+  await page.evaluate(() => { globalThis.__failTargetSaves = true; });
+  await page.locator('#dashboardTargetList button[data-action="toggle"]').click();
+  await page.waitForFunction(() => document.querySelector('#dashboardTargetFeedback').dataset.tone === 'negative');
+  assert.equal(await page.locator('#dashboardTargetList .alert-target-item').getAttribute('data-enabled'), 'false');
+  await page.evaluate(() => { globalThis.__failTargetSaves = false; });
   await page.locator('#dashboardTargetList .mini-button.danger').click();
-  results.push('price target create/remove through the visible form');
+  await page.waitForFunction(() => !document.querySelector('#dashboardTargetList .alert-target-item'));
+  await page.locator('#dashboardTargetPrice').fill('102000');
+  await page.evaluate(() => { globalThis.__failTargetSaves = true; });
+  await page.locator('#dashboardTargetForm button[type="submit"]').click();
+  await page.waitForFunction(() => document.querySelector('#dashboardTargetFeedback').dataset.tone === 'negative');
+  assert.equal(await page.locator('#dashboardTargetPrice').inputValue(), '102000');
+  await page.evaluate(() => { globalThis.__failTargetSaves = false; });
+  await shot('alert-save-feedback');
+  results.push('targets reject duplicate submits, show paused state and recover from failed saves without clearing input');
+
+  await page.locator('#dashboardTestNotification').click();
+  await page.waitForFunction(() => document.querySelector('#dashboardNotificationFeedback').dataset.tone === 'warning');
+  await page.evaluate(() => {
+    globalThis.__notificationCalls = 0;
+    globalThis.browser.notifications = { create: async () => {
+      globalThis.__notificationCalls++;
+      await new Promise(resolve => setTimeout(resolve, 150));
+      if (globalThis.__notificationReject) throw Error('UI fixture notification denied');
+    } };
+    document.getElementById('dashboardTestNotification').click();
+    document.getElementById('dashboardTestNotification').click();
+  });
+  await page.waitForFunction(() => document.querySelector('#dashboardNotificationFeedback').dataset.tone === 'positive');
+  assert.equal(await page.evaluate(() => globalThis.__notificationCalls), 1);
+  assert.match(await page.locator('#dashboardNotificationFeedback').textContent(), /delivery is not guaranteed/);
+  await page.evaluate(() => { globalThis.__notificationReject = true; });
+  await page.locator('#dashboardTestNotification').click();
+  await page.waitForFunction(() => document.querySelector('#dashboardNotificationFeedback').dataset.tone === 'negative');
+  assert.equal(await page.locator('#dashboardTestNotification').isDisabled(), false);
+  results.push('notification test shows unavailable/accepted/rejected states, prevents duplicate requests and restores controls');
+  await page.evaluate(async () => {
+    await globalThis.browser.storage.local.set({ btcLiveAlertHistory: [{ at: Date.now(), type: 'target', status: 'sent', title: 'UI history fixture' }] });
+    globalThis.__failHistorySaves = true;
+  });
+  await page.waitForFunction(() => !document.getElementById('dashboardClearHistory').disabled);
+  await page.locator('#dashboardClearHistory').click();
+  await page.waitForFunction(() => document.getElementById('dashboardHistoryFeedback').dataset.tone === 'negative');
+  assert.match(await page.locator('#dashboardHistoryList').textContent(), /UI history fixture/);
+  await page.evaluate(() => { globalThis.__failHistorySaves = false; });
+  await page.locator('#dashboardClearHistory').click();
+  await page.waitForFunction(() => document.getElementById('dashboardHistoryFeedback').dataset.tone === 'positive');
+  assert.equal(await page.locator('#dashboardClearHistory').isDisabled(), true);
+  results.push('history clear handles failure, preserves entries and disables itself when empty');
 
   await nav('replay').click();
   for (const width of [1440, 390, 320]) {
@@ -209,6 +317,8 @@ try {
     if (width === 408) await shot('popup');
     await page.locator('#settingsButton').click();
     await noOverflow(`popup settings/${width}`);
+    await page.locator('#testNotificationButton').click();
+    await page.waitForFunction(() => document.querySelector('#settingNotificationFeedback').dataset.tone === 'warning');
     await page.keyboard.press('Escape');
     assert.equal(await page.locator('#settingsView').isVisible(), false);
     assert.equal(await page.locator('#settingsButton').evaluate(node => node === document.activeElement), true);
@@ -229,6 +339,8 @@ try {
   await page.setViewportSize({ width: 390, height: 844 });
   await noOverflow('offline mobile');
   await shot('offline-mobile');
+  assert.match(await page.locator('#dashboardChartSvg').getAttribute('aria-label'), /offline|unavailable/);
+  assert.ok(await page.locator('#dashboardChartSvg').evaluate(svg => Number(svg.getAttribute('viewBox').split(' ')[2])) < 600);
   results.push('offline state exposes missing price and retry');
   assert.deepEqual(errors, [], 'uncaught page errors');
   console.log(JSON.stringify({ browser: browser.version(), data: 'synthetic REST fixtures; idle intercepted sockets; no live exchange', results, pageErrors: errors }, null, 2));

@@ -195,12 +195,15 @@
           </div>
         </div>
 
+        <details class="chart-reference-levels"><summary>Reference prices <span>Live / 24h</span></summary>
         <div class="chart-level-strip" aria-label="Chart reference levels">
           <div><span>LIVE</span><strong id="dashboardChartLevelCurrent">—</strong></div>
           <div><span>24H OPEN</span><strong id="dashboardChartLevelOpen">—</strong></div>
           <div><span>24H HIGH</span><strong id="dashboardChartLevelHigh">—</strong></div>
           <div><span>24H LOW</span><strong id="dashboardChartLevelLow">—</strong></div>
         </div>
+
+        </details>
 
         <div class="chart-stage">
           <svg id="dashboardChartSvg" class="market-chart" viewBox="0 0 1000 360" role="img" tabindex="0" aria-label="Bitcoin chart loading. Mouse wheel zoom; drag to pan; arrow keys inspect; Home returns to live."></svg>
@@ -473,6 +476,7 @@
       <article class="panel alert-history-panel" aria-label="Alert history">
         <div class="panel-header"><div><div class="eyebrow muted">EVENTS</div><h2>Alert History</h2></div><span id="dashboardHistoryCount" class="alert-count">0 events</span></div>
         <ul id="dashboardHistoryList" class="alert-history-list" aria-label="Alert history events"></ul>
+        <p id="dashboardHistoryFeedback" class="operation-feedback" role="status" hidden></p>
         <button id="dashboardClearHistory" class="button tertiary" type="button">Clear history</button>
       </article>
       </div>
@@ -487,6 +491,7 @@
           <label class="setting-row"><span><strong>Connection Alerts</strong><small>Notify on stale/offline data and recovery.</small></span><input id="dashboardSettingNotifyConnection" type="checkbox"></label>
         </div>
         <div class="settings-actions-inline"><button id="dashboardTestNotification" class="button tertiary" type="button">Test notification</button></div>
+        <p id="dashboardNotificationFeedback" class="operation-feedback" role="status" hidden></p>
         <p class="flow-footnote">Native browser notification delivery depends on browser permissions and active background checks.</p>
       </article>
     </section>
@@ -527,6 +532,8 @@
         </details>
       </article>
     </section>
+
+    <dialog id="dashboardChartDialog" class="chart-dialog" aria-label="Expanded Bitcoin chart"></dialog>
 
     <footer class="dashboard-footer">
       <span>BTC LIVE · V1.22.0</span>

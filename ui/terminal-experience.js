@@ -86,7 +86,8 @@ export function createTerminalExperience({ root = document, storage = (globalThi
   function onClose() {
     input.setAttribute('aria-expanded', 'false');
     input.removeAttribute('aria-activedescendant');
-    if (returnFocus?.isConnected) returnFocus.focus();
+    if (returnFocus?.isConnected && returnFocus.getClientRects().length) returnFocus.focus();
+    else root.getElementById('dashboardWorkspaceTitle')?.focus({ preventScroll: true });
   }
   function execute(index) {
     const cmd = matches[index];
@@ -106,10 +107,11 @@ export function createTerminalExperience({ root = document, storage = (globalThi
   }
   function onKey(event) {
     const target=event.target;
+    const otherDialog = target?.closest?.('dialog[open]');
     const editable=target?.isContentEditable || ['INPUT','TEXTAREA','SELECT'].includes(target?.tagName);
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase()==='k') { event.preventDefault();open();return; }
-    if (!dialog.open && event.key === 'Escape' && focused && !event.defaultPrevented) {event.preventDefault();setFocus(false);return;}
-    if (!editable && !dialog.open && !event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase()==='f') {event.preventDefault();setFocus(!focused);}
+    if (!dialog.open && !otherDialog && event.key === 'Escape' && focused && !event.defaultPrevented) {event.preventDefault();setFocus(false);return;}
+    if (!editable && !dialog.open && !otherDialog && !event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase()==='f') {event.preventDefault();setFocus(!focused);}
   }
   function onInputKey(event) {
     if (event.key === 'Escape') { event.preventDefault(); close(); return; }

@@ -35,6 +35,12 @@ input, select { accent-color: var(--accent); }
 input::placeholder { color: var(--text-faint); opacity: 1; }
 :is(button, input, select):disabled { opacity: .55; cursor: not-allowed; }
 svg[aria-hidden="true"] { flex-shrink: 0; }
+.operation-feedback { margin: 12px 0 0; padding: 11px 13px; border: 1px solid var(--border-strong); border-radius: 8px; color: var(--text-secondary); background: var(--bg-control); font-size: 11px; line-height: 1.6; overflow-wrap: anywhere; }
+:is(.operation-feedback, .alert-feedback)[data-tone="positive"] { color: var(--positive); }
+:is(.operation-feedback, .alert-feedback)[data-tone="warning"] { color: var(--warning); }
+:is(.operation-feedback, .alert-feedback)[data-tone="negative"] { color: var(--negative); }
+:is(.operation-feedback, .alert-feedback)[data-tone="neutral"] { color: var(--text-secondary); }
+button[aria-busy="true"] { cursor: progress; }
 
 @media (forced-colors: active) {
   :is(button, a, input, select, summary):focus-visible { outline-color: Highlight; }

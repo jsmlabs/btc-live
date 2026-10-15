@@ -1,6 +1,8 @@
 import {createAdvancedAlertCenter} from '../ui/advanced-alert-center.js';
 import { clampReplayPosition, addReplayBookmark, compareReplaySessions } from '../ui/replay-research.js';
 import { createTerminalExperience } from '../ui/terminal-experience.js';
+import { createChartExpansion } from '../ui/chart-expansion.js';
+import { bindNotificationTest } from '../ui/notification-test.js';
 import { bindDisclosureMenus } from '../ui/disclosure-menus.js';
 import { createWorkspaceController, createReplayModeController } from '../ui/workspace.js';
 import { bindAnalyticsViews } from '../ui/analytics-views.js';
@@ -25,7 +27,7 @@ import { createLiquidityHistoryRenderer } from '../ui/liquidity-history.js';
 import { DEFAULT_LIQUIDITY_PREFERENCES, LIQUIDITY_PREFERENCES_KEY, loadLiquidityPreferences, saveLiquidityPreferences, sanitizeLiquidityPreferences } from '../storage/liquidity-preferences.js';
 import { createLiquidityRenderer } from '../ui/liquidity.js';
 import { createBtcLiveRuntime } from '../app/runtime.js';
-import { createNativeNotification, createNotificationManager } from '../app/notifications.js';
+import { createNotificationManager } from '../app/notifications.js';
 import { ALERT_HISTORY_STORAGE_KEY } from '../storage/alert-history.js';
 import { ALERT_TARGETS_STORAGE_KEY } from '../storage/alert-targets.js';
 import { createAlertCenterController } from '../ui/alert-center.js';
@@ -464,6 +466,8 @@ const api = globalThis.browser ?? globalThis.chrome ?? null;
 let workspaceController = null;
 let terminalExperience = null;
 let disclosureMenus = null;
+let chartExpansion = null;
+let notificationTest = null;
 let replayModeController = null;
 function isWorkspaceVisible(view) { return workspaceController?.active() === view; }
 function updateWorkspaceDiagnostics() {
@@ -502,7 +506,7 @@ const alertCenter = createAlertCenterController({
   ids: {
     form: 'dashboardTargetForm', direction: 'dashboardTargetDirection', price: 'dashboardTargetPrice', label: 'dashboardTargetLabel',
     feedback: 'dashboardTargetFeedback', targetList: 'dashboardTargetList', targetCount: 'dashboardTargetCount',
-    historyList: 'dashboardHistoryList', historyCount: 'dashboardHistoryCount', clearHistory: 'dashboardClearHistory'
+    historyList: 'dashboardHistoryList', historyCount: 'dashboardHistoryCount', clearHistory: 'dashboardClearHistory', historyFeedback: 'dashboardHistoryFeedback'
   }
 });
 
@@ -557,23 +561,6 @@ function bindSettings() {
   });
 }
 
-function setChartExpanded(active) {
-  document.querySelector('.chart-panel').classList.toggle('chart-focus', active);
-  const button = document.getElementById('dashboardChartFocus');
-  button.setAttribute('aria-pressed', String(active));
-  button.textContent = active ? 'Restore chart' : 'Expand chart';
-  drawChart();
-}
-
-function onChartExpandKey(event) {
-  if (event.key !== 'Escape' || event.defaultPrevented || !document.querySelector('.chart-panel').classList.contains('chart-focus')) return;
-  // An open chart menu handles Escape before leaving the expanded view.
-  if (document.activeElement?.closest('.chart-menu[open]')) return;
-  event.preventDefault();
-  setChartExpanded(false);
-  document.getElementById('dashboardChartFocus').focus();
-}
-
 function bindChart() {
   for (const [id, interval] of [
     ['dashboardChartInterval1m', '1m'],
@@ -619,10 +606,7 @@ function bindChart() {
   document.getElementById('dashboardChartZoomOut').addEventListener('click',()=>{chartViewport.zoom(-1,total());redraw();});
   document.getElementById('dashboardChartReset').addEventListener('click',()=>{chartViewport.reset(total());redraw();});
   document.getElementById('dashboardChartLive').addEventListener('click',()=>{chartViewport.toLive(total());redraw();});
-  document.getElementById('dashboardChartFocus').addEventListener('click', () => {
-    setChartExpanded(!document.querySelector('.chart-panel').classList.contains('chart-focus'));
-  });
-  document.addEventListener('keydown', onChartExpandKey);
+  chartExpansion = createChartExpansion({ redraw: () => drawChart() });
   const svg=document.getElementById('dashboardChartSvg');
   chartInteractions=bindChartInteractions({svg,tooltip:document.getElementById('dashboardChartTooltip'),viewport:chartViewport,count:total,onChange:redraw});
   chartDrawings=bindChartDrawings({svg,store:chartDrawingStore,getInterval:()=>latestChart?.preferences.interval??'5m',onChange:()=>{},
@@ -737,7 +721,7 @@ function bindUi() {
   workspaceController = createWorkspaceController({
     onNavigate(view) {
       if (view !== 'live' && terminalExperience?.focus()) terminalExperience.setFocus(false);
-      if (view !== 'live' && document.querySelector('.chart-panel').classList.contains('chart-focus')) setChartExpanded(false);
+      if (view !== 'live' && chartExpansion?.expanded()) chartExpansion.setExpanded(false);
       if (view === 'analytics') { liquidityPaint.schedule(); flowPaint.schedule(); }
       if (view === 'replay') {
         if (replayModeController.active() === 'samples') drawReplay(); else drawEvents();
@@ -757,10 +741,7 @@ function bindUi() {
   document.getElementById('dashboardDiagnosticsRetryPrice').addEventListener('click', () => runtime.retryNow());
   document.getElementById('dashboardDiagnosticsRetryDepth').addEventListener('click', () => depthRuntime.retryNow());
   document.getElementById('dashboardDiagnosticsRetryTrades').addEventListener('click', () => flowRuntime.retryNow());
-  document.getElementById('dashboardTestNotification').addEventListener('click', () => {
-    createNativeNotification({ id: 'btc-live-test', title: 'BTC Live notifications', message: 'Browser notifications are working.' })
-      .catch((error) => console.warn('BTC Live test notification failed', error));
-  });
+  notificationTest = bindNotificationTest({ button: document.getElementById('dashboardTestNotification'), feedback: document.getElementById('dashboardNotificationFeedback') });
   // Background tabs may suspend animation frames; paint the latest state on return.
   document.addEventListener('visibilitychange', handleVisibilityChange);
   window.addEventListener('offline', handleOffline);
@@ -840,7 +821,8 @@ function cleanup() {
   chartDrawings?.dispose();
   terminalExperience?.dispose();
   disclosureMenus?.dispose();
-  document.removeEventListener('keydown', onChartExpandKey);
+  chartExpansion?.dispose();
+  notificationTest?.dispose();
   chartInteractions?.dispose();
   window.removeEventListener('resize', drawChart);
   chartRuntime.dispose();

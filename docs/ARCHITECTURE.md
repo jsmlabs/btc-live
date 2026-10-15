@@ -30,6 +30,7 @@ utils/          Shared formatting, time and backoff primitives
 | `app/notifications.js`, `advanced-alert-engine.js` | Rule semantics | Valid live data, cooldowns, controlled notification attempts |
 | `ui/theme.css`, `dashboard/workspace.css`, `popup/experience.css` | Shared palette and responsive presentation | No data transformations, external fonts or remote assets |
 | `ui/workspace.js`, `terminal-experience.js`, `disclosure-menus.js` | Workspace navigation, command palette and menu dismissal | Presentation preferences cannot bypass workspace presets or alter feed/alert state |
+| `ui/chart-expansion.js`, `notification-test.js` | Native chart modal and explicit notification-test feedback | Move the existing chart DOM without rebuilding its state; API acceptance is not delivery proof |
 | `ui/chart.js`, `render-scheduler.js` | Graphical display | Coalesce paint without delaying market state/alerts |
 | `ui/event-replay.js`, `market-recorder.js` | Recorded-session playback | Replay must not mutate live market state or fire alerts |
 | `storage/replay-sessions.js` | IndexedDB session retention | Validate schemas/size and handle storage failure |

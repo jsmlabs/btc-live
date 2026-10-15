@@ -1,6 +1,6 @@
 /* Application shell and shared workspace rhythm. Market geometry stays in dashboard.css. */
 .dashboard-shell { width: min(1760px, calc(100% - 48px)); padding: 0 0 24px; }
-.topbar { min-height: 88px; padding: 16px 0; }
+.topbar { min-height: 76px; padding: 12px 0; }
 .brand-block { gap: 12px; }
 .brand-block img { width: 40px; height: 40px; padding: 3px; border-radius: 11px; }
 .brand-title { margin: 0; font-size: 19px; font-weight: 750; letter-spacing: -.04em; white-space: nowrap; }
@@ -25,10 +25,10 @@ kbd { padding: 2px 5px; border: 1px solid var(--border-strong); border-radius: 4
 .nav-note strong { color: var(--text-secondary); font-size: 11px; font-weight: 600; }
 .nav-note-mark { width: 20px; height: 3px; margin-bottom: 3px; border-radius: 2px; background: var(--accent); }
 .workspace-content { min-width: 0; }
-.workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 25px; }
+.workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 21px; }
 .workspace-heading h1 { margin: 7px 0 0; font-size: clamp(23px, 2.2vw, 30px); font-weight: 650; letter-spacing: -.045em; line-height: 1.2; }
 .workspace-heading h1:focus { outline-offset: 4px; }
-.workspace-context { max-width: 880px; margin: 9px 0 21px; font-size: 12px; line-height: 1.6; }
+.workspace-context { max-width: 880px; margin: 8px 0 17px; font-size: 12px; line-height: 1.6; }
 .terminal-controls { flex-wrap: nowrap; gap: 8px; margin: 0; }
 .button { min-height: 36px; font-size: 11px; padding: 0 12px; }
 .presentation-menu { position: relative; z-index: 20; }
@@ -43,10 +43,10 @@ kbd { padding: 2px 5px; border: 1px solid var(--border-strong); border-radius: 4
 .action-feedback { margin: 12px 0; padding: 12px 14px; border: 1px solid var(--accent-border); border-radius: 8px; color: var(--warning); font-size: 12px; }
 .hero-grid { grid-template-columns: minmax(0, 1.8fr) minmax(290px, 1fr); margin-top: 0; }
 .dashboard-shell[data-density] .hero-card { padding: calc(var(--terminal-panel-padding) + 7px); }
-.hero-heading { gap: 16px; align-items: flex-start; flex-direction: column; }
+.hero-heading { gap: 12px; align-items: flex-start; flex-direction: column; }
 .hero-meta { max-width: 100%; display: flex; flex-wrap: wrap; gap: 6px 16px; text-align: left; font-size: 10px; line-height: 1.6; }
 .instrument-tag { display: inline-block; margin-left: 8px; padding: 3px 7px; border: 1px solid var(--border-strong); border-radius: 4px; color: var(--text-secondary); letter-spacing: .025em; }
-.hero-price { line-height: 1; font-weight: 600; }
+.hero-price { font-size: clamp(44px, 4.8vw, 64px); line-height: 1; font-weight: 600; }
 .price-row { margin-top: 14px; }
 .change-line { gap: 8px; margin-top: 12px; font-size: 13px; }
 .health-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 14px; }
@@ -73,6 +73,20 @@ kbd { padding: 2px 5px; border: 1px solid var(--border-strong); border-radius: 4
 .chart-stage { height: clamp(330px, 42vh, 560px); border-color: var(--border); }
 .chart-footer { font-size: 10px; line-height: 1.6; }
 .chart-axis-label, .chart-time-label { fill: var(--text-muted); }
+.chart-empty-label { fill: var(--text-secondary); font-size: 14px; font-weight: 500; }
+.chart-reference-levels { margin-top: 12px; }
+.chart-reference-levels > summary { display: flex; align-items: center; gap: 8px; width: fit-content; min-height: 30px; color: var(--text-secondary); font-size: 11px; cursor: pointer; list-style: none; }
+.chart-reference-levels > summary::-webkit-details-marker { display: none; }
+.chart-reference-levels > summary::before { content: '›'; color: var(--accent); font-size: 16px; line-height: 1; }
+.chart-reference-levels[open] > summary::before { transform: rotate(90deg); }
+.chart-reference-levels > summary span { color: var(--text-muted); font-size: 10px; }
+.chart-reference-levels .chart-level-strip { margin-top: 7px; }
+.chart-dialog { width: calc(100% - 24px); height: calc(100dvh - 24px); max-width: none; max-height: none; margin: auto; padding: 0; border: 0; background: transparent; color: var(--text); overflow: visible; }
+.chart-dialog::backdrop { background: #030609e8; }
+.chart-dialog .chart-panel.chart-focus { position: static; width: 100%; height: 100%; margin: 0; padding: 16px; overflow: auto; border-color: var(--border-strong); }
+.chart-dialog .chart-panel.chart-focus .chart-stage { flex: 1 0 220px; height: auto; min-height: 220px; }
+.chart-dialog .chart-header, .chart-dialog .chart-reference-levels, .chart-dialog .chart-footer { flex-shrink: 0; }
+html.chart-expanded { overflow: hidden; }
 .book-grid strong { font-size: 16px; }
 .book-grid small, .range-scale { color: var(--text-muted); font-size: 10px; }
 .range-fill { background: linear-gradient(90deg, #735527, var(--accent)); }
@@ -163,6 +177,10 @@ kbd { padding: 2px 5px; border: 1px solid var(--border-strong); border-radius: 4
   .diagnostics-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
+  .workspace-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; width: 100%; overflow: visible; }
+  .workspace-link { justify-content: center; min-height: 44px; padding: 8px 6px; font-size: 12px; }
+  .workspace-link svg { display: none; }
+  .workspace-nav { padding-top: 8px; padding-bottom: 8px; }
   .brand-caption { font-size: 10px; }
   .brand-title { font-size: 18px; }
   .brand-block { gap: 8px; }

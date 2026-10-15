@@ -303,8 +303,13 @@ export function renderBtcChart(chartSnapshot, marketState, now = Date.now(), vie
   if (inspector) inspector.hidden = true;
   renderedModels.set(svg,model);
   if (!model) {
-    svg.setAttribute('aria-label', status === CHART_STATUS.ERROR ? 'Bitcoin chart unavailable' : 'Bitcoin chart loading');
-    renderEmpty(svg, status === CHART_STATUS.ERROR ? 'Chart unavailable' : 'Loading chart...');
+    const emptyLabel = status === CHART_STATUS.ERROR ? 'Chart unavailable'
+      : status === CHART_STATUS.OFFLINE ? 'Offline · no candle data'
+      : status === CHART_STATUS.PAUSED ? 'Chart paused' : 'Loading chart...';
+    svg.setAttribute('aria-label', status === CHART_STATUS.ERROR ? 'Bitcoin chart unavailable'
+      : status === CHART_STATUS.OFFLINE ? 'Bitcoin chart offline · no candle data'
+      : status === CHART_STATUS.PAUSED ? 'Bitcoin chart paused' : 'Bitcoin chart loading');
+    renderEmpty(svg, emptyLabel, canvasWidth);
     renderedChartKeys.set(svg, chartKey);
     chartRedrawListeners.get(svg)?.(null);
     return;
@@ -553,9 +558,9 @@ function renderAxes(svg, model) {
   svg.append(group);
 }
 
-function renderEmpty(svg, label) {
-  svg.setAttribute('viewBox', `0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`);
-  svg.append(svgText(VIEW_WIDTH / 2, VIEW_HEIGHT / 2, label, 'chart-empty-label', { anchor: 'middle' }));
+function renderEmpty(svg, label, canvasWidth) {
+  svg.setAttribute('viewBox', `0 0 ${canvasWidth} ${VIEW_HEIGHT}`);
+  svg.append(svgText(canvasWidth / 2, VIEW_HEIGHT / 2, label, 'chart-empty-label', { anchor: 'middle' }));
 }
 
 function chartStatusLabel(status, errorMessage, lastLoadedAt, now, lastStreamAt) {

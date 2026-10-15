@@ -71,3 +71,16 @@ test('empty/error chart transitions redraw the placeholder, including malformed 
   assert.equal(dom.counts.rebuilds, 2);
   assert.equal(dom.getElementById('dashboardChartSvg').attributes.get('aria-label'), 'Bitcoin chart unavailable');
 });
+
+test('empty narrow chart uses readable coordinates and distinguishes offline from loading', t => {
+  const old = globalThis.document;
+  t.after(() => { if (old === undefined) delete globalThis.document; else globalThis.document = old; });
+  const dom = mockDom();
+  globalThis.document = dom;
+  const svg = dom.getElementById('dashboardChartSvg');
+  svg.parentElement = { classList: { contains: name => name === 'chart-stage' },
+    getBoundingClientRect: () => ({ width: 280, height: 330 }) };
+  renderBtcChart({ ...base, candles: [], status: 'OFFLINE' }, null, NOW);
+  assert.equal(svg.attributes.get('viewBox'), '0 0 340 360');
+  assert.match(svg.attributes.get('aria-label'), /offline/);
+});

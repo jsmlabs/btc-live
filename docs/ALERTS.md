@@ -26,6 +26,12 @@ The Web Locks API coordinates cooperating open dashboards; when locking is unava
 
 **At-most-once *attempt*** is the best available description, not exactly-once or guaranteed delivery. If the OS blocks the message, the browser is suspended, storage is unavailable, or the notification attempt fails, a condition may be recorded without an observed popup. Persistence and notification delivery are not one atomic transaction.
 
+## Controls and feedback
+
+Price target creation is disabled while its save is pending; repeated submits during that save do not create more targets. Pause/resume and remove operations show their outcome, with failed writes retaining the current stored target. Failed form saves preserve input. History clearing reports errors and is disabled for an empty history.
+
+The explicit **Test notification** button in popup settings and dashboard Alerts shows pending, unavailable, accepted and failed request states. An accepted API request does **not** verify OS display or guaranteed delivery. These controls do not alter live evaluation, cooldown or trigger-persistence semantics.
+
 ## Diagnosing a missing alert
 
 Check rule enablement, permission status, current workspace and open-dashboard state, feed validity/age, evaluation windows, Web Locks availability, cooldown/arming state and alert history. Background price checks can miss fast threshold excursions between polls; browser scheduling is not a real-time clock.

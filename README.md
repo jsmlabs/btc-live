@@ -74,8 +74,9 @@ There is **no install/build requirement** for loading unpacked source. For a ver
 
 - **Intervals:** 1m · 5m · 15m · 30m · 1h · 4h.
 - **Styles:** Candlestick · Line · Area; chart drawing, pan/zoom, crosshair and overlays.
+- **Chart workspace:** Expand the chart into a native modal; reference prices are available in an inline disclosure.
 - **Layout:** Standard · Wide · Stacked; density: Compact · Comfortable · Analysis.
-- **Navigation:** A desktop sidebar becomes a horizontally scrollable workspace bar on smaller screens. Use arrow keys, Home and End within navigation.
+- **Navigation:** Desktop sidebar, scrollable tablet bar and a two-row phone navigation with all six workspaces visible. Use arrow keys, Home and End within navigation.
 - **View options:** Workspace preset, dashboard density and panel layout are grouped in one menu. Dashboard density stays selected during market updates.
 - **Workspaces:** Simple, Advanced and Custom presets; available views and command-palette entries depend on the preset.
 - **Shortcuts:** `Ctrl+K` / `Cmd+K` where supported opens the command palette; `F` toggles focus mode outside text fields; `Escape` exits focus or an expanded chart. Hold `Alt` for optional OHLC drawing snap.

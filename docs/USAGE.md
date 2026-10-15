@@ -23,13 +23,15 @@
 | Diagnostics | Inspect reconnects, transport/feed state and freshness | A connected WebSocket does not establish a valid depth book |
 | Settings | Personalize display and landing preferences | Local presentation options do not affect exchange data |
 
-Navigation uses a sidebar on large screens and a scrollable workspace bar on smaller screens. Within navigation, use arrow keys, Home or End. A keyboard-visible **Skip to workspace** link bypasses navigation.
+Navigation uses a sidebar on large screens, a scrollable bar on tablets and a two-row layout on phones with all six workspaces visible. Within navigation, use arrow keys, Home or End. A keyboard-visible **Skip to workspace** link bypasses navigation.
 
 Open **View options** beside the workspace title for the workspace preset, dashboard density and panel layout. The popup has a labelled **Open market terminal** button in addition to its dashboard icon.
 
 **Workspace presets:** Simple shows a reduced set of tabs; Advanced exposes all available workspaces; Custom permits a configured landing workspace. If a view is hidden by the current preset, the command palette omits that view. Alert delivery preferences remain in **Alerts**.
 
 ## Chart controls
+
+Open **Reference prices** to inspect current and 24-hour reference values without permanently expanding the toolbar. **Expand chart** opens the existing chart in a native modal: background controls are inactive until it closes. **Restore chart** or Escape returns it to its original workspace and scroll position. The chart and its drawings are retained. On short screens, the expanded panel can scroll.
 
 The chart supports **1m, 5m, 15m, 30m, 1h and 4h** intervals with candles, line or area rendering. Use the visible zoom/pan controls, crosshair, selection and drawing tools, including horizontal/trend/measurement/zone annotations where available.
 
@@ -48,6 +50,8 @@ Layouts are **Standard / Wide / Stacked**; densities are **Compact / Comfortable
 BTC Live consumes public **BTCUSDT Binance USDⓈ-M Futures** endpoints. CVD uses locally observed aggressive trades and resets/segments on relevant feed discontinuities; book imbalance is a measurement of displayed resting depth. Neither metric identifies particular traders, hidden orders, manipulation nor future direction. Missing, incomplete or stale measurements are unavailable - never assume a displayed zero.
 
 Standard price/percentage alerts can use sampled background REST checks. **Advanced** price, CVD, volume and imbalance rules require a **live open dashboard**, acceptable feed freshness, notification settings, cooldown and Web Locks support for cross-tab serialization. A persisted trigger indicates an attempted notification, not guaranteed OS delivery. See [Alerts](ALERTS.md).
+
+Target actions show saving, success and failure messages. Pending submissions cannot be duplicated; failed saves preserve form input. **Pause / Resume** controls each target, and paused targets are labelled accordingly. **Clear history** is disabled when there are no events. The explicit **Test notification** action reports API availability, acceptance or rejection; acceptance does not prove OS delivery.
 
 ## Recording and replay
 

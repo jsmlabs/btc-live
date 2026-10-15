@@ -80,7 +80,7 @@ export function sanitizeUpdateState(raw, installed) {
   return {
     enabled: x.enabled !== false, channel, installed, status, release,
     lastAttemptAt: sameInstall ? safeTime(x.lastAttemptAt) : null, lastSuccessAt,
-    checkedInstalled: lastSuccessAt !== null ? installed : null,
+    checkedInstalled: sameInstall ? installed : null,
     error: sameInstall && ['OFFLINE', 'CHECK_FAILED', 'RATE_LIMITED'].includes(x.error) ? x.error : null,
     retryAfter: sameInstall ? safeRetry(x.retryAfter) : null,
     dismissed: typeof x.dismissed === 'string' && parseVersion(x.dismissed) ? x.dismissed : null
@@ -106,7 +106,7 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
       const time = now();
       if (!force && (!state.enabled || (state.retryAfter && state.retryAfter > time) ||
         (state.checkedInstalled === installed && state.lastSuccessAt && time - state.lastSuccessAt < UPDATE_INTERVAL_MS))) return state;
-      state = await write({ ...state, lastAttemptAt: time, error: null, retryAfter: null });
+      state = await write({ ...state, checkedInstalled: installed, lastAttemptAt: time, error: null, retryAfter: null });
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 8000);
       try {

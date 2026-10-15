@@ -53,7 +53,7 @@ jobs:
             echo 'Release tag already has a published or draft GitHub Release'
             exit 1
           fi
-          if git rev-parse -q --verify "refs/tags/$RELEASE_TAG" >/dev/null; then
+          if gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$RELEASE_TAG" >/dev/null 2>&1; then
             echo 'Refusing to reuse an existing tag'
             exit 1
           fi

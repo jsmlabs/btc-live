@@ -209,3 +209,8 @@ test('stale book feed can be recovered without closing the market socket', (t) =
   assert.equal(sockets[0].closed, false);
   socket.close();
 });
+
+test('combined market stream ignores oversized untrusted frames without parsing them', () => {
+  assert.equal(parseCombinedMessage(' '.repeat(65_537), NOW), null);
+  assert.equal(parseCombinedMessage(JSON.stringify({data:{e:'unknown'}}), NOW), null);
+});

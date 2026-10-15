@@ -86,3 +86,7 @@ The external, same-commit approval procedure is described in [Release](RELEASE.m
 ## Software Updates 1.24.1 regression coverage
 
 The update tests now include installed-manifest version cache invalidation, validated storage-derived release links, malformed API responses, offline reporting, concurrent check/configuration serialization, and manual checks with automatic polling disabled. The UI distinguishes last successful check from last attempt, and explains why an unpacked development candidate is not an eligible published release. Actual MV3 worker restart, browser accessibility, network rate-limits, and installed-extension behavior remain manual acceptance requirements.
+
+## Software Updates 1.24.2 verification
+
+`tests/software-updates.test.js` now checks multi-page public release discovery, SemVer build-metadata equivalence, bounded pagination (five pages of 100 results), page-specific rate limiting, malformed later pages and the rule that incomplete release histories cannot be presented as definitive absence or currency. Network and browser behavior remain separate manual acceptance requirements.

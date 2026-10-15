@@ -1,7 +1,7 @@
 # BTC Live - Chrome Web Store listing draft
 
 > [!CAUTION]
-> **Not approved or submitted by this repository update.** Verify the actual public Chrome Web Store package before publication; source manifest `1.24.1` and candidate features alone do **not** establish live availability.
+> **Not approved or submitted by this repository update.** Verify the actual public Chrome Web Store package before publication; source manifest `1.24.2` and candidate features alone do **not** establish live availability.
 
 ## Proposed product metadata
 

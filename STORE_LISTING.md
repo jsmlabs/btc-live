@@ -1,98 +1,73 @@
-# BTC Live - Chrome Web Store Listing
+# BTC Live - Chrome Web Store listing
 
-> **Store evidence (screenshot, 2026-10-15):** BTC Live is shown as **Published - public**, version **1.21.0**, with an empty Description field in the developer listing editor. The repository currently declares **1.22.0**, which is **not evidence of store publication**. This copy is deliberately limited to established 1.21.0-era features. No direct store changes are made by this GitHub documentation update.
+> [!IMPORTANT]
+> **Draft, not approved for publication.** Historical store-editor evidence reviewed on **2026-10-15** showed public version **1.21.0**. The repository manifest is `1.22.0` and `main` contains v16 development candidate features. Do not infer the current store version from source or assume these candidate features are already shipped.
 
-## Product details
+## Product positioning
 
-- **Title from package:** BTC Live
-- **Primary language:** English
-- **Category:** Tools
-- **Store Description:** Copy the plain text below into the required Description field (limit shown in the screenshot: 16,000 characters).
-- **Package summary:** Controlled by `manifest.json` in the uploaded extension package, not by this listing Description field.
+| Field | Draft |
+| --- | --- |
+| Product | BTC Live |
+| Store category | Tools |
+| Language | English |
+| Market | BTCUSDT, Binance USDⓈ-M Futures |
+| Product | Local-first Chromium market monitoring and research |
+| API keys / trading | Not required / not supported |
+| Customer release status | **Pending** [acceptance](docs/ACCEPTANCE.md) |
 
-## Description - copy and paste
+## Proposed customer description - review before publishing
 
 ```text
 BTC Live - Bitcoin Futures Market Monitoring
 
-Monitor Bitcoin's market activity directly from your browser. BTC Live is a lightweight Chrome extension that provides real-time BTCUSDT market data from Binance USDⓈ-M Futures, interactive charting, market diagnostics, and configurable price alerts.
+Follow BTCUSDT market activity from public Binance USDⓈ-M Futures feeds directly in your browser. BTC Live combines a compact market popup with a dedicated dark monitoring and research dashboard.
 
-Whether you need a quick price check or a dedicated market-monitoring workspace, BTC Live keeps essential information accessible without requiring a trading account.
+LIVE MARKET MONITORING
+- BTCUSDT Futures price and 24-hour market statistics
+- Best bid and ask, spread and connection/freshness indicators
+- Candlestick, line and area chart views with supported intervals
+- Feed diagnostics and recovery indicators
 
-KEY FEATURES
+MARKET RESEARCH
+- Observed executed volume, rolling cumulative volume delta (CVD), and displayed order-book depth
+- Chart drawing and layout controls
+- Supported local session recording and replay
 
-LIVE BITCOIN MARKET DATA
-- BTCUSDT Futures price updates
-- 24-hour price change, open, high, low, and volume
-- Best bid, best ask, and bid-ask spread
-- Market connection status and data freshness indicators
-- Automatic reconnection and REST data recovery
-
-INTERACTIVE MARKET DASHBOARD
-- Dedicated full-page monitoring dashboard
-- Candlestick and line charts
-- 1-minute, 5-minute, and 15-minute chart intervals
-- Optional trading volume display
-- Market reference levels and 24-hour range
-- Responsive dark interface
-
-CUSTOMIZABLE PRICE ALERTS
-- Native browser notifications
-- Percentage-based price movement alerts
-- Multiple price targets above or below the market
-- Configurable notification cooldowns
-- Automatic target rearming
-- Local alert history
-- Optional periodic background price checks
+CUSTOMIZABLE ALERTS
+- Price and percentage-move rules with browser notifications
+- Advanced price and order-flow rules while a live dashboard is open
+- Local alert history and sampled background price checks
 
 PRIVACY AND CONTROL
-- No registration or Binance account required
-- No API keys or wallet connections
-- No analytics, advertising, or tracking
-- Preferences and alerts stored locally in your browser
-- Direct access to public Binance Futures market data
-- No trading or order execution
+- No account, Binance API key, wallet access or order permission required
+- Direct connections to public Binance Futures endpoints
+- Supported settings and sessions stored locally in the browser
+- No trade or order execution
 
-BUILT FOR EVERYDAY MONITORING
+IMPORTANT: BTC Live provides descriptive market information, not trading signals or advice. Data can be stale, missing or incomplete. Browser alarms and notifications are not guaranteed; advanced rules require an open dashboard. Do not rely on alerts as a sole risk control.
 
-Use the compact extension popup for a fast market overview, or open the dashboard for detailed charting, connection diagnostics, and alert management.
-
-IMPORTANT INFORMATION
-
-BTC Live provides market data for informational purposes only. Background price checks are periodic rather than continuous, and browser scheduling or connectivity interruptions may delay notifications. Market data can also become unavailable or stale.
-
-BTC Live is an independent project and is not affiliated with or endorsed by Binance.
-
-Bitcoin market monitoring, without the noise.
+BTC Live is an independent project, not affiliated with or endorsed by Binance.
 ```
 
-## Permission justifications
+**Do not paste this candidate description into a live store listing** until the final tested build, feature coverage, version and store assets match every claim.
 
-These are supporting explanations for the Privacy/permissions declarations; they are not a substitute for reviewing the exact deployed package.
+## Permission explanations
 
-| Permission | Reason |
+| Access | Justification |
 | --- | --- |
-| `storage` | Save display/chart settings, notification options, targets, bounded history and diagnostic state locally |
-| `notifications` | Display enabled BTC price and connection alerts using browser notifications |
-| `alarms` | Schedule periodic background price checks when the user enables them |
-| `https://fapi.binance.com/*` | Fetch public BTCUSDT Binance USDⓈ-M Futures market information; the separate WebSocket connection is constrained by CSP |
+| `storage` | Browser-local preferences, alerts and recorded state |
+| `notifications` | Native notifications for enabled rules |
+| `alarms` | Sampled background price checks |
+| `https://fapi.binance.com/*` | Public Futures REST data |
+| `wss://fstream.binance.com` in CSP | Public Futures WebSocket feeds |
 
-The declared WebSocket endpoint is `wss://fstream.binance.com`. No content scripts, exchange credentials, wallet access, order execution, analytics or developer-operated tracking backend are part of the described design.
+## Publication steps
 
-## Publishing procedure
+1. Verify the current **live** Chrome Web Store package/version independently.
+2. Complete [manual release acceptance](docs/ACCEPTANCE.md) against the exact source/build.
+3. Capture [genuine screenshots](STORE_ASSETS.md) of that build; do not reuse historic Spot imagery.
+4. Review the listing, category, language, claims, privacy questionnaire, support/security links, icons and permissions.
+5. Save and review the developer-console draft; submit **only** the approved build. A saved draft does not mean published.
+6. Track store approval and actual public visibility separately from GitHub CI/release status.
 
-1. Open the existing **BTC Live** item in Chrome Web Store Developer Dashboard.
-2. Under **Store listing**, paste the Description text and retain the **Tools** category.
-3. Review the store language, screenshots, icons, links, privacy answers and package/version to make sure they match what users actually receive.
-4. Choose **Save draft**, resolve any validation errors and review the draft.
-5. Submit the listing update for review when ready. Saving a draft does not itself publish the new description.
-
-**Do not** claim the repository's 1.22.0 changes or the unmerged depth/order-flow/replay archive are deployed to the public listing without checking the actual Chrome Web Store package.
-
-## References
-
-- [README](README.md)
-- [Privacy Policy](PRIVACY.md)
-- [Security Policy](SECURITY.md)
-- [Store Asset Plan](STORE_ASSETS.md)
-- [Release Checklist](RELEASE_CHECKLIST.md)
+[Privacy Policy](PRIVACY.md) · [Security](SECURITY.md) · [User guide](docs/USAGE.md) · [Release](docs/RELEASE.md)

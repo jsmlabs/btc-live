@@ -50,6 +50,10 @@ The background service worker exists only to support persistent market-alert sch
 
 The extension has no runtime npm dependencies. Development verification uses only Node.js built-ins and repository source files.
 
+## Release security acceptance
+
+The candidate checks enforce a limited manifest permission set, CSP, restricted extension exposures, and deterministic runtime packaging. These are **static controls**, not an end-to-end security audit. Before a stable customer release, exercise actual Chromium MV3 lifecycle, malformed/stale market payloads, corrupted browser storage, replay imports, permission denial and notification failures. Keep evidence in the [release acceptance matrix](docs/ACCEPTANCE.md).
+
 ## Reporting a security issue
 
 Do not publish a suspected vulnerability with exploit details before it can be reviewed. Include the affected version, browser/version, reproduction steps, expected behavior, actual behavior, and impact when reporting a security issue through the repository's private security-reporting channel if enabled.

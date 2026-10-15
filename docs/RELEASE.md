@@ -104,6 +104,12 @@ To make an update discoverable, complete all seven manual release-acceptance gat
 
 For an unpacked extension, use the [source installation guide](../README.md#get-started), replace or refresh its local source, and reload it via `chrome://extensions`. Chrome cannot silently rewrite an unpacked extension directory. A browser-store installation updates through the browser/store rather than through this GitHub checker. Reloading alone does not fetch repository changes.
 
+## Explicit untested Preview publication
+
+The manual [experimental preview workflow](../.github/workflows/publish-experimental-preview.yml) is separate from approved Stable publication. From the **main** branch, the publisher must explicitly enter `PUBLISH_UNTESTED_PREVIEW` in a manual Actions dispatch. It packages a development candidate with checksum/provenance but intentionally skips automated acceptance tests and all seven manual Stable acceptance gates. GitHub marks the result as a **prerelease**, titled **EXPERIMENTAL / UNTESTED**, and the release notes disclose the missing real-world verification. It never uses the `production-release` environment or `RELEASE_ACCEPTANCE_JSON`. Access to manual workflow dispatch and `contents: write` remains security-sensitive and must be restricted by repository permissions.
+
+The tag is `v<manifest-version>-preview.<workflow-run-id>`. The archive still contains the unchanged numeric manifest version and is intended only for manual unpacked installation in a disposable profile. **Do not represent that tag as a newer installed version**: SemVer treats it as older than the same stable manifest version, so the existing update checker may intentionally not show an upgrade for an installation already at that version. Stable releases remain subject to the separate approved workflow and all seven gates. A Preview release is not Chrome Web Store publication or automatic installation.
+
 ## Manual approved GitHub Release publication
 
 The workflow [Publish Approved BTC Live Release](../.github/workflows/publish-approved-release.yml) is a manual `workflow_dispatch` pipeline on `main`; it does **not** run on commits, tags, or pull requests. It requires the separate GitHub Actions environment named `production-release` with required reviewers and an environment secret `RELEASE_ACCEPTANCE_JSON` containing the externally approved acceptance document for the **exact current main commit**. Keep that secret inaccessible to untrusted pull requests and rotate/update it for each approved release.

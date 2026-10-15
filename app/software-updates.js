@@ -89,12 +89,19 @@ export function sanitizeUpdateState(raw, installed) {
 export function createUpdateController({ api = globalThis.browser ?? globalThis.chrome, fetchFn = globalThis.fetch, now = Date.now,
   isOnline = () => globalThis.navigator?.onLine } = {}) {
   let inFlight = null;
+  let operations = Promise.resolve();
+  // Serialize checks and settings across concurrent popup/dashboard messages.
+  const serialize = task => {
+    const result = operations.then(task);
+    operations = result.catch(() => {});
+    return result;
+  };
   const installed = api.runtime.getManifest().version;
   const read = async () => sanitizeUpdateState((await api.storage.local.get(UPDATE_KEY))[UPDATE_KEY], installed);
   const write = async state => { await api.storage.local.set({ [UPDATE_KEY]: state }); return state; };
   async function check({ force = false } = {}) {
     if (inFlight) return inFlight;
-    inFlight = (async () => {
+    inFlight = serialize(async () => {
       let state = await read();
       const time = now();
       if (!force && (!state.enabled || (state.retryAfter && state.retryAfter > time) ||
@@ -125,11 +132,11 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
         return write({ ...state, error: isOnline() === false ? 'OFFLINE' : 'CHECK_FAILED',
           retryAfter: time + RETRY_INTERVAL_MS });
       } finally { clearTimeout(timeout); }
-    })().finally(() => { inFlight = null; });
+    }).finally(() => { inFlight = null; });
     return inFlight;
   }
-  async function configure(options) {
-    if (inFlight) await inFlight;
+  function configure(options) {
+    return serialize(async () => {
     const state = await read();
     const changedChannel = (options.channel === 'stable' || options.channel === 'preview') && options.channel !== state.channel;
     const next = await write({ ...state,
@@ -143,6 +150,7 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
       error: changedChannel ? null : state.error,
       retryAfter: changedChannel ? null : state.retryAfter });
     return next;
+    });
   }
   return { read, check, configure };
 }

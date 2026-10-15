@@ -1,5 +1,7 @@
 # Privacy and data handling
 
+> Scope: current v16 Phase-10 candidate configuration; the extension manifest remains `1.22.0`. Re-check permissions and endpoints at the exact release commit before publication.
+
 BTC Live consumes public Binance USDⓈ-M Futures market data. It does **not** require a Binance account, exchange API key or trading permission and does not place orders.
 
 ## Permissions and endpoints

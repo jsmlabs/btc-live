@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const exclusions=new Set(['node_modules','.git','dist']);
 const syntaxTimeoutMs=10_000;
-const testTimeoutMs=180_000;
+const testTimeoutMs=20_000;
 async function walk(dir){
  const result=[];
  for(const e of await readdir(dir,{withFileTypes:true})){
@@ -44,6 +44,15 @@ for(const f of ['popup/popup.html','dashboard/dashboard.html']){
 console.log(`Manifest ${manifest.version}: ${files.length} files, ${files.filter(f=>f.endsWith('.js')||f.endsWith('.mjs')).length} checked scripts, ${imports} relative imports validated.`);
 const testFiles=files.filter(f=>f.startsWith(path.join(root,'tests')+path.sep)&&f.endsWith('.test.js')).sort();
 if(!testFiles.length)throw Error('No test files found');
-const run=spawnSync(process.execPath,['--test',...testFiles],{stdio:'inherit',timeout:testTimeoutMs});
-if(run.error)throw Error(`Tests could not complete within ${testTimeoutMs}ms or failed to start: ${run.error.message}`);
-if(run.status!==0)process.exit(run.status||1);
+let failures=0;
+for(const file of testFiles){
+ const relative=path.relative(root,file);
+ console.log(`Running ${relative}`);
+ const run=spawnSync(process.execPath,['--test',file],{stdio:'inherit',timeout:testTimeoutMs});
+ if(run.error||run.status!==0){
+  failures++;
+  console.error(`FAILED ${relative}: ${run.error?.message??`exit ${run.status}`}`);
+ }
+}
+console.log(`Test files: ${testFiles.length}; failed: ${failures}`);
+if(failures)process.exitCode=1;

@@ -1,6 +1,6 @@
-# BTC Live v1.22.0 - historical stable release notes
+# BTC Live v1.22.0 - historical release notes
 
-> This file documents the existing **v1.22.0 stable baseline**. It does **not** describe a released v16 extension. The v16 Phase-10 candidate has been merged into `main` but is still not release-approved; see [candidate status](docs/RELEASE.md) and [README](README.md).
+> This file documents the historical **v1.22.0 source baseline**. It does **not** describe a released v16 extension. This document alone does not establish which version the Chrome Web Store currently distributes. The v16 Phase-10 candidate has been merged into `main` but is still not release-approved; see [candidate status](docs/RELEASE.md) and [README](README.md).
 
 BTC Live v1.22.0 adds independently recovering Binance Futures WebSocket feeds, REST price fallback when the book request fails, and safer alert evaluation.
 

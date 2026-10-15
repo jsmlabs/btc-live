@@ -1,32 +1,30 @@
-> **Current release gate:** No new release is approved by this documentation change. The v16 candidate is integrated into `main`; its automated checks and packaging have passed for recorded commits, but real Chromium/MV3, Binance feed, migration and sustained-use acceptance remain unverified. See [current release readiness](docs/RELEASE.md) before any tag/store submission. Historical statuses below remain as originally recorded.
+# BTC Live - release checklist
 
-# BTC Live v1.22.0 - Release Checklist
+> [!IMPORTANT]
+> **NOT APPROVED FOR PUBLICATION.** The v16 development candidate is integrated into `main`, while the manifest still declares `1.22.0`. The [historic v1.22.0 checklist](docs/HISTORICAL-RELEASE-CHECKLIST.md) is archived for provenance.
 
-## Automated validation
+## Automated build
+- [x] Static validation and deterministic Node regression tests run in CI.
+- [x] Runtime-only candidate ZIP, reproducibility checks and SHA-256 provenance exist.
+- [x] A separate `npm run release:gate` requires evidence bound to an exact source commit.
+- [ ] Confirm **all** CI jobs passed on the exact final intended release SHA.
+- [ ] Inspect the final candidate artifact and its `BUILD_INFO.json` / `SHA256SUMS.txt`.
 
-- [x] Phase A visual-performance code retained; synthetic baseline preserved
-- [x] Independent market/book feed recovery validated with deterministic simulated socket failures
-- [x] REST ticker fallback validated when the book endpoint fails
-- [x] Stale alert suppression and 0.05% target rearm hysteresis tested
-- [x] Background check status and malformed-price handling tested
-- [x] No new runtime permission, host, npm dependency or storage migration
-- [x] Store package contains exactly 36 allowlisted runtime files
-- [x] Manifest / package / popup / dashboard version labels aligned at `1.22.0`
-- [x] Confirm GitHub Actions Node.js 22 / 24 both pass for pushed commit ([successful run](https://github.com/jsmlabs/btc-live/actions/runs/38306909480) on `1d99918`)
+## Real customer acceptance
+- [ ] Chromium MV3 popup, dashboard, responsiveness, keyboard and chart gestures.
+- [ ] Live Binance Futures REST/WebSocket reconnect, stale data and order-book resync.
+- [ ] Multiple dashboards, notification permissions, background alarms and worker suspension.
+- [ ] Invalid/corrupt recording import, replay isolation and sustained performance.
+- [ ] Existing-install storage migration/rollback, no loss of supported user state.
+- [ ] Actual screenshots, privacy, security, support and store claims match the release package.
 
-## Browser and manual QA
+Each case needs independent evidence; details are in [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md).
 
-- [x] Real Chromium JS/DOM smoke with simulated feed outage and chart-cache checks
-- [ ] Run the actual unpacked MV3 extension with a functional service worker
-- [ ] Verify notification permission, target hysteresis, periodic alarms and shared state across popup/dashboard/background
-- [ ] Confirm minute-sampled background checks are delayed or missed during browser sleep/close as documented
-- [ ] Confirm live Futures market and order-book partial outage/recovery, stale book labels and offline recovery
-- [ ] Replace old Spot screenshots with genuine Futures screenshots
-- [ ] Profile actual Chromium CPU/frame timing on target hardware
+## Stable promotion
+- [ ] Approve an **external**, SHA-bound evidence record and run `npm run release:gate`.
+- [ ] Reconcile manifest, package metadata, changelog, release notes and store version.
+- [ ] Rebuild from tested source, verify package SHA-256 and retain rollback assets.
+- [ ] Create an approved GitHub version tag/release.
+- [ ] Submit verified assets and package to the Chrome Web Store; verify publication separately.
 
-## GitHub release (separate from repository commit)
-
-- [x] Confirm v1.22.0 implementation is on `main` and repository CI is green (`1d99918`, [Verify run](https://github.com/jsmlabs/btc-live/actions/runs/38306909480))
-- [ ] Tag the approved release commit `v1.22.0`
-- [ ] Publish the GitHub release with notes, store ZIP and SHA-256
-- [ ] Submit reviewed store assets for Chrome Web Store approval
+[Release policy](docs/RELEASE.md) · [Testing](docs/TESTING.md) · [Store assets](STORE_ASSETS.md)

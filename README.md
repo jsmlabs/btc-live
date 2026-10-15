@@ -23,7 +23,8 @@
   <a href="#explore-the-terminal">Features</a> ·
   <a href="#development-and-verification">Verification</a> ·
   <a href="#documentation">Docs</a> ·
-  <a href="docs/RELEASE.md">Release readiness</a>
+  <a href="docs/RELEASE.md">Release readiness</a> ·
+  <a href="docs/ACCEPTANCE.md">Acceptance gates</a>
 </p>
 
 > [!IMPORTANT]
@@ -61,7 +62,7 @@ BTC Live turns public market observations into a focused research workspace. **I
 4. Pin/open **BTC Live** from the browser toolbar and select **Open Dashboard**.
 5. Check connection state, source freshness and notification permissions before using data or alerts.
 
-**No build step or npm install is needed to load the unpacked source.** The generated candidate ZIP is for packaging verification; it is not an approved stable release.
+**No build step or npm install is needed to load unpacked source.** To test an exact-SHA candidate build, download the successful `btc-live-candidate-zip` workflow artifact, verify `SHA256SUMS.txt`, extract the ZIP, and select its unpacked folder. The package is **not** an approved stable release.
 
 [Read the usage guide →](docs/USAGE.md)
 
@@ -137,6 +138,7 @@ npm run verify
 npm run docs:check
 npm run release:check
 npm run package:extension
+npm run package:metadata
 ```
 
 | Command | Purpose |
@@ -145,10 +147,13 @@ npm run package:extension
 | `npm run docs:check` | Validate local Markdown links across the project documentation |
 | `npm run release:check` | Validate static manifest and release contracts |
 | `npm run package:extension` | Re-verify and produce a deterministic candidate ZIP |
+| `npm run package:metadata` | Generate artifact checksum and exact-source provenance |
 
 The packaging command writes `dist/btc-live-chromium-v1.22.0-candidate.zip`. The archive uses a runtime directory allowlist, sorted entries and fixed timestamps. CI checks archive integrity and reproducibility across two builds, then uploads a **candidate artifact**.
 
 **Verification boundary:** Passing Node tests, static release checks, packaging or GitHub Actions does **not** prove Chromium runtime behavior, access to live Binance feeds, alert delivery or release approval. Consult [the latest workflow results](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml) for evidence at the exact commit and [the testing matrix](docs/TESTING.md) for remaining manual acceptance.
+
+**Stable-release boundary:** `npm run release:gate` is deliberately blocked until [real-browser, market-data, lifecycle and migration acceptance](docs/ACCEPTANCE.md) is documented at the exact source commit. Do not publish the candidate ZIP directly to customers or the store.
 
 ## Privacy and safety boundaries
 
@@ -170,10 +175,12 @@ The packaging command writes `dist/btc-live-chromium-v1.22.0-candidate.zip`. The
 | [Architecture](docs/ARCHITECTURE.md) | Runtime modules, market-data validation, trust boundaries |
 | [Alert semantics](docs/ALERTS.md) | Background sampling, advanced rules, delivery limitations |
 | [Testing](docs/TESTING.md) | Automated checks, browser acceptance and evidence requirements |
-| [Release readiness](docs/RELEASE.md) | Candidate status, exact-commit evidence and blocking gates |
+| [Release readiness](docs/RELEASE.md) | Candidate build, provenance, versioning and promotion rules |
+| [Release acceptance](docs/ACCEPTANCE.md) | Required Chromium, live-market, lifecycle and migration signoff |
 | [Privacy](docs/PRIVACY.md) | Browser permissions, endpoints and local data |
 | [Security](SECURITY.md) | Threat model and vulnerability reporting |
-| [Changelog](CHANGELOG.md) | Historical release development |
+| [Changelog](CHANGELOG.md) | Unreleased candidate changes and historical versions |
+| [Store asset policy](STORE_ASSETS.md) | Authentic screenshots, visual identity and publication review |
 | [Historical v1.22.0 notes](GITHUB_RELEASE.md) | Prior release notes, **not** v16 approval |
 | [Phase 10 notes](docs/PHASE10.md) | Candidate engineering and remaining acceptance |
 | [Repository workflow](docs/REPOSITORY.md) | Branch policy and maintenance practices |

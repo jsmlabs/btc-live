@@ -1,5 +1,22 @@
 > **Current source and release status (2026-10-15):** `main` contains the v16 Phase 01–10 development candidate, merged through [PR #3](https://github.com/jsmlabs/btc-live/pull/3). The manifest remains **1.22.0**, and v16 is **not** a stable published release. The entries below preserve historical release chronology; see [current release gates](docs/RELEASE.md), [verification](docs/TESTING.md), and [historical archive integration notes](ARCHIVE_INTEGRATION.md).
 
+## Unreleased - v16 Phase 01–10 development candidate
+
+> Not a published customer release. The source is integrated into `main`; the extension manifest remains `1.22.0`.
+
+### Capabilities integrated for evaluation
+- Live, Analytics, Replay, Alerts, Diagnostics and Settings workspaces; chart drawings, command palette, layout and density presets.
+- Binance Futures aggregate-trade processing, validated order-book depth and descriptive CVD/flow analytics.
+- Local session recordings and replay, dashboard-only advanced alert rules, feed freshness and diagnostics.
+- Monitoring-only permissions and public market data, without exchange API keys or order execution.
+
+### Release engineering and documentation
+- Bounded Node/static regression checks; deterministic candidate ZIP packaging and reproducibility verification.
+- SHA-256 checksums and exact-source build metadata; explicit fail-closed stable release gate with tests.
+- Current README, customer guidance, support, privacy/security and store material requirements distinguish unreleased candidate functionality from shipped features.
+
+**Remaining:** Real Chromium/MV3, live Binance, depth resync, alert lifecycle, sustained load, migration and store acceptance. See [release gates](docs/ACCEPTANCE.md).
+
 ## 1.22.0 - 2026-10-12
 
 ### Reliability

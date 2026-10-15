@@ -91,7 +91,16 @@ export function createBinanceSocket({
       onError?.(event, name);
       // A WebSocket error is normally followed by close. Force recovery if not.
       if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
-        socket.close();
+        try { socket.close(); }
+        catch (error) {
+          onError?.(error, name);
+          if (current()) {
+            feed.socket = null;
+            feed.open = false;
+            if (name === 'market') onClose?.({ code: 1006, reason: 'WebSocket close failed' });
+            scheduleFeedRecovery(name);
+          }
+        }
       }
     });
   };
@@ -124,7 +133,9 @@ export function createBinanceSocket({
       feed.open = false;
       const currentSocket = feed.socket;
       feed.socket = null;
-      if (currentSocket && (currentSocket.readyState === WebSocket.OPEN || currentSocket.readyState === WebSocket.CONNECTING)) currentSocket.close();
+      if (currentSocket && (currentSocket.readyState === WebSocket.OPEN || currentSocket.readyState === WebSocket.CONNECTING)) {
+        try { currentSocket.close(); } catch (error) { onError?.(error, name); }
+      }
       scheduleFeedRecovery(name);
       return true;
     },
@@ -139,7 +150,8 @@ export function createBinanceSocket({
         const socket = feed.socket;
         feed.socket = null;
         if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
-          socket.close(1000, reason.slice(0, 120));
+          try { socket.close(1000, reason.slice(0, 120)); }
+          catch (error) { onError?.(error, feed === feeds.market ? 'market' : 'book'); }
         }
       }
     }

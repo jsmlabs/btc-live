@@ -1,6 +1,10 @@
-# Verification and test evidence
+# Test strategy and verification evidence
 
-## Deterministic checks
+This guide separates **deterministic repository checks**, **simulated browser checks**, and **real Chromium / live Binance acceptance**. None is interchangeable.
+
+## Automated commands
+
+Run from the repository root with Node.js >=20 (CI uses 22):
 
 ```bash
 npm run verify
@@ -8,19 +12,34 @@ npm run release:check
 npm run package:extension
 ```
 
-The Phase 10 candidate previously completed **45/45 deterministic tests** along with static JavaScript syntax, local import/reference and manifest checks. Rerun locally and in CI; passing isolated tests is not evidence of browser acceptance. No third-party npm package installation is needed for this candidate.
+`verify` performs static checks and deterministic Node tests. `release:check` validates the candidate's static release contract. `package:extension` builds the candidate extension archive. These do not install the extension into Chromium or test a real Binance connection.
 
-## Browser acceptance - not yet verified
+**Historical evidence:** The isolated Phase-10 candidate reported 45/45 deterministic tests and static/package checks passing. The integrated PR has other files and must be tested independently. Do not quote that historical count as a current CI result.
 
-- Load unpacked MV3 extension in supported Chromium; inspect console errors and popup/dashboard rendering.
-- Check responsive layout, focus, keyboard shortcuts, drawing, OHLC snap, pointer cancel and undo/redo.
-- Exercise Binance REST/WS outages, stale trade feeds, depth sequence gaps, reconnects and snapshot races.
-- Test notifications allowed/denied, duplicated tabs, Web Locks, browser restart and MV3 worker suspension.
-- Test replay stepping, session integrity and live-alert isolation.
-- Run long sessions with render timing, memory, CPU and event-backlog monitoring on representative hardware.
+## Manual acceptance matrix
 
-Record browser version, fixture/steps, expected behavior, actual outcome, logs without secrets and date for every pass/fail. See `SMOKE-TEST.md` for the earlier manual checklist. A headless Chromium start showing `about:blank` does **not** confirm extension loading.
+| Scenario | Expected observable behavior | Evidence required |
+| --- | --- | --- |
+| Chromium load | Unpacked extension loads; popup and dashboard render without material console errors | Browser/build, screenshots, console |
+| Narrow viewport, input and accessibility | No clipped primary controls; visible keyboard focus; chart gestures and undo/redo work | Viewport/steps, interaction record |
+| Market startup and dropout | Feed status matches freshness, not merely socket connectivity | Timestamped status and reconnect logs |
+| Depth sequence gap and snapshot race | Invalid dependent depth metrics are withheld until valid resync | Gap/snapshot trace |
+| Missing or stale trades | CVD/volume-dependent values withheld, not silently replaced with zero | Controlled gap evidence |
+| Alerts and denial | Allowed and denied notifications are handled; failed attempts are not misreported as delivered | Permission, trigger and history log |
+| Duplicate tabs and locks | Rules do not intentionally double-attempt under cooperating tabs; missing Web Locks fails closed | Two-tab steps and stored state |
+| Dashboard closure and MV3 restart | Advanced rules do not imply ongoing closed-page evaluation; sampled background checks follow browser scheduling | Lifecycle steps and timestamps |
+| Replay isolation | Seeking/playing recorded data never fires live trading alerts | Replay fixture and alert history |
+| Prolonged sessions | Memory, CPU, rendering and event backlog remain acceptable to defined budgets | Hardware, duration, traces, thresholds |
+| Existing install/update | Existing storage and settings are retained or migrated per documented contract | Before/after snapshot |
 
-## Release gate
+Document each run with: **commit SHA, UTC date, OS/browser build, Node version if applicable, steps/fixture, expected result, actual result, evidence link and pass/fail/block status**. Redact sensitive local information.
 
-Keep manifest `1.22.0` and mark v16 as RC until the listed browser and live integration gates have evidence. Do not fabricate performance improvements or trade-signal accuracy. Retain failing checks as blockers rather than silently skipping.
+## Failure handling
+
+- A failed or skipped test is **not passed**. Record owner and blocker rather than hiding the result.
+- A mocked WebSocket or DOM test is not evidence of real Binance availability.
+- A screenshot or illustrative concept graphic is not a substitute for a repeatable interactive check.
+- Do not claim numerical performance gains without a comparable baseline, workload and measurements.
+- Before approval, reconcile the candidate with `main`, rerun the complete suite at the final head and retain CI evidence.
+
+See [Release readiness](RELEASE.md), [Alert semantics](ALERTS.md) and any prior [smoke checklist](SMOKE-TEST.md).

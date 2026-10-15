@@ -1,3 +1,5 @@
+> **Scope:** This privacy policy describes the extension currently tracked in repository `main` (manifest version **1.22.0**). Recording/replay capabilities in the supplied candidate archive are **not included** in this repository state. Re-review local storage categories and retention before integrating or publishing the archive.
+
 # Privacy Policy
 
 **Reviewed for release:** 1.22.0  

@@ -1,3 +1,5 @@
+> **Historical record:** The sections below describe hardening work at their original version checkpoints and must not be interpreted as a fresh audit of the unmerged archive. Current extension permissions are `storage`, `notifications`, `alarms`; host permission remains Binance Futures REST. See [SECURITY.md](SECURITY.md).
+
 # v1.9.0 Step 1 Hardening Pass
 
 This pass preserves the existing Manifest V3 architecture, permissions, Binance-only network surface, public-data model, and user-facing feature set while strengthening validation and deterministic runtime behavior.

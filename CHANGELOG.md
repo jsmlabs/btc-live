@@ -1,3 +1,5 @@
+> **Documentation status (2026-10-15):** The current repository manifest remains at **1.22.0**. The separately supplied expanded-workspace ZIP is an **unmerged candidate**, not a new released version. Preserve the release history below; track import requirements in [ARCHIVE_INTEGRATION.md](ARCHIVE_INTEGRATION.md).
+
 ## 1.22.0 - 2026-10-12
 
 ### Reliability

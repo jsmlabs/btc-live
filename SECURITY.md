@@ -1,3 +1,5 @@
+> **Scope:** This policy documents current `main` version **1.22.0**. The expanded depth/recording/replay archive is not integrated; imported recordings, additional persisted state and new feed parsers need a separate security review before release.
+
 # Security Policy
 
 ## Security model

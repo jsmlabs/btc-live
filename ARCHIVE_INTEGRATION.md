@@ -1,6 +1,10 @@
-# BTC Live archive integration
+# BTC Live expanded-workspace archive integration
 
-## Status
+## Status (reviewed 2026-10-15)
+
+**Implementation has not been merged into `main`.** This document is the integration contract for the separately delivered package, not a release declaration.
+
+
 
 The separately supplied archive `btc-live_v2.2(1).zip` contains 69 runtime files. **The archive has not been imported into this GitHub repository by this documentation commit.** Its `manifest.json` declares version `1.22.0`, despite the archive filename. Do not advertise or tag this snapshot as 2.2.0 without an explicit version decision.
 

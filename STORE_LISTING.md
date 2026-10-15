@@ -1,3 +1,5 @@
+> **Listing scope:** This text covers the current **1.22.0** repository build. Advanced depth/flow analytics and replay from the separately supplied unmerged archive must not be advertised until shipped and validated.
+
 # BTC Live - Store Listing
 
 ## Product name

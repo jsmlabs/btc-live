@@ -1,3 +1,5 @@
+> **Publication boundary:** Only depict features that ship in a reviewed and browser-tested store package. The supplied expanded-workspace archive has not been merged into `main`; do not use its unverified screens or label it v2.2.0.
+
 # BTC Live - Store Asset Plan
 
 ## Brand direction

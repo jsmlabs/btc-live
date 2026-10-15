@@ -109,7 +109,7 @@ export function createTerminalExperience({ root = document, storage = (globalThi
     const target=event.target;
     const otherDialog = target?.closest?.('dialog[open]');
     const editable=target?.isContentEditable || ['INPUT','TEXTAREA','SELECT'].includes(target?.tagName);
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase()==='k') { event.preventDefault();open();return; }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase()==='k' && !otherDialog && !event.defaultPrevented) { event.preventDefault();open();return; }
     if (!dialog.open && !otherDialog && event.key === 'Escape' && focused && !event.defaultPrevented) {event.preventDefault();setFocus(false);return;}
     if (!editable && !dialog.open && !otherDialog && !event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase()==='f') {event.preventDefault();setFocus(!focused);}
   }

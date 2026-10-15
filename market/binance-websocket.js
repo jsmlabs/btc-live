@@ -5,6 +5,8 @@ export const MARKET_STREAM_URL = 'wss://fstream.binance.com/market/stream?stream
 export const PUBLIC_STREAM_URL = 'wss://fstream.binance.com/public/stream?streams=btcusdt@bookTicker';
 
 export function parseCombinedMessage(rawMessage, now = Date.now()) {
+  // Bound untrusted frames before invoking JSON.parse on the UI thread.
+  if (typeof rawMessage === 'string' && rawMessage.length > 65_536) return null;
   let envelope;
   try {
     envelope = typeof rawMessage === 'string' ? JSON.parse(rawMessage) : rawMessage;

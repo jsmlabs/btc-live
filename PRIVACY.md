@@ -1,6 +1,6 @@
 # BTC Live privacy policy
 
-**Applicable scope:** The current development candidate on `main` (manifest `1.23.0`). This policy must be rechecked against the **actual approved package** before store publication. A GitHub manifest version is not proof of an installed store release.
+**Applicable scope:** The current development candidate on `main` (manifest `1.24.0`). This policy must be rechecked against the **actual approved package** before store publication. A GitHub manifest version is not proof of an installed store release.
 
 ## What BTC Live does
 

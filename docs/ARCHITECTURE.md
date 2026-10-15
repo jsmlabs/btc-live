@@ -1,6 +1,6 @@
 # Architecture and trust boundaries
 
-**Current implementation:** Chromium Manifest V3 candidate, `main`, manifest `1.23.0`. This describes the repository source; browser and live-feed acceptance are separate [release gates](ACCEPTANCE.md).
+**Current implementation:** Chromium Manifest V3 candidate, `main`, manifest `1.24.0`. This describes the repository source; browser and live-feed acceptance are separate [release gates](ACCEPTANCE.md).
 
 ## Components
 
@@ -41,7 +41,7 @@ utils/          Shared formatting, time and backoff primitives
 
 **Price, ticker, depth, aggressive trades and exchange-origin klines are separate streams.** A connected WebSocket alone does not demonstrate freshness, source consistency or book validity. Binance frames and REST responses must be validated for symbols, finite amounts, timestamp order and applicable sequencing. A missing observation is *unavailable*, not zero.
 
-The order book is only valid after snapshot/diff synchronization; a gap or crossed/invalid candidate must not corrupt the last accepted state. Aggressive trade counts are observed execution prints; book levels represent resting displayed liquidity. Derived measures are descriptive and do not reveal hidden orders or guarantee forecast quality.
+The order book is only valid after snapshot/diff synchronization; a gap or crossed/invalid candidate must not corrupt the last accepted state. Candidate diff checks inspect only updated levels and the current book before committing changes, avoiding whole-book copies while preserving transactional rejection. Aggressive trade counts are observed execution prints; book levels represent resting displayed liquidity. Derived measures are descriptive and do not reveal hidden orders or guarantee forecast quality.
 
 ## Trust and privilege boundaries
 

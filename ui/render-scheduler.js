@@ -22,8 +22,9 @@ export function createRenderScheduler(render, {
       const elapsed=Math.max(0,clock()-start);
       if (Number.isFinite(elapsed)) { metrics.totalRenderMs+=elapsed; metrics.maxRenderMs=Math.max(metrics.maxRenderMs,elapsed); }
       metrics.frames++;
+      // A render can request another frame and then throw. Never strand that work.
+      if (dirty && !disposed) schedule();
     }
-    if (dirty) schedule();
   }
 
   function schedule() {

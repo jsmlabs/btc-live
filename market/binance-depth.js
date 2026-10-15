@@ -69,20 +69,38 @@ export function createLocalDepthBook() {
     if (event.finalId < updateId || (anchored && event.finalId <= updateId)) return 'ignored';
     if (!anchored ? event.firstId > updateId || event.finalId < updateId
                   : event.prevId !== updateId) return 'gap';
-    // Validate candidate state before mutating the last valid book.
-    const nextBids = new Map(bids);
-    const nextAsks = new Map(asks);
-    for (const [target, levels] of [[nextBids, event.bids], [nextAsks, event.asks]]) {
+    // Inspect only changed prices while keeping the published maps untouched.
+    // Full-map cloning and rebuilding on every 100ms diff creates avoidable GC.
+    const bidChanges = new Map(event.bids);
+    const askChanges = new Map(event.asks);
+    function inspect(current, changes, highest) {
+      let size = current.size;
+      for (const [price, quantity] of changes) {
+        if (quantity === 0 && current.has(price)) size--;
+        else if (quantity > 0 && !current.has(price)) size++;
+      }
+      if (size === 0) return { size, best: null };
+      let best = highest ? -Infinity : Infinity;
+      for (const [price, quantity] of current) {
+        const next = changes.has(price) ? changes.get(price) : quantity;
+        if (next > 0) best = highest ? Math.max(best, price) : Math.min(best, price);
+      }
+      for (const [price, quantity] of changes) {
+        if (quantity > 0 && !current.has(price)) best = highest ? Math.max(best, price) : Math.min(best, price);
+      }
+      return { size, best };
+    }
+    const bid = inspect(bids, bidChanges, true);
+    const ask = inspect(asks, askChanges, false);
+    if (bid.size > MAX_LEVELS_PER_SIDE || ask.size > MAX_LEVELS_PER_SIDE) return 'overflow';
+    if (!bid.size || !ask.size || bid.best >= ask.best) return 'crossed';
+    // Apply original level order: delete-then-add sequences preserve Map semantics.
+    for (const [target, levels] of [[bids, event.bids], [asks, event.asks]]) {
       for (const [price, quantity] of levels) {
         if (quantity === 0) target.delete(price);
         else target.set(price, quantity);
       }
     }
-    if (nextBids.size > MAX_LEVELS_PER_SIDE || nextAsks.size > MAX_LEVELS_PER_SIDE) return 'overflow';
-    if (!nextBids.size || !nextAsks.size || Math.max(...nextBids.keys()) >= Math.min(...nextAsks.keys())) return 'crossed';
-    bids.clear(); asks.clear();
-    for (const [price, quantity] of nextBids) bids.set(price, quantity);
-    for (const [price, quantity] of nextAsks) asks.set(price, quantity);
     updateId = event.finalId;
     anchored = true;
     return 'applied';

@@ -79,3 +79,23 @@ test('scheduler fails before side effects with invalid adapters', () => {
   assert.throws(() => createRenderScheduler(null), /must be functions/);
   assert.throws(() => createRenderScheduler(() => {}, { requestFrame: null }), /must be functions/);
 });
+
+test('redraw requested before a render exception is not stranded', () => {
+  const frames = fakeFrames();
+  let attempts = 0;
+  let scheduler;
+  scheduler = createRenderScheduler(() => {
+    attempts++;
+    if (attempts === 1) {
+      scheduler.schedule();
+      throw Error('temporary render failure');
+    }
+  }, frames);
+  scheduler.schedule();
+  assert.throws(() => frames.tick(), /temporary render failure/);
+  assert.equal(frames.frames.size, 1);
+  frames.tick();
+  assert.equal(attempts, 2);
+  assert.equal(scheduler.diagnostics().errors, 1);
+  scheduler.dispose();
+});

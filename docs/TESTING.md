@@ -74,3 +74,11 @@ The external, same-commit approval procedure is described in [Release](RELEASE.m
 ## GitHub software update checks
 
 `tests/software-updates.test.js` covers semantic comparison, release eligibility, request deduplication, channel cache invalidation, transient retry throttling (including HTTP-date `Retry-After` responses), persistent state and failures. Manually verify real Chromium MV3 startup, installation lifecycle, worker suspension, parallel popup/dashboard views, GitHub API errors, notification permissions, channel switching and release-link handling. CI does not establish network availability or browser behavior. Do not promote a release merely because update discovery works.
+
+## Candidate 1.24.0 regression focus
+
+- `tests/feed-recovery.test.js` verifies depth-book candidate rejection, retained map references, duplicate price-level update order and overflow safety.
+- `tests/render-scheduler.test.js` checks that a frame scheduled during a failed render is still delivered.
+- `tests/websocket.test.js` rejects oversized combined market frames before JSON parsing.
+- `tests/release-regression.test.js` prevents manifest/package version drift; UI command-palette modal isolation and textarea focus outlines still require browser acceptance.
+- These Node checks do **not** establish real browser render performance, Binance feed integrity or manual release acceptance.

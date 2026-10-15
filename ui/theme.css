@@ -31,7 +31,7 @@
 button, input, select, summary, a { -webkit-tap-highlight-color: transparent; }
 button, select, summary { touch-action: manipulation; }
 input, select { accent-color: var(--accent); }
-:is(button, a, input, select, summary):focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+:is(button, a, input, select, textarea, summary):focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 input::placeholder { color: var(--text-faint); opacity: 1; }
 :is(button, input, select):disabled { opacity: .55; cursor: not-allowed; }
 svg[aria-hidden="true"] { flex-shrink: 0; }
@@ -44,7 +44,7 @@ button[aria-busy="true"] { cursor: progress; }
 .settings-scope-note { margin: 10px 0 0; color: var(--text-muted); font-size: 11px; line-height: 1.6; }
 
 @media (forced-colors: active) {
-  :is(button, a, input, select, summary):focus-visible { outline-color: Highlight; }
+  :is(button, a, input, select, textarea, summary):focus-visible { outline-color: Highlight; }
   :is(button, input, select, summary) { forced-color-adjust: auto; }
 }
 

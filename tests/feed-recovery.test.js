@@ -77,3 +77,30 @@ test('invalid depth message fails closed without publishing a book',async()=>{
   assert.equal(runtime.snapshot().status,'RECONNECTING');assert.equal(runtime.snapshot().book,null);
   runtime.dispose();
 });
+
+test('depth applies small candidate changes without rebuilding map identities or changing rejected state', () => {
+  const book = createLocalDepthBook();
+  book.replace({lastUpdateId:100,bids:[['99','2'],['98','3']],asks:[['101','4'],['102','5']]});
+  const bidRef = book.bids, askRef = book.asks;
+  const anchor = {firstId:100,finalId:101,prevId:99,bids:[[99,0],[97,1]],asks:[[101,0],[103,2]]};
+  assert.equal(book.apply(anchor),'applied');
+  assert.equal(book.bids,bidRef);
+  assert.equal(book.asks,askRef);
+  assert.deepEqual([...book.bids],[[98,3],[97,1]]);
+  assert.deepEqual([...book.asks],[[102,5],[103,2]]);
+  const originalBids = [...book.bids], originalAsks = [...book.asks];
+  assert.equal(book.apply({...anchor,firstId:102,finalId:103,prevId:101,bids:[[105,2]]}),'crossed');
+  assert.deepEqual([...book.bids],originalBids);
+  assert.deepEqual([...book.asks],originalAsks);
+  assert.equal(book.updateId,101);
+});
+test('depth overflow and duplicate-price updates preserve transactional state and insertion order', () => {
+  const book = createLocalDepthBook();
+  book.replace({lastUpdateId:100,bids:[['99','2'],['98','3']],asks:[['101','4']]});
+  const oversized = Array.from({length:4000},(_,i)=>[90-i/100,1]);
+  assert.equal(book.apply({firstId:100,finalId:101,prevId:99,bids:oversized,asks:[]}), 'overflow');
+  assert.equal(book.anchored,false);
+  assert.deepEqual([...book.bids],[[99,2],[98,3]]);
+  assert.equal(book.apply({firstId:100,finalId:101,prevId:99,bids:[[99,0],[99,5]],asks:[]}), 'applied');
+  assert.deepEqual([...book.bids],[[98,3],[99,5]]);
+});

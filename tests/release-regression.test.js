@@ -19,3 +19,10 @@ test('Extension CSP rejects inline and eval scripts',()=>{
  assert.match(csp,/script-src 'self'/);
  assert.doesNotMatch(csp,/unsafe-eval|unsafe-inline/);
 });
+
+test('private build package identity and version match the extension manifest', async () => {
+ const pkg = JSON.parse(await readFile(path.join(root,'package.json'),'utf8'));
+ assert.equal(pkg.name,'btc-live');
+ assert.equal(pkg.private,true);
+ assert.equal(pkg.version,manifest.version);
+});

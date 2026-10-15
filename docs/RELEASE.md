@@ -6,8 +6,8 @@
 
 | Area | Recorded evidence | Current decision |
 | --- | --- | --- |
-| Candidate-only deterministic tests | Phase-10 checkout previously reported 45 passing tests | Historical result; rerun and verify on the current `main` head |
-| Static imports, manifest and packaging | Candidate Phase-10 validation previously passed | Run on the exact release commit and record CI |
+| Automated verification on integrated `main` | [Commit `a7920d2` CI](https://github.com/jsmlabs/btc-live/actions/runs/38689981950) succeeded | **Passed for that exact commit**; re-check after future changes |
+| Static release check, candidate ZIP integrity and reproducibility | [Main CI run `38689981950`](https://github.com/jsmlabs/btc-live/actions/runs/38689981950) | **Passed for that exact commit** |
 | Chromium popup/dashboard | No accepted end-to-end evidence recorded | **Blocked** |
 | Binance feed and depth recovery | No accepted live/reconnect sequence recorded | **Blocked** |
 | MV3 lifecycle and multi-tab notifications | No accepted suspension/race evidence recorded | **Blocked** |
@@ -20,7 +20,7 @@ Passing scripts or a green CI run must not be presented as live-browser, market-
 
 - **1.22.0** is the extension manifest and historical stable release identifier, not a substitute name for v16.
 - **v16 candidate** identifies a development milestone, not a published Chrome Web Store release.
-- Do not bump the manifest, publish store packages, create a stable release tag, or mark PR #3 release-ready until all gates are satisfied.
+- Do not bump the manifest, publish store packages, create a stable release tag, or present the merged PR #3 as stable-release approval until all gates are satisfied.
 - When ready, choose a single version and update the manifest, release notes, changelog, package metadata and public listing together. Preserve release artifacts and a rollback path.
 
 ## Required acceptance procedure

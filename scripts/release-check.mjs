@@ -12,10 +12,18 @@ assert((manifest.host_permissions??[]).length===1&&manifest.host_permissions[0]=
 const csp=manifest.content_security_policy?.extension_pages??'';
 assert(csp.includes("script-src 'self'")&&!/unsafe-eval|unsafe-inline|https?:[^ ]+\/.*script/i.test(csp),'CSP not sufficiently restricted');
 assert(manifest.background?.type==='module','Unexpected worker type');
-const exclude=new Set(['tests','docs','scripts','.github','node_modules','.git','dist']);
-const extension=[];
-async function walk(dir){for(const e of await readdir(dir,{withFileTypes:true})){if(exclude.has(e.name))continue;const absolute=path.join(dir,e.name);if(e.isSymbolicLink())throw Error('Symlinks not supported: '+absolute);if(e.isDirectory())await walk(absolute);else if(e.isFile()){const rel=path.relative(root,absolute).split(path.sep).join('/');if(rel==='README.md'||rel==='package.json'||rel==='package-lock.json')continue;extension.push(rel)}}}
-await walk(root);
+const runtimeDirs=new Set(['app','background','dashboard','icons','market','popup','storage','ui','utils']);
+const extension=['manifest.json'];
+async function walk(dir){
+ for(const e of await readdir(dir,{withFileTypes:true})){
+  const absolute=path.join(dir,e.name);
+  if(e.isSymbolicLink())throw Error('Symlinks not supported: '+absolute);
+  if(e.isDirectory())await walk(absolute);
+  else if(e.isFile())extension.push(path.relative(root,absolute).split(path.sep).join('/'));
+ }
+}
+for(const dir of runtimeDirs)await walk(path.join(root,dir));
+
 assert(extension.length>50,'Unexpectedly small extension');
 const files=new Set(extension);
 const entry=[manifest.action?.default_popup,manifest.background?.service_worker,...Object.values(manifest.icons??{}),...Object.values(manifest.action?.default_icon??{})];

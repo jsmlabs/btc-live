@@ -25,15 +25,23 @@ api.storage.onChanged.addListener((changes, areaName) => {
 });
 
 const softwareUpdates = createUpdateController({ api });
+let updateAlarmReconcile = Promise.resolve();
 function scheduleUpdateChecks() {
-  api.alarms.create(UPDATE_ALARM, { periodInMinutes: 1440 });
+  // Serialize reconciliation so startup and configuration changes cannot race.
+  const next = updateAlarmReconcile.then(async () => {
+    const state = await softwareUpdates.read();
+    if (state.enabled) await api.alarms.create(UPDATE_ALARM, { periodInMinutes: 1440 });
+    else await api.alarms.clear(UPDATE_ALARM);
+  });
+  updateAlarmReconcile = next.catch(() => {});
+  return next;
 }
 api.runtime.onInstalled.addListener(() => {
-  scheduleUpdateChecks();
+  void scheduleUpdateChecks().catch(error => console.warn('BTC Live update scheduling failed', error));
   void softwareUpdates.check().catch(error => console.warn('BTC Live update check failed', error));
 });
 api.runtime.onStartup.addListener(() => {
-  scheduleUpdateChecks();
+  void scheduleUpdateChecks().catch(error => console.warn('BTC Live update scheduling failed', error));
   void softwareUpdates.check().catch(error => console.warn('BTC Live update check failed', error));
 });
 api.alarms.onAlarm.addListener(alarm => {
@@ -44,7 +52,7 @@ api.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   const run = message.action === 'check' ? softwareUpdates.check({ force: message.force === true })
     : message.action === 'configure' ? softwareUpdates.configure({
         enabled: message.enabled, channel: message.channel, dismissed: message.dismissed
-      })
+      }).then(async state => { await scheduleUpdateChecks(); return state; })
     : message.action === 'read' ? softwareUpdates.read() : Promise.reject(Error('Unknown update command'));
   Promise.resolve(run).then(state => sendResponse({ ok: true, state }), () => sendResponse({ ok: false }));
   return true;

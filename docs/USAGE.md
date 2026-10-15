@@ -1,6 +1,6 @@
 # User guide
 
-**Applies to:** the `main` **development candidate**, manifest `1.24.0`. The Chrome Web Store may distribute a different build. Use this guide for evaluation, not as a production-readiness certificate.
+**Applies to:** the `main` **development candidate**, manifest `1.24.1`. The Chrome Web Store may distribute a different build. Use this guide for evaluation, not as a production-readiness certificate.
 
 ## Install without affecting an existing profile
 
@@ -84,4 +84,4 @@ For reproducible issues, include browser version, source SHA (if unpacked), step
 
 ## Check software updates
 
-When an eligible newer release is available, a small link appears in the popup main view. Open **Settings > Software Updates** in the popup or full terminal. The panel shows the installed extension version, latest eligible GitHub release, previous successful check and current status. Use **Check for Updates** for a manual check. Enable or disable daily automatic checks and select Stable (default) or Preview. The **View Release Notes** link opens an official GitHub release in a new browser tab when a newer version qualifies. No download or installation happens automatically. Browser-store editions rely on normal Chrome Web Store updates. GitHub outages/rate limits retain prior information, which may be outdated. A new GitHub commit, draft release or CI candidate does not count as a stable update.
+When an eligible newer release is available, a small link appears in the popup main view. Open **Settings > Software Updates** in the popup or full terminal. The panel shows the installed extension version, latest eligible GitHub release, previous successful check and current status. Use **Check for Updates** for a manual check. Enable or disable daily automatic checks and select Stable (default) or Preview. The **View Release Notes** link opens an official GitHub release in a new browser tab when a newer version qualifies. No download or installation happens automatically. Browser-store editions rely on normal Chrome Web Store updates. GitHub outages/rate limits retain prior information, which may be outdated. A new GitHub commit, draft release or CI candidate does not count as a stable update. When running an unpacked development candidate, update the local source directory (or extract a verified newer candidate build into a separate testing profile) and click **Reload** at `chrome://extensions`. The panel reads the installed version from the local manifest; it does not automatically fetch, replace, or install source files. The last attempted check and last successful check are shown separately.

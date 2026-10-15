@@ -82,3 +82,7 @@ The external, same-commit approval procedure is described in [Release](RELEASE.m
 - `tests/websocket.test.js` rejects oversized combined market frames before JSON parsing.
 - `tests/release-regression.test.js` prevents manifest/package version drift; UI command-palette modal isolation and textarea focus outlines still require browser acceptance.
 - These Node checks do **not** establish real browser render performance, Binance feed integrity or manual release acceptance.
+
+## Software Updates 1.24.1 regression coverage
+
+The update tests now include installed-manifest version cache invalidation, validated storage-derived release links, malformed API responses, offline reporting, concurrent check/configuration serialization, and manual checks with automatic polling disabled. The UI distinguishes last successful check from last attempt, and explains why an unpacked development candidate is not an eligible published release. Actual MV3 worker restart, browser accessibility, network rate-limits, and installed-extension behavior remain manual acceptance requirements.

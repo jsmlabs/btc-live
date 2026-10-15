@@ -1,6 +1,6 @@
 # Architecture and trust boundaries
 
-**Current implementation:** Chromium Manifest V3 candidate, `main`, manifest `1.24.0`. This describes the repository source; browser and live-feed acceptance are separate [release gates](ACCEPTANCE.md).
+**Current implementation:** Chromium Manifest V3 candidate, `main`, manifest `1.24.1`. This describes the repository source; browser and live-feed acceptance are separate [release gates](ACCEPTANCE.md).
 
 ## Components
 
@@ -45,7 +45,7 @@ The order book is only valid after snapshot/diff synchronization; a gap or cross
 
 ## Trust and privilege boundaries
 
-- **Network:** `https://fapi.binance.com/*` is the sole host permission; the extension CSP permits HTTPS Binance REST and `wss://fstream.binance.com`. Data from those endpoints is untrusted.
+- **Network:** Host permissions are scoped to `https://fapi.binance.com/*` for market data and `https://api.github.com/*` for release discovery; the extension CSP permits those HTTPS origins and `wss://fstream.binance.com`. Data from those endpoints is untrusted.
 - **Extension:** MV3 with `storage`, `notifications`, `alarms`. No page content scripts, remote executable code, wallet access or order submission.
 - **Persistence:** Browser extension storage and IndexedDB can contain settings, rules, diagnostics and recorded observations. Malformed imported records and storage errors require safe handling.
 - **Alerts:** Standard background checks are sampled. Advanced rules evaluate only in a live dashboard; Web Locks coordinate cooperating tabs. State is claimed before notification attempts, so delivery can be lost without being retried. Replay is isolated.
@@ -60,6 +60,6 @@ Static checks, Node test fixtures and the optional mocked browser smoke harness 
 
 ## GitHub software update discovery
 
-`app/software-updates.js` validates public GitHub Releases metadata and compares semantic versions with the installed `runtime.getManifest().version`. Only a published, non-draft GitHub Release whose prerelease flag matches its tag semantics is eligible. No release is distinct from Up to date. The background MV3 worker coordinates message requests and a daily browser alarm; view instances do not poll. Storage is isolated under `btcLiveSoftwareUpdates` and contains check state, timestamps, channel and preferences, not account identifiers. Remote release notes are never injected into DOM HTML. Navigation is limited to a synthesized URL under the official repository. `https://api.github.com/*` is the only additional host permission and `https://api.github.com` is added to connect-src. GitHub checks cannot alter market data, chart, alert, replay or execution state.
+`app/software-updates.js` validates public GitHub Releases metadata and compares semantic versions with the installed `runtime.getManifest().version`. Only a published, non-draft GitHub Release whose prerelease flag matches its tag semantics is eligible. No release is distinct from Up to date. The background MV3 worker coordinates message requests and a daily browser alarm; view instances do not poll. Update checks and preference writes are serialized in that worker to prevent cross-view storage races; persisted results are accepted only for their checked installed version, and UI storage notifications are sanitized before links are displayed. Storage is isolated under `btcLiveSoftwareUpdates` and contains check state, timestamps, channel and preferences, not account identifiers. Remote release notes are never injected into DOM HTML. Navigation is limited to a synthesized URL under the official repository. `https://api.github.com/*` is the only additional host permission and `https://api.github.com` is added to connect-src. GitHub checks cannot alter market data, chart, alert, replay or execution state.
 
 The extension can discover a release, but it cannot safely self-install it or establish the authenticity of an arbitrary attached ZIP. A stable release remains blocked by the separate manual acceptance gates.

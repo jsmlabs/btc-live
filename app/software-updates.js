@@ -54,31 +54,59 @@ export function sanitizeUpdateState(raw, installed) {
   const channel = x.channel === 'preview' ? 'preview' : 'stable';
   const safeTime = v => Number.isSafeInteger(v) && v > 0 && v <= Date.now() + 60000 ? v : null;
   const safeRetry = v => Number.isSafeInteger(v) && v > 0 && v <= Date.now() + 86400000 ? v : null;
-  const release = x.release && parseVersion(x.release.version) &&
-    x.release.url === RELEASE_BASE + encodeURIComponent(x.release.version) ||
-    x.release && parseVersion(x.release.version) &&
-    x.release.url === RELEASE_BASE + encodeURIComponent('v' + x.release.version)
-    ? { version: x.release.version, url: x.release.url, prerelease: x.release.prerelease === true } : null;
-  const status = ['UP_TO_DATE', 'UPDATE_AVAILABLE', 'PREVIEW_AVAILABLE', 'UNSUPPORTED'].includes(x.status) ? x.status : 'NOT_CHECKED';
-  return { enabled: x.enabled !== false, channel, installed, status: release || status === 'UNSUPPORTED' ? status : 'NOT_CHECKED',
-    release, lastAttemptAt: safeTime(x.lastAttemptAt), lastSuccessAt: safeTime(x.lastSuccessAt),
-    checkedInstalled: x.checkedInstalled === installed ? installed : null,
-    error: ['OFFLINE', 'CHECK_FAILED', 'RATE_LIMITED'].includes(x.error) ? x.error : null,
-    retryAfter: safeRetry(x.retryAfter), dismissed: typeof x.dismissed === 'string' && parseVersion(x.dismissed) ? x.dismissed : null };
+  // Results are meaningful only for the manifest version that was checked.
+  const sameInstall = x.checkedInstalled === installed;
+  const lastSuccessAt = sameInstall ? safeTime(x.lastSuccessAt) : null;
+  let release = null;
+  const candidate = x.release;
+  if (lastSuccessAt !== null && candidate && typeof candidate === 'object' &&
+      typeof candidate.version === 'string' && typeof candidate.prerelease === 'boolean') {
+    const parsed = parseVersion(candidate.version);
+    const canonical = candidate.version.replace(/^v/, '');
+    if (parsed && parsed.pre.length > 0 === candidate.prerelease &&
+        (!candidate.prerelease || channel === 'preview') &&
+        (candidate.url === RELEASE_BASE + encodeURIComponent(canonical) ||
+         candidate.url === RELEASE_BASE + encodeURIComponent('v' + canonical))) {
+      release = { version: canonical, url: candidate.url, prerelease: candidate.prerelease };
+    }
+  }
+  let status = 'NOT_CHECKED';
+  if (lastSuccessAt !== null) {
+    if (release) {
+      const newer = compareVersions(release.version, installed);
+      status = newer > 0 ? (release.prerelease ? 'PREVIEW_AVAILABLE' : 'UPDATE_AVAILABLE') : 'UP_TO_DATE';
+    } else if (x.status === 'UNSUPPORTED') status = 'UNSUPPORTED';
+  }
+  return {
+    enabled: x.enabled !== false, channel, installed, status, release,
+    lastAttemptAt: sameInstall ? safeTime(x.lastAttemptAt) : null, lastSuccessAt,
+    checkedInstalled: sameInstall ? installed : null,
+    error: sameInstall && ['OFFLINE', 'CHECK_FAILED', 'RATE_LIMITED'].includes(x.error) ? x.error : null,
+    retryAfter: sameInstall ? safeRetry(x.retryAfter) : null,
+    dismissed: typeof x.dismissed === 'string' && parseVersion(x.dismissed) ? x.dismissed : null
+  };
 }
-export function createUpdateController({ api = globalThis.browser ?? globalThis.chrome, fetchFn = globalThis.fetch, now = Date.now } = {}) {
+export function createUpdateController({ api = globalThis.browser ?? globalThis.chrome, fetchFn = globalThis.fetch, now = Date.now,
+  isOnline = () => globalThis.navigator?.onLine } = {}) {
   let inFlight = null;
+  let operations = Promise.resolve();
+  // Serialize checks and settings across concurrent popup/dashboard messages.
+  const serialize = task => {
+    const result = operations.then(task);
+    operations = result.catch(() => {});
+    return result;
+  };
   const installed = api.runtime.getManifest().version;
   const read = async () => sanitizeUpdateState((await api.storage.local.get(UPDATE_KEY))[UPDATE_KEY], installed);
   const write = async state => { await api.storage.local.set({ [UPDATE_KEY]: state }); return state; };
   async function check({ force = false } = {}) {
     if (inFlight) return inFlight;
-    inFlight = (async () => {
+    inFlight = serialize(async () => {
       let state = await read();
       const time = now();
       if (!force && (!state.enabled || (state.retryAfter && state.retryAfter > time) ||
         (state.checkedInstalled === installed && state.lastSuccessAt && time - state.lastSuccessAt < UPDATE_INTERVAL_MS))) return state;
-      state = await write({ ...state, lastAttemptAt: time, error: null, retryAfter: null });
+      state = await write({ ...state, checkedInstalled: installed, lastAttemptAt: time, error: null, retryAfter: null });
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 8000);
       try {
@@ -95,17 +123,20 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
           return write({ ...state, error: 'RATE_LIMITED', retryAfter: time + Math.min(86400000, Math.max(60000, delayMs)) });
         }
         if (!response.ok) throw Error('GitHub release lookup failed');
-        const result = selectRelease(await response.json(), installed, state.channel);
+        const releases = await response.json();
+        if (!Array.isArray(releases)) throw Error('Invalid GitHub Releases response');
+        const result = selectRelease(releases, installed, state.channel);
         if (result.status === 'UNSUPPORTED') return write({ ...state, status: 'UNSUPPORTED', release: null, checkedInstalled: installed, lastSuccessAt: time });
         return write({ ...state, ...result, checkedInstalled: installed, lastSuccessAt: time });
       } catch {
-        return write({ ...state, error: 'CHECK_FAILED', retryAfter: time + RETRY_INTERVAL_MS });
+        return write({ ...state, error: isOnline() === false ? 'OFFLINE' : 'CHECK_FAILED',
+          retryAfter: time + RETRY_INTERVAL_MS });
       } finally { clearTimeout(timeout); }
-    })().finally(() => { inFlight = null; });
+    }).finally(() => { inFlight = null; });
     return inFlight;
   }
-  async function configure(options) {
-    if (inFlight) await inFlight;
+  function configure(options) {
+    return serialize(async () => {
     const state = await read();
     const changedChannel = (options.channel === 'stable' || options.channel === 'preview') && options.channel !== state.channel;
     const next = await write({ ...state,
@@ -119,6 +150,7 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
       error: changedChannel ? null : state.error,
       retryAfter: changedChannel ? null : state.retryAfter });
     return next;
+    });
   }
   return { read, check, configure };
 }

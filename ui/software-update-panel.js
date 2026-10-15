@@ -1,4 +1,4 @@
-import { UPDATE_KEY, UPDATE_MESSAGE } from '../app/software-updates.js';
+import { UPDATE_KEY, UPDATE_MESSAGE, sanitizeUpdateState } from '../app/software-updates.js';
 
 export function mountSoftwareUpdates({ container, compact = false, indicator = null, api = globalThis.browser ?? globalThis.chrome }) {
   if (!container || !api?.runtime?.sendMessage) return () => {};
@@ -41,56 +41,96 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
   }
   channelLabel.append(channel);
   controls.append(button, link);
-  root.append(title, status, detail, toggleLabel, channelLabel, controls);
+  const note = document.createElement('p');
+  note.className = 'settings-scope-note';
+  note.textContent = 'Development builds in the repository are not published updates. To refresh an unpacked installation, update the local source and reload it in chrome://extensions. This checker does not install software.';
+  note.hidden = true;
+  root.append(title, status, detail, note, toggleLabel, channelLabel, controls);
   container.append(root);
   let disposed = false;
+  let busy = false;
+  let checking = false;
+  let latestState = null;
+  const installed = api.runtime.getManifest().version;
   const send = async action => {
     const reply = await api.runtime.sendMessage({ type: UPDATE_MESSAGE, ...action });
     if (!reply?.ok) throw Error('Version check unavailable');
     return reply.state;
   };
   const formatTime = value => value ? new Date(value).toLocaleString() : 'Never';
-  function render(state) {
-    if (disposed || !state) return;
+  function render(raw) {
+    if (disposed || !raw) return;
+    // Storage changes are untrusted; never use an unchecked cached release URL.
+    const state = sanitizeUpdateState(raw, installed);
+    latestState = state;
     toggle.checked = state.enabled;
     channel.value = state.channel;
     const descriptions = {
       NOT_CHECKED: 'Not checked yet',
-      UP_TO_DATE: 'No newer release found',
+      UP_TO_DATE: 'Up to date with the latest eligible published release',
       UPDATE_AVAILABLE: 'A newer stable release is available',
       PREVIEW_AVAILABLE: 'A newer preview release is available',
       UNSUPPORTED: 'No eligible published release is available'
     };
-    status.textContent = state.error === 'RATE_LIMITED' ? 'GitHub rate limit reached'
-      : state.error ? 'Unable to check for updates' : descriptions[state.status] ?? 'Not checked yet';
+    status.textContent = checking ? 'Checking for updates…'
+      : state.error === 'RATE_LIMITED' ? 'GitHub rate limit reached'
+      : state.error === 'OFFLINE' ? 'Network unavailable'
+      : state.error ? 'Unable to check for updates'
+      : descriptions[state.status] ?? 'Not checked yet';
     detail.textContent = 'Installed: ' + state.installed + ' · Available: ' + (state.release?.version ?? 'None') +
-      ' · Last checked: ' + formatTime(state.lastSuccessAt) + (state.error ? ' · Previous result may be outdated' : '');
+      ' · Last successful check: ' + formatTime(state.lastSuccessAt) +
+      ' · Last attempt: ' + formatTime(state.lastAttemptAt) +
+      (state.error ? ' · Previous result may be outdated' : '');
+    note.hidden = state.status !== 'UNSUPPORTED';
     const eligible = state.release && ['UPDATE_AVAILABLE', 'PREVIEW_AVAILABLE'].includes(state.status);
     link.hidden = !eligible;
+    if (eligible) link.href = state.release.url;
+    else link.removeAttribute('href');
     if (indicator) {
       indicator.hidden = !eligible || state.dismissed === state.release.version;
       indicator.textContent = eligible ? 'BTC Live ' + state.release.version + ' available · View in Settings' : '';
     }
-    if (eligible) link.href = state.release.url;
-    else link.removeAttribute('href');
   }
-  async function execute(action) {
-    button.disabled = true;
-    status.textContent = 'Checking update status…';
-    try { render(await send(action)); }
-    catch { status.textContent = 'Update service unavailable'; }
-    finally { button.disabled = false; }
+  const setBusy = value => {
+    busy = value;
+    button.disabled = value;
+    toggle.disabled = value;
+    channel.disabled = value;
+  };
+  async function execute(actions, checkRequested = false) {
+    if (disposed || busy) return;
+    setBusy(true);
+    checking = checkRequested;
+    if (checking) status.textContent = 'Checking for updates…';
+    let failed = false;
+    try {
+      for (const action of actions) render(await send(action));
+    } catch {
+      failed = true;
+      if (!disposed) status.textContent = 'Update service unavailable';
+    } finally {
+      checking = false;
+      if (!disposed) {
+        setBusy(false);
+        if (!failed && latestState) render(latestState);
+      }
+    }
   }
-  button.addEventListener('click', () => void execute({ action: 'check', force: true }));
-  toggle.addEventListener('change', () => void execute({ action: 'configure', enabled: toggle.checked }));
-  channel.addEventListener('change', () => { void (async () => {
-    await execute({ action: 'configure', channel: channel.value });
-    await execute({ action: 'check', force: true });
-  })(); });
+  button.addEventListener('click', () => void execute([{ action: 'check', force: true }], true));
+  toggle.addEventListener('change', () => void execute([{ action: 'configure', enabled: toggle.checked }]));
+  channel.addEventListener('change', () => void execute([
+    { action: 'configure', channel: channel.value },
+    { action: 'check', force: true }
+  ], true));
   const storageListener = (changes, area) => {
     if (area === 'local' && changes?.[UPDATE_KEY]) render(changes[UPDATE_KEY].newValue);
   };
   api.storage?.onChanged?.addListener(storageListener);
-  void execute({ action: 'check', force: false });
-  return () => { disposed = true; api.storage?.onChanged?.removeListener(storageListener); root.remove(); if (indicator) indicator.hidden = true; };
+  void execute([{ action: 'check', force: false }], true);
+  return () => {
+    disposed = true;
+    api.storage?.onChanged?.removeListener(storageListener);
+    root.remove();
+    if (indicator) indicator.hidden = true;
+  };
 }

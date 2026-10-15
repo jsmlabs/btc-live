@@ -1,7 +1,15 @@
 # Release and build guide
 
 > [!IMPORTANT]
-> **Development candidate - NOT approved for customer publication.** Current `main` contains the extension development candidate, while `manifest.json` reports `1.24.0`. A green CI badge does not change its release status.
+> **Development candidate - NOT approved for customer publication.** Current `main` contains the extension development candidate, while `manifest.json` reports `1.24.1`. A green CI badge does not change its release status.
+
+## Development-candidate changes in 1.24.1
+
+- Invalidate stale update cache results when the installed extension manifest version changes.
+- Treat malformed GitHub API responses as check failures instead of reporting no eligible release.
+- Serialize update checks and settings writes; distinguish offline errors and sanitize storage-derived release links in the UI.
+- Explain unpacked development-candidate upgrades, improve check feedback and preserve Stable/Preview release eligibility rules.
+- Add deterministic regression tests while retaining all seven pending manual acceptance gates.
 
 ## Development-candidate changes in 1.24.0
 
@@ -41,7 +49,7 @@ npm run package:metadata
 
 | Artifact in `dist/` | Function |
 | --- | --- |
-| `btc-live-chromium-v1.24.0-candidate.zip` | Deterministic package of manifest and reviewed runtime directories |
+| `btc-live-chromium-v1.24.1-candidate.zip` | Deterministic package of manifest and reviewed runtime directories |
 | `SHA256SUMS.txt` | SHA-256 digest for the runtime ZIP |
 | `BUILD_INFO.json` | Manifest version, candidate status, source SHA (when available) and artifact metadata |
 

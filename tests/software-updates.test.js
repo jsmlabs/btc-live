@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseVersion, compareVersions, selectRelease, createUpdateController } from '../app/software-updates.js';
+import { parseVersion, compareVersions, selectRelease, sanitizeUpdateState, createUpdateController } from '../app/software-updates.js';
 
 const release = (tag_name, prerelease = false) => ({
  tag_name, prerelease, draft: false, published_at: '2026-10-15T12:00:00Z'
@@ -107,4 +107,93 @@ test('invalid Retry-After uses conservative one-hour fallback', async () => {
  })});
  const state = await controller.check();
  assert.equal(state.retryAfter,time + 3600000);
+});
+
+test('stale installed-version cache cannot advertise a release for the previous installation', async () => {
+ const stored = {enabled:true,channel:'stable',checkedInstalled:'1.22.0',
+  status:'UPDATE_AVAILABLE',lastSuccessAt:Date.now(),lastAttemptAt:Date.now(),
+  release:{version:'1.23.0',url:'https://github.com/jsmlabs/btc-live/releases/tag/v1.23.0',prerelease:false}};
+ assert.equal(sanitizeUpdateState(stored,'1.24.0').status,'NOT_CHECKED');
+ assert.equal(sanitizeUpdateState(stored,'1.24.0').release,null);
+ assert.equal(sanitizeUpdateState(stored,'1.24.0').lastSuccessAt,null);
+ let requests=0;
+ const api={runtime:{getManifest:()=>({version:'1.24.0'})},storage:{local:{
+  get:async()=>({[ 'btcLiveSoftwareUpdates' ]:stored}),
+  set:async x=>Object.assign(stored,x.btcLiveSoftwareUpdates)
+ }}};
+ const controller=createUpdateController({api,fetchFn:async()=>{requests++;return {ok:true,json:async()=>[]};}});
+ const result=await controller.check();
+ assert.equal(requests,1);
+ assert.equal(result.status,'UNSUPPORTED');
+ assert.equal(result.installed,'1.24.0');
+});
+
+test('untrusted cached releases cannot supply a foreign URL or inconsistent channel/status', () => {
+ const time=Date.now();
+ const raw={enabled:true,channel:'stable',checkedInstalled:'1.24.0',
+   lastSuccessAt:time,status:'UP_TO_DATE',
+   release:{version:'1.25.0',url:'javascript:alert(1)',prerelease:false}};
+ assert.equal(sanitizeUpdateState(raw,'1.24.0').release,null);
+ assert.equal(sanitizeUpdateState(raw,'1.24.0').status,'NOT_CHECKED');
+ raw.release.url='https://github.com/jsmlabs/btc-live/releases/tag/v1.25.0';
+ assert.equal(sanitizeUpdateState(raw,'1.24.0').status,'UPDATE_AVAILABLE');
+ raw.release={version:'1.25.0-rc.1',url:'https://github.com/jsmlabs/btc-live/releases/tag/v1.25.0-rc.1',prerelease:true};
+ assert.equal(sanitizeUpdateState(raw,'1.24.0').status,'NOT_CHECKED');
+ raw.channel='preview';
+ assert.equal(sanitizeUpdateState(raw,'1.24.0').status,'PREVIEW_AVAILABLE');
+});
+
+test('malformed successful HTTP payload does not masquerade as no published release', async () => {
+ let stored={};
+ const api={runtime:{getManifest:()=>({version:'1.24.0'})},storage:{local:{
+  get:async()=>stored,set:async x=>{stored={...stored,...x}}
+ }}};
+ const controller=createUpdateController({api,fetchFn:async()=>({ok:true,json:async()=>({message:'invalid shape'})})});
+ const state=await controller.check();
+ assert.equal(state.status,'NOT_CHECKED');
+ assert.equal(state.error,'CHECK_FAILED');
+ assert.equal(state.lastSuccessAt,null);
+ assert.ok(state.retryAfter>Date.now());
+});
+
+test('offline failures are distinct from unknown API failures', async () => {
+ let stored={};
+ const api={runtime:{getManifest:()=>({version:'1.24.0'})},storage:{local:{
+  get:async()=>stored,set:async x=>{stored={...stored,...x}}
+ }}};
+ const controller=createUpdateController({api,isOnline:()=>false,fetchFn:async()=>{throw Error('network');}});
+ assert.equal((await controller.check()).error,'OFFLINE');
+});
+
+test('configuration writes serialize after concurrent requests and invalidate release channel', async () => {
+ let stored={},finishFetch;
+ const api={runtime:{getManifest:()=>({version:'1.24.0'})},storage:{local:{
+  get:async()=>stored,set:async x=>{stored={...stored,...x}}
+ }}};
+ const controller=createUpdateController({api,fetchFn:()=>new Promise(resolve=>{finishFetch=resolve;})});
+ const pending=controller.check();
+ await new Promise(resolve=>setImmediate(resolve));
+ const changed=controller.configure({channel:'preview'});
+ finishFetch({ok:true,status:200,json:async()=>[release('v1.25.0')]});
+ assert.equal((await pending).status,'UPDATE_AVAILABLE');
+ const newState=await changed;
+ assert.equal(newState.channel,'preview');
+ assert.equal(newState.status,'NOT_CHECKED');
+ assert.equal(newState.release,null);
+ assert.equal((await controller.read()).channel,'preview');
+});
+
+test('manual force can check when automatic daily checks are disabled', async () => {
+ let stored={},requests=0;
+ const api={runtime:{getManifest:()=>({version:'1.24.0'})},storage:{local:{
+  get:async()=>stored,set:async x=>{stored={...stored,...x}}
+ }}};
+ const controller=createUpdateController({api,fetchFn:async()=>{requests++;return {ok:true,json:async()=>[]};}});
+ await controller.configure({enabled:false});
+ assert.equal((await controller.check()).status,'NOT_CHECKED');
+ assert.equal(requests,0);
+ const forced=await controller.check({force:true});
+ assert.equal(forced.status,'UNSUPPORTED');
+ assert.equal(forced.enabled,false);
+ assert.equal(requests,1);
 });

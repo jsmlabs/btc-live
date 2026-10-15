@@ -23,7 +23,7 @@
 </p>
 
 > [!IMPORTANT]
-> **This repository is a development candidate, not an approved customer release.** The `main` branch includes the v16 Phase 01–10 implementation, but `manifest.json` identifies the extension as **1.22.0**. Successful automated tests do not establish live Chromium/MV3 behavior, real Binance connectivity, alert delivery, data migration or Chrome Web Store approval. See the [release criteria](docs/ACCEPTANCE.md).
+> **This repository is a development candidate, not an approved customer release.** The `main` branch contains the current extension candidate, and `manifest.json` identifies the extension as **1.22.0**. Successful automated tests do not establish live Chromium/MV3 behavior, real Binance connectivity, alert delivery, data migration or Chrome Web Store approval. See the [release criteria](docs/ACCEPTANCE.md).
 
 ## What is BTC Live?
 
@@ -65,7 +65,7 @@ There is **no install/build requirement** for loading unpacked source. For a ver
 | :-- | :-- | :-- |
 | **Live** | Price, 24-hour statistics, candles, depth, drawing tools and chart overlays | Feed freshness and candle provenance remain visible |
 | **Analytics** | Aggressive trade volume, rolling CVD, price/delta comparisons and displayed depth | Descriptive observations, **not** proven signals |
-| **Replay** | Supported local recordings, step/seek, temporary bookmarks and comparisons | No historical event can trigger a live alert |
+| **Replay** | Supported local recordings, step/seek, temporary bookmarks and comparisons | Recorded events cannot trigger live alerts |
 | **Alerts** | Price/percentage targets and advanced price/flow rules | Advanced rules need an **open live dashboard** |
 | **Diagnostics** | Transport recovery, freshness, data-source and runtime state | Connected socket ≠ synchronized market data |
 | **Settings** | Presentation, preferences and notification controls | Settings do not change exchange facts |
@@ -140,7 +140,7 @@ BTC Live is a monitoring interface, **not** a trading platform, signal service o
 > [!CAUTION]
 > **Do not rely on BTC Live notifications as your sole trading risk management mechanism.** No price, liquidity, signal, execution or alert-delivery guarantee is implied.
 
-A stable release requires recorded acceptance of actual Chromium UI, live Binance feeds and recovery, multi-tab/MV3 alerts, recording/replay load, existing-install migration and store/privacy assets. No stable v16 version, tag or store publication is claimed.
+A stable release requires recorded acceptance of actual Chromium UI, live Binance feeds and recovery, multi-tab/MV3 alerts, recording/replay load, existing-install migration and store/privacy assets. No stable version, tag or store publication is claimed.
 
 ## Documentation
 
@@ -152,7 +152,7 @@ A stable release requires recorded acceptance of actual Chromium UI, live Binanc
 | QA and release | [Testing](docs/TESTING.md) · [Acceptance matrix](docs/ACCEPTANCE.md) · [Release readiness](docs/RELEASE.md) |
 | Privacy and security | [Privacy policy](PRIVACY.md) · [Security policy](SECURITY.md) |
 | Distribution | [Store listing draft](STORE_LISTING.md) · [Store asset policy](STORE_ASSETS.md) |
-| Support and history | [Support](SUPPORT.md) · [Changelog](CHANGELOG.md) · [Documentation index](docs/INDEX.md) |
+| Support and navigation | [Support](SUPPORT.md) · [Documentation index](docs/INDEX.md) |
 
 ---
 

@@ -1,7 +1,7 @@
 # BTC Live - Chrome Web Store listing draft
 
 > [!CAUTION]
-> **Not approved or submitted by this repository update.** Historical editor evidence from **2026-10-15** indicated public store version **1.21.0**; the actual current store version must be checked independently. Source manifest `1.22.0` and the v16 candidate are **not** evidence of live publication.
+> **Not approved or submitted by this repository update.** Verify the actual public Chrome Web Store package before publication; source manifest `1.22.0` and candidate features alone do **not** establish live availability.
 
 ## Proposed product metadata
 
@@ -72,7 +72,7 @@ There is no need to request a trading account or page-content permissions for th
 
 1. Inspect the **actual currently published** listing and version.
 2. Complete [real candidate acceptance](docs/ACCEPTANCE.md), including accessibility, feed failure and migration.
-3. Verify screenshots/icons from the **final tested package**; retire historical Spot images.
+3. Verify screenshots/icons against the **final tested package**; replace any assets that do not match its actual interface.
 4. Reconcile name, summary, description, permissions, privacy questionnaire, support/security links and final manifest version.
 5. Save draft, resolve Chrome Web Store validation issues, then submit only an **approved customer build**.
 6. Verify review outcome and published status independently. A GitHub commit, successful ZIP or saved draft does **not** publish the extension.

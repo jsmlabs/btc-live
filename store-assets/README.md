@@ -1,17 +1,16 @@
-# Store asset inventory - historical references
+# Store asset inventory
 
-> [!WARNING]
-> These assets originated in earlier BTC Live design and store iterations. They are **not approved as screenshots or artwork of the current development candidate**. Some may show prior Binance Spot labeling or a different user interface.
+The images in this directory are **not yet approved for use in a customer listing**. Before publication, capture and verify screenshots of the actual tested Chromium extension and confirm all labels and features correspond to that build.
 
-| File | Original intended use | Current decision |
+| File | Intended role | Current requirement |
 | --- | --- | --- |
-| `promo-440x280.png` | Small promotional tile | Review/replace for final build |
-| `screenshot-1-1280x800.png` | Product overview | Replace with real accepted UI |
-| `screenshot-2-1280x800.png` | Market data view | Replace with real Futures view |
-| `screenshot-3-1280x800.png` | Privacy/features | Recreate against accepted package |
-| `real-popup.png` | Earlier popup capture | Historical reference only |
-| `asset-preview.png` | Internal design contact sheet | Historical reference only |
+| `promo-440x280.png` | Promotional tile | Review branding and replace if necessary |
+| `screenshot-1-1280x800.png` | Product overview | Capture verified release interface |
+| `screenshot-2-1280x800.png` | Market-data view | Match actual Binance Futures UI |
+| `screenshot-3-1280x800.png` | Privacy/features | Check permissions and customer claims |
+| `real-popup.png` | Popup image | Confirm accuracy against the final build |
+| `asset-preview.png` | Internal preview sheet | Not a substitute for release screenshots |
 
-Extension runtime icons are stored separately in [`icons/`](../icons/icon128.png). Historical graphics remain available for design provenance, **not** proof of final Chromium acceptance.
+The manifest's packaged extension icons are in the separate [`icons/`](../icons/icon128.png) directory. **Unreviewed images must not be presented as evidence of current product functionality.**
 
-For size, authenticity, branding and store submission policy see [Store assets](../STORE_ASSETS.md). For feature publication status see [Release](../docs/RELEASE.md).
+[Asset requirements](../STORE_ASSETS.md) · [Release approval](../docs/ACCEPTANCE.md)

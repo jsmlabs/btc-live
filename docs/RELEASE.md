@@ -1,7 +1,7 @@
 # Release and build guide
 
 > [!IMPORTANT]
-> **Development candidate - NOT approved for customer publication.** Current `main` contains the v16 Phase 01–10 feature candidate, while `manifest.json` still reports `1.22.0`. Neither an old release note nor a green CI badge changes this status.
+> **Development candidate - NOT approved for customer publication.** Current `main` contains the extension development candidate, while `manifest.json` reports `1.22.0`. A green CI badge does not change its release status.
 
 ## Release state
 
@@ -61,16 +61,12 @@ This validates **record structure and same-SHA binding**, not evidence authentic
 
 ## Promote an accepted customer release
 
-1. Settle the **actual** release version; align manifest, package metadata, screenshots, release notes, changelog and store listing. The v16 phase label is **not** a semver release.
+1. Choose the approved release version; align manifest, package metadata, screenshots, release notes and store listing. Source metadata is not proof of an installed public version.
 2. Freeze/test the final release commit; reconfirm automated success and all manual acceptance on that exact build.
 3. Run the external release gate and review the underlying links/evidence; check for regressions after any final code or metadata edit.
 4. Rebuild, inspect the actual extension archive, verify SHA-256, rights, capabilities and rollback artifacts.
 5. Only then create the matching version tag and GitHub release. Store submission requires separate approval, review and proof of actual publication.
 
 **Never treat merging, tagging, a draft store listing, or passing static checks as proof of a released extension.**
-
-## Historical records
-
-The historical [v1.22.0 notes](../GITHUB_RELEASE.md) and [archived checklist](HISTORICAL-RELEASE-CHECKLIST.md) describe earlier source milestones, not current candidate acceptance. The old `maintenance/v1.0.x` branch is unmaintained; see [repository policy](REPOSITORY.md).
 
 [Release checklist](../RELEASE_CHECKLIST.md) · [Testing](TESTING.md) · [Documentation index](INDEX.md)

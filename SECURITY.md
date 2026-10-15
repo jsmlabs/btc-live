@@ -1,7 +1,7 @@
 # Security policy
 
 > [!IMPORTANT]
-> **Development-candidate scope.** Manifest `1.22.0`, integrated v16 Phase 01–10 source. The automated checks enforce selected source and package constraints but are **not** evidence of a complete security audit or a production-approved release.
+> **Development-candidate scope.** Current source with manifest `1.22.0`. The automated checks enforce selected source and package constraints but are **not** evidence of a complete security audit or a production-approved release.
 
 ## Security architecture
 

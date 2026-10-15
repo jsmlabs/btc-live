@@ -29,7 +29,7 @@ utils/          Shared formatting, time and backoff primitives
 | `app/runtime.js`, `chart-runtime.js` | Lifecycle and chart data | Do not fabricate candles from trade/ticker observations |
 | `app/notifications.js`, `advanced-alert-engine.js` | Rule semantics | Valid live data, cooldowns, controlled notification attempts |
 | `ui/chart.js`, `render-scheduler.js` | Graphical display | Coalesce paint without delaying market state/alerts |
-| `ui/event-replay.js`, `market-recorder.js` | Historical playback | Replay must not mutate live market state or fire alerts |
+| `ui/event-replay.js`, `market-recorder.js` | Recorded-session playback | Replay must not mutate live market state or fire alerts |
 | `storage/replay-sessions.js` | IndexedDB session retention | Validate schemas/size and handle storage failure |
 | `background/service-worker.js` | MV3 sampled price checks | Suspension/alarms cannot promise continuous observation |
 

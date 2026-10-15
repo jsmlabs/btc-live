@@ -14,7 +14,7 @@ Summarize changed paths, key design decisions, storage/API/permission impacts, c
 - [ ] `npm run package:extension`
 - [ ] `npm run package:metadata`
 - [ ] Original problem and relevant failure/regression paths checked
-- [ ] README, user guides, security/privacy and changelog reconciled as applicable
+- [ ] README, user guides, security/privacy and release documentation reconciled as applicable
 - [ ] Final diff inspected for unrelated changes, secrets and package drift
 
 **Tested SHA:** `<full commit>`

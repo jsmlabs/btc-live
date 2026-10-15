@@ -1,6 +1,6 @@
 # User guide
 
-**Applies to:** `main` v16 Phase 01–10 **development candidate**, manifest `1.22.0`. The Chrome Web Store may still distribute a different build. Use this guide for evaluation, not as a production-readiness certificate.
+**Applies to:** the `main` **development candidate**, manifest `1.22.0`. The Chrome Web Store may distribute a different build. Use this guide for evaluation, not as a production-readiness certificate.
 
 ## Install without affecting an existing profile
 

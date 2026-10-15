@@ -36,7 +36,7 @@ storage/       User preferences, alert state and recorded sessions
 
 The extension declares `storage`, `notifications` and `alarms`, with REST host access to `https://fapi.binance.com/*`. The CSP allows `wss://fstream.binance.com` for public Futures streams. The background service worker may be suspended at any time: **a scheduled alarm is not a persistent process**.
 
-Advanced alerts evaluate live metrics only while a dashboard is open; price alerts additionally have sampled background checks. Trigger persistence precedes attempts at native notifications, so delivery may fail without retry. Historical replay does not feed the live alert engine.
+Advanced alerts evaluate live metrics only while a dashboard is open; price alerts additionally have sampled background checks. Trigger persistence precedes attempts at native notifications, so delivery may fail without retry. Recorded playback does not feed the live alert engine.
 
 ## Validation status
 

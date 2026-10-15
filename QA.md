@@ -1,7 +1,7 @@
 # BTC Live quality assurance
 
 > [!IMPORTANT]
-> **No real Chromium acceptance has yet been certified for the current candidate.** This worksheet is the active QA entrypoint; earlier version-specific instructions remain in the [historical QA archive](docs/HISTORICAL-QA.md).
+> **No real Chromium acceptance has yet been certified for the current candidate.** This worksheet defines current QA requirements and directs testers to the release acceptance matrix.
 
 ## Test coverage and evidence
 

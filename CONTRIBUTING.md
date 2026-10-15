@@ -1,6 +1,6 @@
 # Contributing to BTC Live
 
-BTC Live is a local-first Chromium Manifest V3 application consuming public BTCUSDT Binance Futures data. The maintained integration branch is **`main`**. Current source contains the **v16 Phase 01–10 development candidate** (manifest `1.22.0`) and is not yet a public-release approval.
+BTC Live is a local-first Chromium Manifest V3 application consuming public BTCUSDT Binance Futures data. The maintained integration branch is **`main`**. Current source is a **development candidate** (manifest `1.22.0`) and has not completed customer-release approval.
 
 ## Prepare a change
 
@@ -26,12 +26,12 @@ Review the entire Git diff before committing. Ensure the package contains only i
 
 ## Keep documents in sync
 
-Update README/user steps for visible behavior, architecture for interface/data-flow changes, security/privacy for altered permissions/storage/networks, and the changelog for substantive changes. Historical phase records are **not** current build instructions. Do not change the extension semver, create tags or claim customer readiness without the [release procedure](docs/RELEASE.md).
+Update README/user steps for visible behavior, architecture for interface/data-flow changes, security/privacy for altered permissions/storage/networks, and release documentation for material changes. Do not change extension semver, create tags or claim customer readiness without the [release procedure](docs/RELEASE.md).
 
 ## Review and maintainership
 
 - Use the [pull-request template](.github/pull_request_template.md) with an exact SHA and observed checks.
-- The default `main` branch is the only intended maintained branch; stale Spot/Firefox maintenance history must not be merged into the current candidate.
+- The default `main` branch is the maintained source; unrelated changes must not be merged into a release candidate.
 - CI verifies source/build constraints. Real browser/live Binance, notification, migration, performance and store acceptance are **additional**, manual requirements.
 - Route ordinary bugs through [Support](SUPPORT.md) and sensitive vulnerabilities through [Security](SECURITY.md).
 

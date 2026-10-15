@@ -1,6 +1,6 @@
 # BTC Live brand and store assets
 
-**Release status:** Historical images in [`store-assets/`](store-assets/README.md) are references, **not approved screenshots of the current v16 candidate**. Produce new evidence only from the actual intended customer build after interactive Chromium testing.
+**Release status:** The files in [`store-assets/`](store-assets/README.md) have not been accepted as screenshots of the current candidate. Produce verified imagery from the actual intended customer build after interactive Chromium testing.
 
 ## Visual identity
 
@@ -32,12 +32,12 @@ Accessibility and truthful representation take precedence over decorative effect
 
 Record the **exact source SHA**, browser version, captured build and time/context for each screenshot. Use live validated or clearly labeled demonstration data; do not present a fake stream as live. Protect user information in screenshots and diagnostic panels.
 
-Visual QA must inspect mobile/narrow and wide layouts, text contrast, keyboard focus, labels, charts, icons and accessible statuses. Historical asset filenames do not imply new release approval.
+Visual QA must inspect narrow and wide layouts, text contrast, keyboard focus, labels, charts, icons and accessible statuses. Asset filenames alone do not establish release approval.
 
 ## Publication checklist
 
 - [ ] Store imagery from the **final accepted** Chromium package.
-- [ ] Current Futures market labels; no obsolete Spot UI presented as current.
+- [ ] Market labels and screenshots accurately represent the approved Futures extension.
 - [ ] Approved features and market states, no misleading financial promises.
 - [ ] Icons/promo assets checked at small sizes and on dark/light store backgrounds.
 - [ ] Privacy, support, descriptions and permissions match the exact published version.

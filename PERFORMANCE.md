@@ -1,39 +1,33 @@
-# BTC Live performance and measurement
+# Performance verification
 
-**Evidence boundary:** The results below are an **archived deterministic DOM-work benchmark** of the earlier v1.21.0 rendering improvements. They are **not measured real-Chromium CPU, memory, frame-rate, latency or energy improvements** for the integrated v16 candidate.
+BTC Live uses a rendering scheduler and chart-geometry reuse to reduce avoidable presentation work. **No verified end-to-end Chromium CPU, memory, frame-rate or latency improvement is claimed for the current candidate.** Performance approval requires observations from the actual extension in a real browser.
 
-## Historical synthetic benchmark
+## Automated checks
 
-The prior test reproduced a scenario with **120** market updates, grouped visual requests, **40** refreshes with identical chart geometry and **120** deterministic OHLCV candles. A minimal substitute DOM counted SVG work, not real-browser painting or throughput.
-
-| Deterministic metric | v1.20 baseline | v1.21 optimized | Change |
-| --- | ---: | ---: | ---: |
-| Chart render calls | 281 | 71 | -74.7% |
-| SVG subtree rebuilds | 281 | 31 | -89.0% |
-| Created SVG nodes | 107,342 | 11,842 | -89.0% |
-
-These historical synthetic measurements were documented for a specific controlled workload. They are **not transferable as claims about the current candidate's real-device performance**.
-
-## Reproducing the fixture
+Run `npm run verify` for deterministic behavior tests and the following optional synthetic workload comparisons:
 
 ```bash
 node scripts/benchmark-render.mjs --baseline
 node scripts/benchmark-render.mjs --optimized
-npm run verify
 ```
 
-The scheduler coalesces presentation requests; market ingest and alert evaluation are not intended to be deferred. The SVG chart renderer caches unchanged geometry while status/freshness must continue updating. Visibility changes, teardown and replay composition are relevant regression cases.
+The fixture uses a substitute DOM and controlled market-update input. Its operation counts do not measure actual rendering time, device load, memory consumption, power efficiency or alert-delivery latency.
 
-## Required actual-browser measurement
+## Required Chromium measurement
 
-A customer-release performance report needs real Chromium and representative hardware, with a documented baseline and consistent workload. Measure:
+| Scenario | Measure | Required context |
+| --- | --- | --- |
+| Sustained real-market session | CPU, memory, errors and state freshness | OS, browser, hardware, tested SHA, duration and feed source |
+| Burst market updates | Long tasks, frame behavior, render backlog | Repeatable workload and thresholds |
+| UI interactions | Chart pointer/zoom responsiveness, keyboard and focus | Supported screen widths and input devices |
+| Hidden/visible transitions | Recovery of queued presentation and lifecycle cleanup | Tab visibility and worker state |
+| Recording and replay | Capture growth, seek/step times and import responsiveness | Recording size and coverage |
+| Alerts under load | Trigger timing, deduplication and attempts | Notification permissions and feed validity |
 
-- Live-feed bursts: CPU, long tasks, chart presentation latency and skipped frames.
-- Narrow/wide/ultrawide layouts: responsiveness, layout shifts and pointer/keyboard interaction.
-- Prolonged sessions: memory, recorded-event/IndexedDB growth, queues and tab/background transitions.
-- Replay: seek/step latency and import/load responsiveness at supported size limits.
-- Alert evaluation under load: state freshness and attempted notifications without duplicate triggering.
+Record objective, acceptance budget, duration, raw observations, failure cases and decision. Compare like-for-like conditions and avoid unmeasured claims of improved performance.
 
-Record browser/OS, hardware, exact source SHA, duration, feed fixture/live conditions, measurement method, threshold and limitations. Do not claim improvement from a single synthetic count or a screenshot.
+## Release decision
 
-[Testing](docs/TESTING.md) · [Acceptance](docs/ACCEPTANCE.md) · [Architecture](docs/ARCHITECTURE.md)
+Sustained-load and replay tests remain part of [customer-release acceptance](docs/ACCEPTANCE.md). A successful Node suite or synthetic chart workload does not close them.
+
+[QA](QA.md) · [Testing](docs/TESTING.md) · [Architecture](docs/ARCHITECTURE.md)

@@ -1,6 +1,6 @@
 # BTC Live hardening guide
 
-This document describes **current engineering safeguards and remaining validation work** for the `main` development candidate. The earlier `v1.9`, `v1.13` and `v1.14` hardening reports, including their historical permission/file counts, are preserved in the [historical record](docs/HISTORICAL-HARDENING.md).
+This document describes **current engineering safeguards and remaining validation work** for the `main` development candidate.
 
 ## Active constraints
 
@@ -14,7 +14,7 @@ This document describes **current engineering safeguards and remaining validatio
 | Alerts | Separate live data from replay, Web Locks where supported and at-most-once attempts | Alert/locking tests |
 | Package | No remote executable JS, runtime-only deterministic ZIP, checksum/provenance | Static checks and GitHub Actions |
 
-The current `manifest.json` requests `storage`, `notifications`, `alarms` and host access to `https://fapi.binance.com/*`; the CSP permits `wss://fstream.binance.com`. Do **not** copy historical statements such as `storage only` or `29/36 package files` into contemporary release materials.
+The current `manifest.json` requests `storage`, `notifications`, `alarms` and host access to `https://fapi.binance.com/*`; the CSP permits `wss://fstream.binance.com`. Verify these controls against every proposed distribution package.
 
 ## Live release blockers
 
@@ -35,6 +35,6 @@ npm run package:extension
 npm run package:metadata
 ```
 
-For release approval use the separate [evidence matrix](docs/ACCEPTANCE.md), not the historical hardening record.
+For release approval use the independent [evidence matrix](docs/ACCEPTANCE.md) and real browser tests.
 
 [Security policy](SECURITY.md) · [Architecture](docs/ARCHITECTURE.md) · [Release guide](docs/RELEASE.md)

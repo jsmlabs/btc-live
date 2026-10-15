@@ -40,6 +40,13 @@ jobs:
               assert manifest['version']=='1.22.0'
               print(f'Validated {paths[0]}: {len(names)} files')
           PY
+      - name: Verify reproducible package
+        run: |
+          sha256sum dist/*.zip > /tmp/btc-live-first.sha256
+          node scripts/package-extension.mjs --skip-verify
+          sha256sum dist/*.zip > /tmp/btc-live-second.sha256
+          diff -u /tmp/btc-live-first.sha256 /tmp/btc-live-second.sha256
+          cat /tmp/btc-live-second.sha256
       - uses: actions/upload-artifact@v4
         with:
           name: btc-live-candidate-zip

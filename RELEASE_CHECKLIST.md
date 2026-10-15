@@ -1,3 +1,5 @@
+> **Current release gate:** No new release is approved by this documentation change. The unmerged expanded-workspace archive must pass integration, automated tests, real Chromium MV3 QA and packaging review before any tag/store submission. Historical statuses below remain as originally recorded.
+
 # BTC Live v1.22.0 - Release Checklist
 
 ## Automated validation

@@ -72,6 +72,8 @@ The extension uses public market endpoints, local browser storage, notifications
 
 ## Documentation
 
+Start with [Usage](docs/USAGE.md) to try the candidate, [Testing](docs/TESTING.md) to reproduce automated checks, and [Release readiness](docs/RELEASE.md) to understand what remains unverified. Historical notes are retained separately from current candidate behavior.
+
 | Guide | Subject |
 | --- | --- |
 | [Usage](docs/USAGE.md) | Install, controls, research, replay and troubleshooting |
@@ -82,6 +84,8 @@ The extension uses public market endpoints, local browser storage, notifications
 | [Privacy](docs/PRIVACY.md) | Permissions, endpoints and local information |
 | [Phase 10](docs/PHASE10.md) | Development-stage engineering evidence |
 | [Stable release notes](GITHUB_RELEASE.md) | Historical v1.22.0 release information |
+| [Changelog](CHANGELOG.md) | Historical release chronology and current source distinction |
+| [Security policy](SECURITY.md) | Threat boundaries and disclosure guidance |
 
 ## Contributing
 

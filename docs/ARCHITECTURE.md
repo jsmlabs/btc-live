@@ -1,5 +1,7 @@
 # Architecture and trust boundaries
 
+> Scope: v16 Phase-10 candidate source, retaining manifest version `1.22.0`; runtime acceptance is outstanding. See [Release](RELEASE.md).
+
 BTC Live is a Manifest V3 browser extension with a popup, a long-lived page dashboard when open, and a service worker that may be suspended by the browser.
 
 ## Runtime data path

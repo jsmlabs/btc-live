@@ -104,6 +104,14 @@ To make an update discoverable, complete all seven manual release-acceptance gat
 
 For an unpacked extension, use the [source installation guide](../README.md#get-started), replace or refresh its local source, and reload it via `chrome://extensions`. Chrome cannot silently rewrite an unpacked extension directory. A browser-store installation updates through the browser/store rather than through this GitHub checker. Reloading alone does not fetch repository changes.
 
+## Manual approved GitHub Release publication
+
+The workflow [Publish Approved BTC Live Release](../.github/workflows/publish-approved-release.yml) is a manual `workflow_dispatch` pipeline on `main`; it does **not** run on commits, tags, or pull requests. It requires the separate GitHub Actions environment named `production-release` with required reviewers and an environment secret `RELEASE_ACCEPTANCE_JSON` containing the externally approved acceptance document for the **exact current main commit**. Keep that secret inaccessible to untrusted pull requests and rotate/update it for each approved release.
+
+Before triggering, verify the source commit and all seven real-browser, Binance, recording, migration, privacy and store acceptance gates with actual evidence. Configure the environment's deployment protection and reviewer requirements in GitHub Settings. Dispatch using a `v<manifest-version>` tag on `main`. The workflow fails closed without an approval record, on version/SHA mismatch, or when the release/tag exists; it reruns source, documentation, static release, packaging and checksum checks before publishing three assets. Publication uses an explicitly scoped `contents: write` token only inside the protected job. After publishing, verify the actual GitHub Release and its assets. A published GitHub ZIP is a **manual unpacked-installation artifact**, not a Chrome Web Store package or self-installing update. Existing candidate archive naming stays explicit in the release notes and metadata.
+
+Do not configure or trigger the workflow solely to make Software Updates display an update. A repository administrator must establish the protected environment and approve each actual release. Repository branch protection and a successful workflow for the exact commit are separate requirements.
+
 ## Software-update discovery
 
 The extension reads official published GitHub Releases; the `main` branch and candidate CI artifacts never imply release approval. Only after the existing manual acceptance process may a stable GitHub Release be published. Version tags must correspond to the actual installed manifest version. Discovery does not install software. The GitHub Releases API is a new declared read-only host permission.

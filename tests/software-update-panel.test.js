@@ -38,7 +38,10 @@ test('software update panel validates storage events and never exposes an untrus
   const dispose = mountSoftwareUpdates({container, indicator, api});
   await new Promise(resolve => setImmediate(resolve));
   const [title, status, detail, note, toggleLabel, channelLabel, controls] = container.children[0].children;
-  const [button, link] = controls.children;
+  const [button, link, sourceLink] = controls.children;
+  assert.equal(sourceLink.hidden, false);
+  assert.equal(sourceLink.href, 'https://github.com/jsmlabs/btc-live#get-started');
+  assert.equal(sourceLink.target, '_blank');
   assert.equal(title.textContent, 'Software Updates');
   assert.equal(status.textContent, 'No eligible published release is available');
   assert.equal(note.hidden,false);
@@ -58,6 +61,7 @@ test('software update panel validates storage events and never exposes an untrus
     url:'https://github.com/jsmlabs/btc-live/releases/tag/v1.25.0'}};
   listener({btcLiveSoftwareUpdates:{newValue:valid}},'local');
   assert.equal(link.hidden,false);
+  assert.equal(sourceLink.hidden,true);
   assert.equal(link.href,valid.release.url);
   assert.equal(indicator.hidden,false);
 

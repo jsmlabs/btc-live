@@ -94,6 +94,16 @@ This validates **record structure and same-SHA binding**, not evidence authentic
 
 [Release checklist](../RELEASE_CHECKLIST.md) · [Testing](TESTING.md) · [Documentation index](INDEX.md)
 
+## Repository configuration for distribution
+
+The GitHub repository must remain public if the extension is to discover releases through the unauthenticated GitHub Releases API. Source commits, tags, and Actions candidate artifacts are not installable published updates.
+
+Before enabling public distribution, an administrator should establish branch protection or a repository ruleset for `main`: require pull-request review as appropriate, passing verification checks on the exact commit, and prevent force pushes and branch deletion. Configure Actions permissions using least privilege; the candidate verification workflow intentionally uses `contents: read`. Release publishing requires a separately scoped, approved process and must not be enabled merely to make the update panel display a new version.
+
+To make an update discoverable, complete all seven manual release-acceptance gates for the exact build, obtain documented approval, verify the reproducible package and checksum, and only then publish an appropriately tagged GitHub Release with a compatible downloadable extension archive and release notes. Stable and Preview must accurately match the release prerelease metadata and version tag. Confirm through the unauthenticated Releases API that the intended release is actually published.
+
+For an unpacked extension, use the [source installation guide](../README.md#get-started), replace or refresh its local source, and reload it via `chrome://extensions`. Chrome cannot silently rewrite an unpacked extension directory. A browser-store installation updates through the browser/store rather than through this GitHub checker. Reloading alone does not fetch repository changes.
+
 ## Software-update discovery
 
 The extension reads official published GitHub Releases; the `main` branch and candidate CI artifacts never imply release approval. Only after the existing manual acceptance process may a stable GitHub Release be published. Version tags must correspond to the actual installed manifest version. Discovery does not install software. The GitHub Releases API is a new declared read-only host permission.

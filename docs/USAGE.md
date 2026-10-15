@@ -2,6 +2,13 @@
 
 > The candidate's extension manifest is `1.22.0`; v16 features are **not yet production-approved**. PR #3 merged the candidate into `main`, but the runtime release gates remain open. Follow [release gates](RELEASE.md) before distributing it as stable.
 
+## Navigation
+
+- [Release readiness](RELEASE.md): current acceptance requirements and unresolved blockers
+- [Testing](TESTING.md): repeatable checks and evidence requirements
+- [Alerts](ALERTS.md): alert timing, freshness, and delivery limitations
+- [Privacy](PRIVACY.md): browser permissions and locally retained data
+
 ## First run
 
 In a dedicated Chromium test profile, open `chrome://extensions`, enable Developer mode and use **Load unpacked** on the directory containing `manifest.json`, open the toolbar popup and then the full dashboard. A live connection needs access to public Binance Futures endpoints. Inspect the connection-state and feed-age diagnostics before interpreting order-flow metrics.

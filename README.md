@@ -35,6 +35,7 @@ Node.js **20 or newer** is declared by this candidate; the repository CI tests o
 
 ```bash
 npm run verify
+npm run docs:check
 npm run release:check
 npm run package:extension
 ```
@@ -44,6 +45,7 @@ npm run package:extension
 | Command | Purpose | What it does **not** prove |
 | --- | --- | --- |
 | `npm run verify` | Source/manifest/reference validation and deterministic Node tests | Browser rendering or live exchange behavior |
+| `npm run docs:check` | Validate local links in README and docs | External website availability or runtime correctness |
 | `npm run release:check` | Static release and packaging contract checks | Approval to publish v16 |
 | `npm run package:extension` | Create deterministic candidate ZIP after verification | Store acceptance or runtime compatibility |
 

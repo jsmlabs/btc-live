@@ -5,7 +5,7 @@ export const UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const RELEASES_API = 'https://api.github.com/repos/jsmlabs/btc-live/releases';
 const RELEASE_BASE = 'https://github.com/jsmlabs/btc-live/releases/tag/';
 const RETRY_INTERVAL_MS = 15 * 60 * 1000;
-const VALID_VERSION = /^(?:v)?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/;
+const VALID_VERSION = /^(?:v)?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 export function parseVersion(value) {
   if (typeof value !== 'string' || value.length > 100) return null;
   const match = VALID_VERSION.exec(value);

@@ -16,7 +16,9 @@ test('kline intervals expose deterministic millisecond durations', () => {
   assert.equal(intervalMs('1m'), 60_000);
   assert.equal(intervalMs('5m'), 300_000);
   assert.equal(intervalMs('15m'), 900_000);
-  assert.throws(() => intervalMs('1h'), /Unsupported/);
+  assert.equal(intervalMs('1h'), 3_600_000);
+  assert.equal(intervalMs('4h'), 14_400_000);
+  assert.throws(() => intervalMs('2h'), /Unsupported/);
 });
 
 test('normalizeKlineRow validates OHLCV invariants', () => {
@@ -75,7 +77,7 @@ test('fetchBtcKlines rejects invalid interval and limit before fetch', async (t)
   let calls = 0;
   globalThis.fetch = async () => { calls += 1; return { ok: true, json: async () => ROWS }; };
 
-  await assert.rejects(fetchBtcKlines({ interval: '1h' }), /Unsupported/);
+  await assert.rejects(fetchBtcKlines({ interval: '2h' }), /Unsupported/);
   await assert.rejects(fetchBtcKlines({ limit: 10 }), /between 30 and 500/);
   assert.equal(calls, 0);
 });

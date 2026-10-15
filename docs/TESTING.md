@@ -1,6 +1,6 @@
 # Test strategy and verification evidence
 
-This guide separates **deterministic repository checks**, **simulated browser checks**, and **real Chromium / live Binance acceptance**. None is interchangeable. The packaging script writes a candidate ZIP; CI checks ZIP integrity, runtime-only file paths and build reproducibility. Superseded CI runs on the same ref are cancelled.
+This guide separates **deterministic repository checks**, **simulated browser checks**, and **real Chromium / live Binance acceptance**. None is interchangeable. The packaging script writes a candidate ZIP; CI checks ZIP integrity, runtime-only file paths, the fixed valid DOS timestamp (1980-01-01), and byte-for-byte build reproducibility. Superseded CI runs on the same ref are cancelled.
 
 ## Automated commands
 
@@ -12,9 +12,9 @@ npm run release:check
 npm run package:extension
 ```
 
-`verify` performs static checks and deterministic Node tests, rejecting symbolic links in the source tree. Individual JavaScript syntax checks have a 10-second timeout; the complete Node test subprocess has a 180-second timeout and fails explicitly on expiry. `release:check` validates the candidate's static release contract. `package:extension` reruns source verification and builds `dist/btc-live-chromium-v1.22.0-candidate.zip`; CI validates archive integrity. These do not install the extension into Chromium or test a real Binance connection.
+`verify` performs static checks and deterministic Node tests, rejecting symbolic links in the source tree. Individual JavaScript syntax checks have a 10-second timeout; each Node test file runs in a separate process with a 20-second timeout. All test files are attempted, and any failure or timeout makes verification fail. This provides a file-specific diagnosis instead of an opaque aggregate timeout. `release:check` validates the candidate's static release contract. `package:extension` reruns source verification and builds `dist/btc-live-chromium-v1.22.0-candidate.zip`; CI validates archive integrity. These do not install the extension into Chromium or test a real Binance connection.
 
-**Historical evidence:** The isolated Phase-10 candidate reported 45/45 deterministic tests and static/package checks passing. The candidate is now in `main`, with additional files and changes; run the entire suite and check CI for the exact current `main` commit. Do not quote that historical count as a current CI result.
+**Integrated-main CI regression (2026-10-15):** The first bounded main run failed, exposing legacy chart preference assertions that ignored newly added default fields and a chart freshness assertion that expected a live label for a stale stream. The test fixtures have been updated to reflect actual intended contracts. Additional CI evidence identified outdated `1h` rejection expectations and legacy chart runtime tests that generated OHLCV from ticker trades and opened uncontrolled sockets. Tests now use isolated adapters and verify the exchange-origin candle boundary. This is not a passing CI claim; check the current branch workflow.\n\n**Historical evidence:** The isolated Phase-10 candidate reported 45/45 deterministic tests and static/package checks passing. The candidate is now in `main`, with additional files and changes; run the entire suite and check CI for the exact current `main` commit. Do not quote that historical count as a current CI result.
 
 ## Manual acceptance matrix
 

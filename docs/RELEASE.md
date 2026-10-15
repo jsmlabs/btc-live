@@ -14,7 +14,7 @@
 | Long-session resources and replay | No accepted performance and memory evidence recorded | **Blocked** |
 | Existing-install migration | Not fully established | **Blocked** |
 
-Passing scripts or a green CI run must not be presented as live-browser, market-feed or production evidence.
+Passing scripts or a green CI run must not be presented as live-browser, market-feed or production evidence. Verification uses bounded subprocesses and fails closed on timeouts or invalid source-tree entries; cancelled CI runs are not passes.
 
 ## Version rules
 

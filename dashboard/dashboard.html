@@ -26,7 +26,38 @@
       </div>
     </header>
 
-    <section class="hero-grid" aria-label="Bitcoin market overview">
+    <nav id="dashboardWorkspaceNav" class="workspace-nav" aria-label="Trading workspace sections">
+      <div class="workspace-links" aria-label="Available workspaces">
+        <button class="workspace-link" type="button" data-workspace-target="live" aria-pressed="true">Live</button>
+        <button class="workspace-link" type="button" data-workspace-target="analytics" aria-pressed="false">Analytics</button>
+        <button class="workspace-link" type="button" data-workspace-target="replay" aria-pressed="false">Replay</button>
+        <button class="workspace-link" type="button" data-workspace-target="alerts" aria-pressed="false">Alerts</button>
+        <button class="workspace-link" type="button" data-workspace-target="diagnostics" aria-pressed="false">Diagnostics</button>
+        <button class="workspace-link" type="button" data-workspace-target="settings" aria-pressed="false">Settings</button>
+      </div>
+      <label class="workspace-preset-label" for="dashboardWorkspacePreset">Workspace
+        <select id="dashboardWorkspacePreset" aria-label="Workspace preset">
+          <option value="simple">Simple</option><option value="advanced" selected>Advanced</option><option value="custom">Custom</option>
+        </select>
+      </label>
+    </nav>
+    <div class="terminal-controls" aria-label="Terminal presentation controls">
+      <label for="terminalDensity">Density <select id="terminalDensity" aria-label="Information density"><option value="compact">Compact</option><option value="comfortable">Comfortable</option><option value="analysis">Analysis</option></select></label>
+      <label for="terminalLayout">Layout <select id="terminalLayout" aria-label="Panel layout"><option value="standard">Standard</option><option value="wide">Wide</option><option value="stacked">Stacked</option></select></label>
+      <button id="terminalFocus" type="button" class="button secondary" aria-pressed="false" aria-keyshortcuts="F">Chart focus</button>
+      <button id="terminalCommand" type="button" class="button secondary" aria-keyshortcuts="Control+K Meta+K">Commands <kbd>Ctrl+K</kbd></button>
+    </div>
+    <dialog id="terminalPalette" class="terminal-palette" aria-label="Command palette">
+      <div class="terminal-palette-content">
+        <label for="terminalCommandQuery">Command palette</label>
+        <input id="terminalCommandQuery" autocomplete="off" placeholder="Search workspace, layout or action" aria-controls="terminalCommandList">
+        <div id="terminalCommandList" role="listbox" aria-label="Available commands"></div>
+        <p class="terminal-command-help">↑ ↓ select · Enter execute · Esc close</p>
+      </div>
+    </dialog>
+    <p id="dashboardWorkspaceContext" class="workspace-context" role="status" aria-live="polite">Live market overview · Futures data, independent of replay.</p>
+
+    <section class="hero-grid" data-workspace-panel="live" aria-label="Bitcoin market overview">
       <article class="hero-card">
         <div class="hero-heading">
           <div>
@@ -72,14 +103,14 @@
       </article>
     </section>
 
-    <section class="metric-grid" aria-label="24 hour Bitcoin statistics">
+    <section class="metric-grid" data-workspace-panel="live" aria-label="24 hour Bitcoin statistics">
       <article class="metric-card"><span class="metric-label">24H OPEN</span><strong id="dashboardOpen">—</strong></article>
       <article class="metric-card"><span class="metric-label">24H HIGH</span><strong id="dashboardHigh">—</strong></article>
       <article class="metric-card"><span class="metric-label">24H LOW</span><strong id="dashboardLow">—</strong></article>
       <article id="dashboardVolumeCard" class="metric-card"><span class="metric-label">24H VOLUME</span><strong id="dashboardVolume">—</strong></article>
     </section>
 
-    <section class="chart-section" aria-label="Live Bitcoin chart">
+    <section class="chart-section" data-workspace-panel="live" aria-label="Live Bitcoin chart">
       <article class="panel chart-panel">
         <div class="chart-header">
           <div>
@@ -91,12 +122,62 @@
               <button id="dashboardChartInterval1m" class="chart-control" type="button" aria-pressed="false">1m</button>
               <button id="dashboardChartInterval5m" class="chart-control" type="button" aria-pressed="true">5m</button>
               <button id="dashboardChartInterval15m" class="chart-control" type="button" aria-pressed="false">15m</button>
+              <button id="dashboardChartInterval30m" class="chart-control" type="button" aria-pressed="false">30m</button>
+              <button id="dashboardChartInterval1h" class="chart-control" type="button" aria-pressed="false">1h</button>
+              <button id="dashboardChartInterval4h" class="chart-control" type="button" aria-pressed="false">4h</button>
             </div>
             <div class="segmented" aria-label="Chart style">
               <button id="dashboardChartCandles" class="chart-control" type="button" aria-pressed="true">Candles</button>
               <button id="dashboardChartLine" class="chart-control" type="button" aria-pressed="false">Line</button>
+              <button id="dashboardChartArea" class="chart-control" type="button" aria-pressed="false">Area</button>
             </div>
+            <details class="chart-menu"><summary>Appearance</summary><div class="chart-menu-content">
+            <label class="chart-candle-style-control">Candle style <select id="dashboardChartCandleStyle" aria-label="Candlestick appearance"><option value="classic">Classic</option><option value="outline">Outline</option><option value="minimal">Minimal</option></select></label>
+            <label class="chart-toggle"><span>Active highlight</span><input id="dashboardChartHighlightActive" type="checkbox" checked></label>
+            <span id="dashboardChartComparison" class="chart-compare-status" role="status" aria-live="polite">Candle comparison: Shift+click or press C twice</span>
+            <label class="chart-toggle"><span>Patterns</span><input id="dashboardChartPatterns" type="checkbox"></label>
+            <label class="chart-toggle"><span>Volume analytics</span><input id="dashboardChartVolumeIntelligence" type="checkbox"></label>
+            </div></details>
             <label class="chart-toggle"><span>Volume</span><input id="dashboardChartVolume" type="checkbox" checked></label>
+            <details class="chart-menu"><summary>Indicators</summary><div class="chart-menu-content">
+            <div class="chart-indicator-controls" aria-label="Technical indicators">
+              <label><input id="dashboardChartema20" type="checkbox"> EMA20</label>
+              <label><input id="dashboardChartema50" type="checkbox"> EMA50</label>
+              <label><input id="dashboardChartsma200" type="checkbox"> SMA200</label>
+              <label><input id="dashboardChartshow24h" type="checkbox" checked> 24H levels</label>
+            </div>
+            </div></details>
+            <div class="segmented" aria-label="Chart history">
+              <button id="dashboardChartOlder" class="chart-control" type="button">Load older</button>
+              <span id="dashboardChartHistoryStatus" class="chart-history-status" role="status" aria-live="polite"></span>
+            </div>
+            <details class="chart-menu"><summary>Overlays</summary><div class="chart-menu-content">
+            <div class="chart-indicator-controls" aria-label="Chart overlays">
+              <label><input id="dashboardChartshowAlerts" type="checkbox" checked> Targets</label>
+              <label><input id="dashboardChartshowLiquidity" type="checkbox"> Depth</label>
+              <label><input id="dashboardChartshowTrades" type="checkbox"> Large trades</label>
+            </div>
+            </div></details>
+            <details class="chart-menu chart-menu-tools"><summary>Drawing tools</summary><div class="chart-menu-content">
+            <div class="segmented" aria-label="Drawing tools">
+              <button id="dashboardChartDrawinspect" class="chart-control" type="button" aria-pressed="true">Inspect</button>
+              <button id="dashboardChartDrawhorizontal" class="chart-control" type="button" aria-pressed="false">Price line</button>
+              <button id="dashboardChartDrawtrend" class="chart-control" type="button" aria-pressed="false">Trend</button>
+              <button id="dashboardChartDrawmeasure" class="chart-control" type="button" aria-pressed="false">Measure</button>
+              <button id="dashboardChartDrawzone" class="chart-control" type="button" aria-pressed="false">Zone</button>
+              <button id="dashboardChartDrawUndo" class="chart-control" type="button">Undo</button>
+              <button id="dashboardChartDrawRedo" class="chart-control" type="button">Redo</button>
+              <button id="dashboardChartDrawDelete" class="chart-control" type="button">Delete</button>
+              <button id="dashboardChartDrawSave" class="chart-control" type="button">Save drawings</button>
+            </div>
+            </div></details>
+            <div class="segmented" aria-label="Chart navigation">
+              <button id="dashboardChartZoomIn" class="chart-control" type="button" aria-label="Zoom in">+</button>
+              <button id="dashboardChartZoomOut" class="chart-control" type="button" aria-label="Zoom out">−</button>
+              <button id="dashboardChartReset" class="chart-control" type="button" aria-label="Reset chart view">Reset</button>
+              <button id="dashboardChartLive" class="chart-control" type="button" aria-label="Return to latest candle">Return Live</button>
+              <button id="dashboardChartFocus" class="chart-control" type="button" aria-pressed="false">Focus</button>
+            </div>
           </div>
         </div>
 
@@ -108,17 +189,207 @@
         </div>
 
         <div class="chart-stage">
-          <svg id="dashboardChartSvg" class="market-chart" viewBox="0 0 1000 360" role="img" aria-label="Bitcoin chart loading"></svg>
+          <svg id="dashboardChartSvg" class="market-chart" viewBox="0 0 1000 360" role="img" tabindex="0" aria-label="Bitcoin chart loading. Mouse wheel zoom; drag to pan; arrow keys inspect; Home returns to live."></svg>
+          <div id="dashboardChartTooltip" class="chart-inspector" role="status" aria-live="off" hidden></div>
         </div>
 
         <div class="chart-footer">
           <span id="dashboardChartStatus" data-state="idle">Waiting</span>
+          <span id="dashboardChartViewStatus" class="chart-view-status">FOLLOWING LIVE</span>
+          <span class="chart-source-label">Binance USDⓈ-M Futures · Exchange OHLCV · UTC candles · Replay isolated</span>
           <button id="dashboardChartRetry" class="button secondary" type="button" hidden>Retry chart</button>
         </div>
       </article>
     </section>
 
-    <section class="content-grid">
+    <nav class="analytics-overview panel" data-workspace-panel="analytics" aria-label="Analytics sections">
+      <div><span class="eyebrow muted">MARKET ANALYTICS</span><h2>Market intelligence</h2><p>Visible liquidity and executed trades are separate observations. Values are only shown when the relevant feeds are valid.</p></div>
+      <div class="analytics-shortcuts" role="group" aria-label="Analytics views"><button type="button" class="analytics-view-button" data-analytics-view="all" aria-pressed="true">Overview</button><button type="button" class="analytics-view-button" data-analytics-view="liquidity" aria-pressed="false">Liquidity</button><button type="button" class="analytics-view-button" data-analytics-view="orderflow" aria-pressed="false">Order flow</button><button type="button" class="analytics-view-button" data-analytics-view="behavior" aria-pressed="false">Behavior</button></div>
+    </nav>
+    <section id="analytics-liquidity" class="liquidity-section" data-workspace-panel="analytics" aria-label="Visible BTCUSDT order book liquidity">
+      <article id="dashboardLiquidityPanel" class="panel liquidity-panel" data-liquidity-mode="bars">
+        <div class="liquidity-header">
+          <div>
+            <div class="eyebrow muted">MARKET MICROSTRUCTURE · RESTING LIMIT ORDERS</div>
+            <h2>Liquidity Clusters <span class="liquidity-beta">VISIBLE DEPTH</span></h2>
+            <p class="liquidity-description">Live order-book concentration, not liquidation estimates or executed volume.</p>
+          </div>
+          <div class="liquidity-controls" aria-label="Liquidity display controls">
+            <label class="liquidity-control"><span>Depth</span><input id="dashboardLiquidityEnabled" type="checkbox" checked></label>
+            <label class="liquidity-control"><span>Price bin</span><select id="dashboardLiquidityBucket" aria-label="Liquidity price bin in USDT"><option value="25">25 USDT</option><option value="50" selected>50 USDT</option><option value="100">100 USDT</option><option value="250">250 USDT</option></select></label>
+            <label class="liquidity-control"><span>View</span><select id="dashboardLiquidityMode" aria-label="Liquidity visualization"><option value="bars">Bars</option><option value="heatmap">Heatmap</option></select></label>
+            <button id="dashboardLiquidityRetry" class="button secondary liquidity-retry" type="button">Resync</button>
+          </div>
+        </div>
+        <div class="liquidity-metadata">
+          <span class="liquidity-legend"><i class="liquidity-swatch bid" aria-hidden="true"></i>Bids · buy orders</span>
+          <span class="liquidity-legend"><i class="liquidity-swatch ask" aria-hidden="true"></i>Asks · sell orders</span>
+          <span id="dashboardLiquidityStatus" class="liquidity-status" data-state="idle" role="status" aria-live="polite">IDLE</span>
+        </div>
+        <div class="liquidity-stats" aria-label="Displayed liquidity notional">
+          <span>VISIBLE BIDS <strong id="dashboardLiquidityBids">—</strong></span>
+          <span>VISIBLE ASKS <strong id="dashboardLiquidityAsks">—</strong></span>
+          <span>Bars compare displayed levels using a common scale</span>
+        </div>
+        <div class="liquidity-plot" aria-label="Descending common price axis with bid and ask depth intensity">
+          <div class="liquidity-axis"><span>BID INTENSITY</span><span>PRICE (USDT)</span><span>ASK INTENSITY</span></div>
+          <p id="dashboardLiquidityEmpty" class="liquidity-empty" role="status">Waiting for synchronized depth data…</p>
+          <div id="dashboardLiquidityRows" class="liquidity-rows" hidden><div id="dashboardLiquidityMarker" class="liquidity-midline">LIVE —</div></div>
+        </div>
+        <p id="dashboardLiquidityNote" class="liquidity-note">Initializing depth feed…</p>
+        <div class="liquidity-history" aria-label="Rolling liquidity depth history">
+          <div class="liquidity-history-heading">
+            <div><span class="eyebrow muted">TEMPORAL ORDER BOOK</span><h3>Liquidity History Heatmap</h3></div>
+            <span id="dashboardLiquidityHistoryStatus" class="liquidity-history-status" role="status">Waiting for verified depth</span>
+          </div>
+          <div class="liquidity-history-chart">
+            <canvas id="dashboardLiquidityHistoryCanvas" height="298" tabindex="0" aria-describedby="dashboardLiquidityHistoryLegend" role="img" aria-label="Rolling four-minute order book history; ask liquidity above bid liquidity, latest samples at right. Hover to inspect visible notional. Gaps indicate unavailable observations."></canvas>
+            <div id="dashboardLiquidityHistoryTooltip" class="liquidity-history-tooltip" hidden></div>
+          </div>
+          <div id="dashboardLiquidityHistoryAxis" class="liquidity-history-axis" aria-hidden="true"><span>-4m</span><span>-3m</span><span>-2m</span><span>-1m</span><span>LATEST</span></div>
+          <p id="dashboardLiquidityHistoryInspect" class="liquidity-screenreader" role="status" aria-live="polite"></p>
+          <p id="dashboardLiquidityHistoryLegend" class="liquidity-note">In-memory observations only; no historical backfill.</p>
+        </div>
+      </article>
+    </section>
+
+    <section id="analytics-orderflow" class="order-flow-section" data-workspace-panel="analytics" aria-label="Public futures executed order flow and visible liquidity changes">
+      <article id="dashboardFlowPanel" class="panel order-flow-panel" data-state="idle">
+        <div class="flow-heading">
+          <div>
+            <div class="eyebrow muted">EXECUTED TRADES · SESSION LOCAL</div>
+            <h2>Order Flow Intelligence <span class="liquidity-beta">OBSERVED</span></h2>
+            <p class="flow-description">Actual taker executions, not resting orders. CVD is connection-relative and never backfilled.</p>
+          </div>
+          <div class="flow-actions">
+            <label class="liquidity-control"><span>Trades</span><input id="dashboardFlowEnabled" type="checkbox" checked></label>
+            <span id="dashboardFlowStatus" class="liquidity-status" data-state="waiting" role="status" aria-live="polite">IDLE</span>
+            <button id="dashboardFlowRetry" class="button secondary" type="button">Reconnect</button>
+          </div>
+        </div>
+        <div class="flow-measures" aria-label="Last 60 seconds of aggregate taker trades">
+          <div><span>AGGRESSIVE BUY · 60S</span><strong id="dashboardFlowBuy">—</strong></div>
+          <div><span>AGGRESSIVE SELL · 60S</span><strong id="dashboardFlowSell">—</strong></div>
+          <div><span>DELTA · 60S</span><strong id="dashboardFlowDelta">—</strong></div>
+          <div><span>CVD · THIS CONNECTION</span><strong id="dashboardFlowCvd">—</strong></div>
+          <div><span>TAKER IMBALANCE · 60S</span><strong id="dashboardFlowImbalance">—</strong></div>
+        </div>
+        <div class="flow-layout">
+          <div class="flow-chart-wrap">
+            <div class="flow-chart-controls" role="group" aria-label="Order flow chart display"><button type="button" data-flow-chart-mode="delta" aria-pressed="true">Delta bars</button><button type="button" data-flow-chart-mode="rolling" aria-pressed="false">Rolling delta</button><button type="button" data-flow-chart-mode="cvd" aria-pressed="false">Session CVD</button></div>
+            <div class="flow-ratio" aria-label="Observed aggressive buying share, green for buys and red for sells"><span id="dashboardFlowBuyBar"></span></div>
+            <canvas id="dashboardFlowCanvas" height="136" role="img" aria-label="Observed taker delta chart; select delta bars, rolling delta or connection-relative CVD"></canvas>
+            <p id="dashboardFlowNote" class="flow-footnote">Waiting for verified public trade events.</p>
+          </div>
+          <div id="analytics-behavior" class="flow-behavior" aria-label="Visible resting liquidity change analysis">
+            <div class="flow-subheader"><h3>Liquidity Behavior</h3><span id="dashboardFlowBehaviorStatus" class="liquidity-status" data-state="waiting">WAITING</span></div>
+            <div class="flow-depth-change"><span>Bid notional change <strong id="dashboardFlowBidChange">—</strong></span><span>Ask notional change <strong id="dashboardFlowAskChange">—</strong></span></div>
+            <ul id="dashboardFlowZones" class="flow-zones" aria-label="Largest observed resting liquidity concentrations"></ul>
+            <p id="dashboardFlowBehaviorNote" class="flow-footnote">Requires consecutive verified depth observations.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="replay-section" data-workspace-panel="replay">
+      <div class="workspace-intro"><div class="eyebrow muted">LOCAL RECORDINGS</div><h2>Replay Studio</h2>
+        <p>Two distinct recording formats. Sample Replay stores periodic observations; Event Replay reconstructs bounded Futures depth and trades in receipt order. Neither affects live alerts.</p></div> aria-label="Session market observations and replay">
+      <div class="replay-mode-switch" aria-label="Replay format">
+        <button type="button" id="dashboardReplayModeSamples" aria-pressed="false">Sample Replay</button>
+        <button type="button" id="dashboardReplayModeEvents" aria-pressed="true">Event Replay &amp; Sessions</button>
+      </div>
+      <article id="dashboardReplayPanel" class="panel replay-panel">
+        <div class="replay-heading">
+          <div>
+            <div class="eyebrow muted">OBSERVATION CAPTURE · LOCAL MEMORY ONLY</div>
+            <h2>Market Recorder & Replay <span class="liquidity-beta">SAMPLED · NOT TICK REPLAY</span></h2>
+            <p class="flow-description">Explicit opt-in. Up to 240 synchronized *observation times* at 2s intervals; independent feeds are not atomic. No background recording or historical backfill.</p>
+          </div>
+          <span id="dashboardReplayStatus" class="liquidity-status" role="status" aria-live="polite">NO RECORDING</span>
+        </div>
+        <div class="replay-controls" aria-label="Recorder and replay controls">
+          <button id="dashboardReplayStart" class="button secondary" type="button">Record</button>
+          <button id="dashboardReplayStop" class="button secondary" type="button" disabled>Stop</button>
+          <button id="dashboardReplayPlay" class="button secondary" type="button" disabled>Play</button>
+          <label class="liquidity-control">Speed <select id="dashboardReplaySpeed" aria-label="Replay speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+          <button id="dashboardReplayExport" class="button secondary" type="button" disabled>Export JSON</button>
+          <label class="button secondary replay-import">Import JSON <input id="dashboardReplayImport" type="file" accept=".json,application/json" aria-label="Import a recording JSON file"></label>
+          <button id="dashboardReplayClear" class="button secondary" type="button">Clear</button>
+        </div>
+        <div class="replay-timeline">
+          <input id="dashboardReplayPosition" type="range" min="0" max="0" step="1" value="0" disabled aria-label="Replay observation position">
+          <span id="dashboardReplayTimeline" aria-live="off">0 / 0</span>
+          <span id="dashboardReplayAxis">—</span>
+        </div>
+        <p id="dashboardReplayDetails" class="replay-detail">Start a capture or import a local JSON recording.</p>
+        <div class="replay-charts">
+          <div><h3>Recorded BTC price</h3><canvas id="dashboardReplayPriceCanvas" role="img" aria-label="Observed trade prices by recording time, with missing data shown as gaps"></canvas></div>
+          <div><h3>Observed CVD</h3><canvas id="dashboardReplayDeltaCanvas" role="img" aria-label="Connection-relative CVD; broken at gaps and segment changes"></canvas></div>
+          <div><h3>Visible depth heatmap</h3><canvas id="dashboardReplayHeatmapCanvas" role="img" aria-label="Captured limit-order notional, with missing depth shown as gaps"></canvas></div>
+        </div>
+        <div class="replay-confluence"><span class="eyebrow muted">DESCRIPTIVE CONFLUENCE · NOT A SIGNAL</span><p id="dashboardReplayConfluence" aria-live="polite">No comparable observations.</p></div>
+        <div class="replay-diagnostics">
+          <span id="dashboardReplayDiagnosticsDepth">Depth: IDLE</span>
+          <span id="dashboardReplayDiagnosticsTrades">Trades: IDLE</span>
+        </div>
+        <p id="dashboardReplayFeedback" class="flow-footnote" role="status" aria-live="polite">Imports are untrusted local samples, not validated live exchange observations. Replay never changes live prices or alerts.</p>
+      </article>
+      <article id="dashboardEventPanel" class="panel replay-panel" aria-label="Deterministic Futures event recording and replay">
+        <div class="replay-heading">
+          <div>
+            <div class="eyebrow muted">EVENT RECEIPT LOG · USD-M FUTURES · OPT-IN</div>
+            <h2>Deterministic Event Replay <span class="liquidity-beta">EVENTS V3</span></h2>
+            <p class="flow-description">Independent depth/trade feeds, ordered by local receipt. Max 2,400 events or 4 MiB per capture. Save locally only when requested; no background capture; no exchange-wide atomic ordering, history backfill or trading signals.</p>
+          </div>
+          <span id="dashboardEventState" class="liquidity-status" role="status" aria-live="polite">IDLE</span>
+        </div>
+        <div class="replay-controls" aria-label="Event recorder controls">
+          <button id="dashboardEventStart" class="button secondary" type="button">Record events</button>
+          <button id="dashboardEventStop" class="button secondary" type="button" disabled>Stop</button>
+          <button id="dashboardEventPlay" class="button secondary" type="button" disabled>Play</button>
+          <label class="liquidity-control">Speed <select id="dashboardEventSpeed" aria-label="Event replay speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+          <button id="dashboardEventExport" class="button secondary" type="button" disabled>Export events</button>
+          <label class="button secondary replay-import">Import events <input id="dashboardEventImport" type="file" accept=".json,application/json" aria-label="Import event replay JSON"></label>
+          <button id="dashboardEventClear" class="button secondary" type="button">Clear</button>
+        </div>
+        <div class="replay-session-controls" aria-label="Local replay session management">
+          <div class="eyebrow muted">SAVED SESSIONS · LOCAL INDEXEDDB · EXPLICIT OPT-IN</div>
+          <div class="replay-controls">
+            <label class="liquidity-control">Session name <input id="dashboardEventSessionName" type="text" maxlength="64" value="Futures event capture" aria-label="Name saved replay session"></label>
+            <button id="dashboardEventSaveSession" class="button secondary" type="button" disabled>Save locally</button>
+            <label class="liquidity-control">Stored session <select id="dashboardEventSessions" aria-label="Saved replay sessions"><option value="">No saved sessions</option></select></label>
+            <button id="dashboardEventLoadSession" class="button secondary" type="button" disabled>Load</button>
+            <button id="dashboardEventDeleteSession" class="button secondary" type="button" disabled>Delete</button>
+          </div>
+          <p id="dashboardEventSessionFeedback" class="flow-footnote" role="status" aria-live="polite">Saved sessions persist only in this browser profile. Max 12 sessions / 24 MiB stored. No automatic recording or uploads.</p>
+        </div>
+        <div class="replay-timeline">
+          <input id="dashboardEventPosition" type="range" min="0" max="0" step="1" value="0" disabled aria-label="Event position">
+          <span id="dashboardEventCount" aria-live="off">0 / 0</span>
+          <span>RECEIPT ORDER · SEEK</span>
+        </div>
+        <div class="replay-controls" aria-label="Event replay research controls">
+          <button id="dashboardEventStepBack" class="button secondary" type="button" disabled>Step back</button>
+          <button id="dashboardEventStepForward" class="button secondary" type="button" disabled>Step forward</button>
+          <label class="liquidity-control">Bookmark note <input id="dashboardEventBookmarkNote" type="text" maxlength="160" aria-label="Bookmark note"></label>
+          <button id="dashboardEventBookmarkAdd" class="button secondary" type="button" disabled>Bookmark frame</button>
+          <label class="liquidity-control">Bookmarks <select id="dashboardEventBookmarks" aria-label="Jump to bookmark"><option value="">No bookmarks</option></select></label>
+          <button id="dashboardEventCompare" class="button secondary" type="button">Compare with saved</button>
+        </div>
+        <p id="dashboardEventCompareResult" class="flow-footnote" role="status" aria-live="polite">Select a saved session to compare with the current replay.</p>
+        <p class="flow-footnote">Bookmarks are temporary for the current replay and reset on new capture/import/load. Comparison is read-only and does not alter active replay or live alerts.</p>
+        <p id="dashboardEventDetails" class="replay-detail">Record or import verified-format USD-M Futures events.</p>
+        <div class="replay-charts">
+          <div><h3>Futures executed price</h3><canvas id="dashboardEventPriceCanvas" role="img" aria-label="Recorded Futures execution prices"></canvas></div>
+          <div><h3>Segment CVD</h3><canvas id="dashboardEventDeltaCanvas" role="img" aria-label="Recorded segment-relative taker volume delta"></canvas></div>
+          <div><h3>Reconstructed visible depth</h3><canvas id="dashboardEventDepthCanvas" role="img" aria-label="Reconstructed Futures order-book concentration"></canvas></div>
+        </div>
+        <div class="replay-confluence"><span class="eyebrow muted">EVENT CONFLUENCE 3.0 · DESCRIPTIVE, NOT PREDICTIVE</span><p id="dashboardEventInsight" aria-live="polite">No comparable event evidence.</p></div>
+        <p id="dashboardEventFeedback" class="flow-footnote" role="status" aria-live="polite">Local import is untrusted and labeled offline. Replay cannot change live prices, charts, storage or alerts.</p>
+      </article>
+    </section>
+
+    <section class="content-grid" data-workspace-panel="live">
       <div class="market-column">
         <article id="dashboardRangeCard" class="panel range-panel" aria-label="24 hour range position">
           <div class="panel-header">
@@ -151,6 +422,12 @@
 
       </div>
 
+    </section>
+
+    <section id="dashboardAlertsSection" class="alerts-section" data-workspace-panel="alerts" aria-label="Smart alert center">
+      <div class="workspace-intro"><div class="eyebrow muted">LOCAL ALERT MANAGEMENT</div><h2>Alert Center</h2>
+        <p>Manage price targets, delivery preferences and recent alert history. Alerts use live market data; replay never triggers them.</p></div>
+      <div class="alerts-layout">
       <aside class="side-column">
         <article class="panel alert-manager-panel" aria-label="Price target alerts">
           <div class="panel-header"><div><div class="eyebrow muted">ALERTS</div><h2>Price Targets</h2></div><span id="dashboardTargetCount" class="alert-count">0/0 active</span></div>
@@ -165,27 +442,29 @@
         </article>
       </aside>
 
+      <article class="panel" aria-label="Advanced live-only alert rules">
+        <div class="panel-header"><div><div class="eyebrow muted">RULE ENGINE</div><h2>Advanced Live Alerts</h2></div></div>
+        <p class="flow-footnote">Evaluated only while the dashboard and required live feeds are running. No historical replay or background stream monitoring.</p>
+        <form id="advancedAlertForm" class="alert-target-form">
+          <select id="advancedAlertType" aria-label="Metric"><option value="price">Price (USDT)</option><option value="cvd">CVD delta (BTC)</option><option value="volume">Executed volume (BTC)</option><option value="imbalance">Book imbalance (-1 to +1)</option></select>
+          <select id="advancedAlertDirection" aria-label="Relation"><option value="above">At or above</option><option value="below">At or below</option></select>
+          <input id="advancedAlertThreshold" type="number" required step="any" placeholder="Threshold" aria-label="Threshold">
+          <select id="advancedAlertWindow" aria-label="Flow window"><option value="10">10s</option><option value="30">30s</option><option value="60" selected>60s</option><option value="300">300s</option></select>
+          <select id="advancedAlertCooldown" aria-label="Cooldown"><option value="60">1 min</option><option value="300" selected>5 min</option><option value="900">15 min</option></select>
+          <button class="button tertiary" type="submit">Add rule</button>
+        </form>
+        <p id="advancedAlertFeedback" class="alert-feedback" role="status" aria-live="polite"></p>
+        <ul id="advancedAlertRules" class="alert-target-list" aria-label="Advanced rules"></ul>
+      </article>
       <article class="panel alert-history-panel" aria-label="Alert history">
         <div class="panel-header"><div><div class="eyebrow muted">EVENTS</div><h2>Alert History</h2></div><span id="dashboardHistoryCount" class="alert-count">0 events</span></div>
         <ul id="dashboardHistoryList" class="alert-history-list" aria-label="Alert history events"></ul>
         <button id="dashboardClearHistory" class="button tertiary" type="button">Clear history</button>
       </article>
-    </section>
-
-    <section class="settings-section" aria-label="Local dashboard settings">
-      <article class="panel settings-panel" aria-label="Dashboard settings">
-        <div class="panel-header">
-          <div>
-            <div class="eyebrow muted">LOCAL</div>
-            <h2>Display Settings</h2>
-          </div>
-        </div>
+      </div>
+      <article class="panel alert-delivery-panel" aria-label="Notification delivery settings">
+        <div class="panel-header"><div><div class="eyebrow muted">DELIVERY CONTROL</div><h2>Notification Preferences</h2></div></div>
         <div class="settings-list">
-          <label class="setting-row"><span><strong>Compact Layout</strong><small>Reduce spacing across popup and dashboard.</small></span><input id="dashboardSettingCompact" type="checkbox"></label>
-          <label class="setting-row"><span><strong>Show Bid / Ask</strong><small>Display best bid, ask and spread.</small></span><input id="dashboardSettingBidAsk" type="checkbox"></label>
-          <label class="setting-row"><span><strong>Show 24h Volume</strong><small>Display rolling quote volume.</small></span><input id="dashboardSettingVolume" type="checkbox"></label>
-          <label class="setting-row"><span><strong>Show 24h Range</strong><small>Display price position inside the 24h range.</small></span><input id="dashboardSettingRange" type="checkbox"></label>
-          <label class="setting-row"><span><strong>Price Animation</strong><small>Flash when a newer price arrives.</small></span><input id="dashboardSettingAnimation" type="checkbox"></label>
           <label class="setting-row"><span><strong>Browser Notifications</strong><small>Master switch for native BTC Live alerts.</small></span><input id="dashboardSettingNotifications" type="checkbox"></label>
           <label class="setting-row"><span><strong>Background Alerts</strong><small>Check price alerts periodically even when all BTC Live views are closed.</small></span><input id="dashboardSettingBackgroundAlerts" type="checkbox"></label>
           <label class="setting-row"><span><strong>Price Move Alerts</strong><small>Notify after BTC moves by the configured threshold.</small></span><input id="dashboardSettingNotifyPrice" type="checkbox"></label>
@@ -193,8 +472,45 @@
           <label class="setting-row setting-row-control"><span><strong>Alert Cooldown</strong><small>Minimum interval between repeated alert events.</small></span><select id="dashboardSettingNotificationCooldown" aria-label="Notification cooldown"><option value="60">1 min</option><option value="300">5 min</option><option value="900">15 min</option><option value="1800">30 min</option><option value="3600">60 min</option></select></label>
           <label class="setting-row"><span><strong>Connection Alerts</strong><small>Notify on stale/offline data and recovery.</small></span><input id="dashboardSettingNotifyConnection" type="checkbox"></label>
         </div>
-        <div class="settings-actions-inline"><button id="dashboardTestNotification" class="button tertiary" type="button">Test notification</button>
-        <button id="dashboardResetSettings" class="button tertiary" type="button">Reset defaults</button></div>
+        <div class="settings-actions-inline"><button id="dashboardTestNotification" class="button tertiary" type="button">Test notification</button></div>
+        <p class="flow-footnote">Native browser notification delivery depends on browser permissions and active background checks.</p>
+      </article>
+    </section>
+
+    <section id="dashboardDiagnosticsSection" class="diagnostics-section" data-workspace-panel="diagnostics" aria-label="Market diagnostics">
+      <div class="workspace-intro"><div class="eyebrow muted">RUNTIME OBSERVABILITY</div><h2>Feed Diagnostics</h2>
+        <p>Independent feed states, recovery counts and last reported errors. These are observed connection states, not proof of exchange availability.</p></div>
+      <div class="diagnostics-grid">
+        <article class="panel"><span class="metric-label">PRICE / MARKET STATE</span><strong id="dashboardDiagnosticsPrice">WAITING</strong><p id="dashboardDiagnosticsPriceNote">Awaiting validated market data.</p><button id="dashboardDiagnosticsRetryPrice" type="button" class="button secondary">Retry price</button></article>
+        <article class="panel"><span class="metric-label">ORDER BOOK DEPTH</span><strong id="dashboardDiagnosticsDepth">IDLE</strong><p id="dashboardDiagnosticsDepthNote">No depth observations yet.</p><button id="dashboardDiagnosticsRetryDepth" type="button" class="button secondary">Resync depth</button></article>
+        <article class="panel"><span class="metric-label">EXECUTED TRADES</span><strong id="dashboardDiagnosticsTrades">IDLE</strong><p id="dashboardDiagnosticsTradesNote">No trade observations yet.</p><button id="dashboardDiagnosticsRetryTrades" type="button" class="button secondary">Reconnect trades</button></article>
+      </div>
+      <p class="diagnostics-disclosure">Live feeds are separate from imported replay files. Offline, stale, reconnecting and unavailable are not equivalent to zero activity.</p>
+    </section>
+
+    <section class="settings-section" data-workspace-panel="settings" aria-label="Local dashboard settings">
+      <article class="panel settings-panel" aria-label="Dashboard settings">
+        <div class="panel-header">
+          <div>
+            <div class="eyebrow muted">LOCAL</div>
+            <h2>Display Settings</h2>
+          </div>
+        </div>
+        <label class="setting-row" for="dashboardWorkspaceLanding"><span><strong>Custom Landing View</strong><small>Only used by the Custom workspace preset.</small></span><select id="dashboardWorkspaceLanding" aria-label="Custom start view"><option value="live">Live</option><option value="analytics">Analytics</option><option value="replay">Replay</option><option value="alerts">Alerts</option><option value="diagnostics">Diagnostics</option><option value="settings">Settings</option></select></label>
+        <div class="settings-list">
+          <label class="setting-row"><span><strong>Compact Layout</strong><small>Reduce spacing across popup and dashboard.</small></span><input id="dashboardSettingCompact" type="checkbox"></label>
+          <label class="setting-row"><span><strong>Show Bid / Ask</strong><small>Display best bid, ask and spread.</small></span><input id="dashboardSettingBidAsk" type="checkbox"></label>
+          <label class="setting-row"><span><strong>Show 24h Volume</strong><small>Display rolling quote volume.</small></span><input id="dashboardSettingVolume" type="checkbox"></label>
+          <label class="setting-row"><span><strong>Show 24h Range</strong><small>Display price position inside the 24h range.</small></span><input id="dashboardSettingRange" type="checkbox"></label>
+          <label class="setting-row"><span><strong>Price Animation</strong><small>Flash when a newer price arrives.</small></span><input id="dashboardSettingAnimation" type="checkbox"></label>
+        </div>
+        <div class="settings-actions-inline"><button id="dashboardResetSettings" class="button tertiary" type="button">Reset defaults</button></div>
+        <details class="onboarding-help"><summary>Getting started / data and privacy</summary>
+          <div><p><strong>Live:</strong> Validated Binance Futures market prices and the chart. <strong>Analytics:</strong> visible resting orders and executed taker trades. Neither predicts liquidations.</p>
+          <p><strong>Replay:</strong> Sample recordings and independent event recordings; imported sessions are unverified and never influence alerts. Saving a session requires explicit action.</p>
+          <p><strong>Alerts:</strong> Configure local targets and browser notifications. <strong>Diagnostics:</strong> inspect feed freshness and reconnects. No account, exchange API key or telemetry is required.</p>
+          <p><strong>Presets:</strong> Simple reduces available navigation; Advanced exposes all tools; Custom remembers your preferred landing view. Change the preset at any time.</p></div>
+        </details>
       </article>
     </section>
 

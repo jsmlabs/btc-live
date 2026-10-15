@@ -28,6 +28,7 @@ import {
   resetSessionDiagnostics
 } from '../storage/session-diagnostics.js';
 import { reconnectDelay } from '../utils/backoff.js';
+import { createRuntimeTelemetry, TELEMETRY_EVENT } from '../market/runtime-telemetry.js';
 
 export const RUNTIME_TIMING = Object.freeze({
   SOCKET_DATA_TIMEOUT_MS: 8000,
@@ -53,6 +54,7 @@ export function createBtcLiveRuntime({
   setIntervalFn = globalThis.setInterval.bind(globalThis),
   clearIntervalFn = globalThis.clearInterval.bind(globalThis)
 } = {}) {
+  const telemetry = createRuntimeTelemetry({ now });
   let state = createInitialMarketState();
   let settings = { ...DEFAULT_SETTINGS };
   let diagnostics = createSessionDiagnostics(now());
@@ -78,6 +80,7 @@ export function createBtcLiveRuntime({
     state,
     settings,
     diagnostics,
+    telemetry: telemetry.snapshot(),
     feedConnections: { ...feedConnections },
     reconnectAttempt,
     nextRetryAt,
@@ -85,7 +88,14 @@ export function createBtcLiveRuntime({
     disposed
   });
 
-  const emit = () => onChange(snapshot());
+  let lastEmittedStatus = state.connectionStatus;
+  const emit = () => {
+    if (state.connectionStatus !== lastEmittedStatus) {
+      telemetry.record(TELEMETRY_EVENT.STATUS_CHANGE, { status: state.connectionStatus });
+      lastEmittedStatus = state.connectionStatus;
+    }
+    onChange(snapshot());
+  };
 
   function start() {
     if (disposed) return Promise.reject(new Error('BTC Live runtime has been disposed'));
@@ -138,10 +148,12 @@ export function createBtcLiveRuntime({
     try {
       const nextSnapshot = await fetchSnapshot({ signal: controller.signal });
       if (disposed || restController !== controller) return;
+      telemetry.record(TELEMETRY_EVENT.SNAPSHOT_SUCCESS);
       state = applySnapshot(state, nextSnapshot);
       emit();
     } catch (error) {
       if (disposed || controller.signal.aborted || error?.name === 'AbortError') return;
+      telemetry.record(TELEMETRY_EVENT.SNAPSHOT_FAILURE);
       if (!state.hasInitialSnapshot && state.connectionStatus === CONNECTION_STATUS.LOADING) {
         state = applyConnectionEvent(state, CONNECTION_EVENT.CONNECT);
         emit();
@@ -175,10 +187,12 @@ export function createBtcLiveRuntime({
     emit();
 
     let nextSocket;
+    telemetry.record(TELEMETRY_EVENT.SOCKET_CONNECT);
     try {
       nextSocket = createSocket({
         onOpen() {
           if (!isCurrentSocket(generation, nextSocket)) return;
+          telemetry.record(TELEMETRY_EVENT.SOCKET_OPEN);
           connectedAt = now();
           diagnostics = recordConnected(diagnostics, connectedAt);
           persistDiagnosticsSafe();
@@ -212,6 +226,7 @@ export function createBtcLiveRuntime({
         },
         onClose(event) {
           if (!isCurrentSocket(generation, nextSocket)) return;
+          telemetry.record(TELEMETRY_EVENT.SOCKET_CLOSE);
           clearSocketDataTimer();
           clearTickerDataTimer();
           connectedAt = null;
@@ -222,6 +237,7 @@ export function createBtcLiveRuntime({
         },
         onError(event, feed) {
           if (!isCurrentSocket(generation, nextSocket)) return;
+          telemetry.record(TELEMETRY_EVENT.SOCKET_ERROR, { feed });
           onWarning(`BTC Live ${feed ?? 'market'} stream error`, event);
         },
         onFeedStatus(feed, status) {
@@ -236,6 +252,7 @@ export function createBtcLiveRuntime({
         }
       });
     } catch (error) {
+      telemetry.record(TELEMETRY_EVENT.SOCKET_ERROR);
       onWarning('BTC Live WebSocket could not be created', error);
       if (generation === socketGeneration && !disposed) {
         scheduleReconnect('Unable to open the live stream.');
@@ -360,6 +377,7 @@ export function createBtcLiveRuntime({
     const delay = immediate ? 0 : reconnectDelay(reconnectAttempt);
     if (!immediate) reconnectAttempt += 1;
     nextRetryAt = now() + delay;
+    telemetry.record(TELEMETRY_EVENT.RECONNECT_SCHEDULED, { delayMs: delay });
     connectedAt = null;
     clearSocketDataTimer();
     clearTickerDataTimer();
@@ -427,6 +445,7 @@ export function createBtcLiveRuntime({
         emit();
       }
     } catch (error) {
+      telemetry.record(TELEMETRY_EVENT.SETTINGS_FAILURE);
       onWarning('BTC Live settings could not be saved', error);
       if (revision !== settingsRevision || disposed) return settings;
       try {

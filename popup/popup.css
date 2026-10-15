@@ -273,3 +273,12 @@ button { -webkit-tap-highlight-color: transparent; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* Match dashboard restraint: useful focus and value transitions, not continuous decoration. */
+.metric-card, .range-card, .alert-center { transition: background-color 160ms ease-out, border-color 160ms ease-out; }
+.metric-card:hover { background: var(--bg-surface-raised); border-color: var(--border-strong); }
+.range-fill { transition: width 190ms ease-out; }
+.range-marker { transition: left 190ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .metric-card, .range-card, .alert-center, .range-fill, .range-marker { transition: none !important; }
+}

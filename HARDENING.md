@@ -1,4 +1,4 @@
-> **Historical record:** The sections below describe hardening work at their original version checkpoints and must not be interpreted as a fresh audit of the unmerged archive. Current extension permissions are `storage`, `notifications`, `alarms`; host permission remains Binance Futures REST. See [SECURITY.md](SECURITY.md).
+> **Historical record:** The sections below describe hardening work at their original version checkpoints and must not be interpreted as a fresh audit of the integrated v16 development candidate. Current extension permissions are `storage`, `notifications`, `alarms`; host permission remains Binance Futures REST. See [SECURITY.md](SECURITY.md).
 
 # v1.9.0 Step 1 Hardening Pass
 

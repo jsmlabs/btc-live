@@ -1,36 +1,37 @@
 # BTC Live
 
-A privacy-conscious Chromium Manifest V3 terminal for **BTCUSDT** using public Binance USDⓈ-M Futures market data. It includes price and depth monitoring, order-flow analytics, chart tools, event replay, and opt-in alerts.
+**BTCUSDT market terminal for Chromium (Manifest V3).** BTC Live displays public Binance USDⓈ-M Futures prices, trades and depth data, with charting, order-flow research, local recordings and optional notifications. No exchange credentials or order placement are involved.
 
-> **Release status: v16 development candidate (not production approved).** The packaged extension still declares `1.22.0` in `manifest.json` to avoid presenting an unverified v16 release. Chromium UI, live feed, MV3 lifecycle, multi-tab concurrency and long-running performance acceptance tests remain open. The GitHub branch contains candidate source code, not a released v16 store build.
+> [!IMPORTANT]
+> **Version and release status:** The extension manifest is **1.22.0**. This branch is a **v16 Phase 01-10 development candidate**, not a released v16 build. The candidate has not passed all browser, live-market, lifecycle and long-session acceptance gates. For the published/stable implementation, use [main](https://github.com/jsmlabs/btc-live/tree/main); for the integration discussion, see [PR #3](https://github.com/jsmlabs/btc-live/pull/3). Do not treat candidate features or screenshots as verified production behavior.
 
-## Capabilities
+## What it does
 
-| Area | Available features | Scope / limitations |
+| Workspace | Candidate capabilities | Limits |
 | --- | --- | --- |
-| Market data | Public BTCUSDT Futures ticker, trades, candles, order book, reconnect diagnostics | Requires Binance public endpoints; feed quality can degrade |
-| Order flow | CVD windows (10/30/60/300 seconds), price/delta divergence, book-imbalance and liquidity persistence | Descriptive metrics, **not** verified trade signals; gaps invalidate affected observations |
-| Chart | Candlestick/line, drawing tools, crosshair, pan/zoom, optional OHLC snapping, undo/redo | Interactive browser behavior requires manual verification |
-| Workspace | Live, Analytics, Replay, Alerts, Diagnostics, Settings; density/layout presets, focus mode and command palette | Layouts are presets, not a drag-and-drop grid |
-| Replay | Recorded-session playback, stepping, timeline, in-memory bookmarks and session comparison | Bookmarks are not persistent; recorded coverage may be incomplete |
-| Alerts | Existing price/background alerts and advanced dashboard rules for price, CVD, executed volume and imbalance | Advanced rules **require an active dashboard**; closed-dashboard continuous monitoring is not supported |
-| Diagnostics | Feed states, bounded telemetry and render-scheduler counters | Telemetry counters are not proof of improved FPS |
+| Live | BTCUSDT price, trades, candles, order-book view and connection diagnostics | Binance connectivity, feed freshness and valid depth synchronization are required |
+| Analytics | Rolling CVD, observed executed volume, divergence and book imbalance | Descriptive research metrics, not verified execution signals; missing data are not zero |
+| Chart | Candle/line view, zoom/pan, drawings, crosshair and undo/redo | Actual Chromium pointer/keyboard behavior remains an acceptance item |
+| Replay | Locally recorded session playback, steps, timeline and session comparison | Coverage may be incomplete; bookmarks are session-local |
+| Alerts | Price alerts and dashboard-only advanced price/flow rules | Background checks are sampled; dashboard-only rules stop evaluating when it closes |
+| Diagnostics | Connection state, feed age, bounded counters and runtime inspection | Telemetry does not establish live-feed correctness or performance gains |
+| Layout | Presets, density controls, focus mode and command palette | Presets are not a free-form drag-and-drop layout system |
 
-BTC Live uses no exchange API keys, performs no order execution and does not claim predictive accuracy or trading profitability.
+BTC Live does **not** submit trades, require Binance API keys, guarantee notifications, or predict market direction.
 
-## Install for development
+## Install the development candidate
 
-1. Download or clone this **candidate branch**.
-2. Open `chrome://extensions` (or the equivalent Chromium extensions page).
-3. Enable **Developer mode**, select **Load unpacked**, and choose the repository root containing `manifest.json`.
-4. Open **BTC Live** from the extension toolbar, then **Open Dashboard**.
-5. Validate connections, market-data status and notification permissions before relying on alerts.
+1. Clone this branch (or download its source archive).
+2. Open `chrome://extensions` in a supported Chromium browser and enable **Developer mode**.
+3. Choose **Load unpacked** and select the folder containing `manifest.json`.
+4. Open the BTC Live toolbar popup, then **Open Dashboard**.
+5. Confirm Binance access, data freshness and notification permissions before testing alerts.
 
-Use a dedicated test browser profile when comparing with an already installed version. Storage compatibility and live update behavior have not been completely browser-verified.
+Use a separate browser profile if a previously installed version holds data you need to preserve. Migration and upgrade compatibility have **not** been fully browser-tested.
 
-## Verify and package
+## Develop, verify, package
 
-Node.js 22 or later recommended. There are no external npm runtime dependencies.
+Node.js **20 or newer** is declared by this candidate; the repository CI tests on **Node.js 22**. The source has no external runtime npm dependencies.
 
 ```bash
 npm run verify
@@ -38,35 +39,48 @@ npm run release:check
 npm run package:extension
 ```
 
-`verify` runs static integrity checks and deterministic Node tests. `release:check` inspects release contracts; it is **not** a browser/live-certification command. Packaging excludes development-only material. See [Testing and release gates](docs/TESTING.md) and [Release status](docs/RELEASE.md).
+| Command | Purpose | What it does **not** prove |
+| --- | --- | --- |
+| `npm run verify` | Source/manifest/reference validation and deterministic Node tests | Browser rendering or live exchange behavior |
+| `npm run release:check` | Static release and packaging contract checks | Approval to publish v16 |
+| `npm run package:extension` | Create candidate extension package | Store acceptance or runtime compatibility |
 
-## Architecture
+The candidate Phase-10 environment previously reported **45 deterministic passing tests**. This is historical candidate evidence, **not** a claim that the integrated branch or current CI has passed. Review [Testing](docs/TESTING.md) and [Release readiness](docs/RELEASE.md) for the required gates.
 
-- `market/`: REST/WebSocket transports, feed validation, aggregation and market state.
-- `app/`: shared runtime, background-price-alert logic and advanced live-alert engine.
-- `ui/`: charts, order flow, liquidity, confluence, playback and render scheduling.
-- `storage/`: local preferences, alerts, recordings and diagnostics.
-- `dashboard/`, `popup/`, `background/`: UI surfaces and the MV3 service worker.
-- `tests/`, `scripts/`, `.github/workflows/`: deterministic tests, static checks and CI.
+## System boundaries
 
-Detailed boundaries and failure behavior: [Architecture](docs/ARCHITECTURE.md).
+```text
+Public Binance REST / WebSocket
+  -> market/ transport, validation, feed health and aggregation
+  -> app/ runtime and bounded live alert evaluation
+  -> ui/ selectors and rendering
+  -> dashboard/ and popup/
 
-## Privacy, safety and data quality
+background/ service worker -> sampled price alert checks
+storage/ -> local settings, histories and recorded sessions
+```
 
-Public Binance market data is used, without account credentials. The extension has `storage`, `notifications` and `alarms` permissions and a Binance Futures host permission. Recordings and settings may be stored locally. Advanced alerts may miss events if the dashboard closes, the feed disconnects or the browser suspends execution. Depth-based analytics are withheld when a sequence gap is detected. See [Privacy and permissions](docs/PRIVACY.md) and [Alert semantics](docs/ALERTS.md).
+Depth continuity and snapshot synchronization must be valid before showing dependent analytics. Replay must not generate live notifications. Notification attempts are not reliable trade-execution events. See [Architecture](docs/ARCHITECTURE.md) and [Alerts](docs/ALERTS.md).
+
+## Privacy and risks
+
+The extension uses public market endpoints, local browser storage, notifications and alarms. It requests Binance REST host access and a restricted Binance streaming CSP. It has no order-execution functionality. Browser suspension, denied notifications, feed gaps and disconnected dashboards can prevent alerts; never use an alert as the sole risk control. See [Privacy](docs/PRIVACY.md).
 
 ## Documentation
 
-- [Getting started and controls](docs/USAGE.md)
-- [Architecture and boundaries](docs/ARCHITECTURE.md)
-- [Alerts and delivery guarantees](docs/ALERTS.md)
-- [Testing, verification and smoke checks](docs/TESTING.md)
-- [Release readiness and open blockers](docs/RELEASE.md)
-- [Privacy](docs/PRIVACY.md)
-- [Phase 01-10 engineering records](docs/PHASE10.md)
+| Guide | Subject |
+| --- | --- |
+| [Usage](docs/USAGE.md) | Install, controls, research, replay and troubleshooting |
+| [Architecture](docs/ARCHITECTURE.md) | Runtime, trust boundaries and data validity |
+| [Alerts](docs/ALERTS.md) | Evaluation, delivery and failure semantics |
+| [Testing](docs/TESTING.md) | Deterministic checks, manual tests and evidence |
+| [Release](docs/RELEASE.md) | Version policy, blockers and acceptance gates |
+| [Privacy](docs/PRIVACY.md) | Permissions, endpoints and local information |
+| [Phase 10](docs/PHASE10.md) | Development-stage engineering evidence |
+| [Stable release notes](GITHUB_RELEASE.md) | Historical v1.22.0 release information |
 
 ## Contributing
 
-Prefer small, reversible changes. Preserve manifest/storage contracts, least-privilege permissions and live-versus-replay isolation. Include deterministic regression fixtures for feed and alert behavior, and do not represent static test results as browser/live evidence. See [Testing](docs/TESTING.md).
+Make focused, reversible changes and include regression tests for changed behavior. Preserve storage and manifest compatibility, constrained browser permissions, live/replay isolation, feed validity checks and notification de-duplication. Submit the candidate only after the required manual acceptance evidence is recorded. Static verification alone does not certify live extension behavior.
 
-License: see [`LICENSE`](LICENSE) in the upstream repository.
+[MIT license](LICENSE) · Independent project; not affiliated with or endorsed by Binance.

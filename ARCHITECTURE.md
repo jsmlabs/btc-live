@@ -1,6 +1,6 @@
 # BTC Live architecture
 
-**Status:** Chromium Manifest V3 development candidate, manifest `1.24.1`. This is the current architecture overview; [the detailed contract](docs/ARCHITECTURE.md) is the technical source of documentation.
+**Status:** Chromium Manifest V3 development candidate, manifest `1.24.2`. This is the current architecture overview; [the detailed contract](docs/ARCHITECTURE.md) is the technical source of documentation.
 
 ## System map
 

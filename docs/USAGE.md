@@ -1,65 +1,68 @@
-# BTC Live user guide
+# User guide
 
-> **Build scope:** This guide covers the v16 development candidate in `main` (manifest `1.22.0`). It is available for evaluation, **not yet approved for customer distribution**. The installed store version can differ.
+**Applies to:** `main` v16 Phase 01–10 **development candidate**, manifest `1.22.0`. The Chrome Web Store may still distribute a different build. Use this guide for evaluation, not as a production-readiness certificate.
 
-## Install for evaluation
+## Install without affecting an existing profile
 
-1. Clone [`main`](https://github.com/jsmlabs/btc-live/tree/main) or download the source archive, or obtain an exact-commit candidate ZIP from [GitHub Actions](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml).
-2. If using a candidate ZIP, check its SHA-256 against `SHA256SUMS.txt` and extract it to a folder.
-3. In a **separate Chromium test profile**, open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select the folder containing `manifest.json`.
-4. Pin/open the **BTC Live** toolbar popup. Use the **Open dashboard** control for the full workspace.
-5. Check connection and feed-age diagnostics before treating any value as current; grant notifications only if you intend to test alerts.
+1. Open a **separate Chromium test profile**.
+2. Clone [BTC Live](https://github.com/jsmlabs/btc-live) or download the source branch.
+3. Navigate to `chrome://extensions`; enable Developer mode.
+4. Select **Load unpacked** and choose the folder containing `manifest.json`.
+5. Click the toolbar icon for the popup; choose **Open Dashboard** to access the full terminal.
 
-Loading unpacked source requires no Node.js, npm install, credentials or Binance account. An Internet connection to public Binance USDⓈ-M Futures endpoints is needed for live data.
+**From an Actions build:** Download the artifact matching the source SHA, verify `SHA256SUMS.txt`, unpack the inner candidate ZIP, then load the extracted extension directory. A ZIP itself cannot be selected by Load unpacked. There is no npm build required for use; a network path to the public Binance Futures endpoints is required for data.
 
-## Workspaces
+## Explore the six workspaces
 
-| View | Typical task | Limitation |
+| Workspace | Start with | Expectations |
 | --- | --- | --- |
-| **Live** | Monitor BTCUSDT Futures price, 24-hour metrics and interactive chart | Displayed values can be stale or unavailable |
-| **Analytics** | Study observed aggressive trades, executed volume, rolling CVD, divergences and displayed depth | Descriptive metrics, not independently validated trade signals |
-| **Replay** | Record supported sessions, scrub/step, bookmark and compare recorded data | Coverage varies; replay never drives live alerts |
-| **Alerts** | Configure price thresholds and, while dashboard is open, advanced flow rules | Delivery and closed-dashboard evaluation are not continuous |
-| **Diagnostics** | Inspect connection, data sources and freshness | Open connection does not prove synchronized order book |
-| **Settings** | Tune layout, display preferences and notification rules | Changes affect presentation, not market data |
+| Live | BTCUSDT price, 24h range, market status and chart | Inspect age/source labels before making a decision |
+| Analytics | Aggressive volume, CVD, displayed liquidity and descriptive comparisons | Incomplete observations are not authoritative volume history |
+| Replay | Load a recorded session, scrub/step and compare supported data | Bookmarks are session-local; replay never notifies |
+| Alerts | Configure price targets and supported advanced metrics | Advanced checks operate only with an open live dashboard |
+| Diagnostics | Inspect reconnects, transport/feed state and freshness | A connected WebSocket does not establish a valid depth book |
+| Settings | Personalize view and notification preferences | Local presentation options do not affect exchange data |
 
-### Chart controls
+**Workspace presets:** Simple shows a reduced set of tabs; Advanced exposes all available workspaces; Custom permits a configured landing workspace. If a view is hidden by the current preset, command navigation does not override that restriction.
 
-Choose **1m / 5m / 15m / 30m / 1h / 4h** and **Candles / Line / Area** in the Live chart. Use zoom, pan, crosshair and supported drawing tools. Drawings support selection and undo/redo; hold **Alt** for optional OHLC snapping during drawing/editing.
+## Chart controls
 
-| Shortcut | Function |
+The chart supports **1m, 5m, 15m, 30m, 1h and 4h** intervals with candles, line or area rendering. Use the visible zoom/pan controls, crosshair, selection and drawing tools, including horizontal/trend/measurement/zone annotations where available.
+
+| Input | Action |
 | --- | --- |
 | `Ctrl+K` / `Cmd+K` (where supported) | Open command palette |
-| `F` (outside editable inputs) | Toggle chart focus |
+| Arrow keys, Enter, Escape | Navigate/execute/dismiss palette entries |
+| `F` (outside editable controls) | Toggle chart-focus presentation |
+| `Alt` while drawing/editing | Optional snap to observed OHLC values |
 
-Layout presets: **Standard, Wide, Stacked**. Density: **Compact, Comfortable, Analysis**. The workspace preset controls which sections are presented; it does not change exchange observations.
+Layouts are **Standard / Wide / Stacked**; densities are **Compact / Comfortable / Analysis**. These are responsive presets, **not** freely dockable panels. Actual keyboard, touch and resize behavior still needs real-browser acceptance.
 
-## Market-data meaning
+## How data and alerts work
 
-The application reads **public Binance Futures** REST/WebSocket streams. Rolling cumulative volume delta (CVD) uses signed observed aggressive executions; book imbalance measures displayed resting bid/ask liquidity. Neither metric proves hidden liquidity, spoofing, actual liquidations or the direction of future prices.
+BTC Live consumes public **BTCUSDT Binance USDⓈ-M Futures** endpoints. CVD uses locally observed aggressive trades and resets/segments on relevant feed discontinuities; book imbalance is a measurement of displayed resting depth. Neither metric identifies particular traders, hidden orders, manipulation nor future direction. Missing, incomplete or stale measurements are unavailable - never assume a displayed zero.
 
-Depth metrics require correctly synchronized snapshot and diff sequence. Price, 24h statistics, trades and candles have separate freshness checks. **Missing or invalid data must be treated as unavailable, not zero.**
+Standard price/percentage alerts can use sampled background REST checks. **Advanced** price, CVD, volume and imbalance rules require a **live open dashboard**, acceptable feed freshness, notification settings, cooldown and Web Locks support for cross-tab serialization. A persisted trigger indicates an attempted notification, not guaranteed OS delivery. See [Alerts](ALERTS.md).
 
-## Alerts and recordings
+## Recording and replay
 
-- **Price/percentage alerts:** evaluated in supported foreground paths and sampled MV3 background checks; a fast price crossing can be missed between samples.
-- **Advanced flow alerts:** require an open dashboard and validated **live** metrics. Replay is excluded. A trigger is persisted before a notification attempt, so browser or OS denial can lead to a missed alert.
-- **Recordings:** retained locally via browser storage; any export contains data you are responsible for handling. Session bookmarks and supported comparison values may depend on the recording's coverage.
-
-See [alert delivery and failure semantics](ALERTS.md), [data handling](PRIVACY.md) and [release acceptance](ACCEPTANCE.md).
+Supported sessions are saved locally; event replay can step and seek and supports temporary bookmarks and limited comparisons. A comparison reports coverage/events and price movement, **not trading performance**. Import and storage limits may reject corrupt or oversized sessions. Browser/profile deletion or quota issues can erase local recordings.
 
 ## Troubleshooting
 
-| Symptom | Check |
+| Symptom | Check first |
 | --- | --- |
-| No data | Binance Futures network access, online status, REST/WS errors and diagnostics |
-| Price updates but depth is unavailable | Wait for valid snapshot/diff resynchronization |
-| Chart is empty | Selected interval, candle availability and feed age |
-| Alert not delivered | Notification permission, enabled rule, dashboard state, valid live data and background sampling |
-| Replay values are missing | Recording coverage, import validation and selected session |
-| Layout looks incorrect | Restore a supported workspace/layout/density preset |
-| Upgrade causes unexpected settings | Stop using the existing profile for candidate tests; preserve a before/after snapshot and record a migration defect |
+| Blank price or stale data | REST/WS connectivity, device clock, feed-age indicators, diagnostics |
+| Book/flow metrics unavailable | Snapshot/diff continuity and trade window completeness; wait for valid resynchronization |
+| No notification | Permission, enabled rule, cooldown, browser scheduling, dashboard state and notification history |
+| Alerts stopped after closing dashboard | Expected for advanced rules; only supported sampled price checks continue |
+| Chart missing interval data | Selected timeframe and exchange-origin candle feed health |
+| Replay values missing | Recording coverage/schema and selected session |
+| Display clutter or hidden view | Reset preset/layout/density, then review settings |
 
-**Safety:** BTC Live does not trade, place orders, predict price or guarantee alert delivery. Do not use it as your sole trading risk control.
+For reproducible issues, include browser version, source SHA (if unpacked), steps, observed/expected behavior and redacted logs using [Support](../SUPPORT.md). Never post private data or credentials.
 
-[README](../README.md) · [Support](../SUPPORT.md) · [Release status](RELEASE.md)
+**Safety:** BTC Live does not submit trades or guarantee alert delivery. Consult [release readiness](RELEASE.md) before distributing this candidate.
+
+[README](../README.md) · [Full documentation](INDEX.md) · [Privacy](../PRIVACY.md)
+

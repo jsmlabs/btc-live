@@ -1,18 +1,37 @@
-# Alert semantics and failure modes
+# Alerts: execution and delivery contract
 
-> Scope: candidate behavior and intended contracts. Real Chromium lifecycle and notification delivery acceptance remain open; see [Testing](TESTING.md).
+**Status:** Development candidate. This document defines intended behavior and technical limits; actual browser/OS delivery remains subject to [acceptance testing](ACCEPTANCE.md).
 
-## Two different execution models
+## Choose the correct alert type
 
-1. **Existing price alerts:** Dashboard/popup evaluation and a sampled MV3 background REST polling path. The background poller is not a continuous market stream; checks may be delayed, skipped or suppressed by browser lifecycle.
-2. **Advanced rules:** Live dashboard evaluation for price, CVD, executed volume and bid/ask imbalance. Advanced rules do not run continuously after closing the dashboard; replay never triggers them.
+| | Standard price alerts | Advanced dashboard alerts |
+| --- | --- | --- |
+| Inputs | Price targets and percentage changes | Price, CVD, aggressive volume and visible book imbalance |
+| Evaluation | Supported foreground activity plus sampled MV3 REST alarm checks | **Live dashboard open**; valid metric and enabled configuration |
+| After dashboard closure | Sampling may continue while browser allows it | **Stops evaluating** |
+| Replay | Does not use replay events | Explicitly excluded |
+| Guarantee | No continuous sampling/delivery promise | No continuous sampling/delivery promise |
 
-Advanced rules use validated thresholds, windows (10/30/60/300 seconds for trade metrics), cooldowns, hysteresis and de-duplication. Invalid, incomplete, disconnected or stale feed data suppresses dependent evaluations. Source timestamps, rule state and available trigger history are diagnostic, not delivery guarantees.
+## Advanced rule behavior
 
-## Multi-tab behavior
+- Validated rule types: `price`, `cvd`, `volume`, `imbalance`. Up to **30** rules can be stored.
+- Threshold directions: above/below. Supported trade windows: **10, 30, 60 or 300 seconds**; live trade windows must have complete observed coverage.
+- Book imbalance ranges from **-1 to 1** and represents visible levels only. Missing/stale depth suppresses evaluation.
+- Configurable cooldown and hysteresis prevent immediate re-triggering. Threshold crossings are not independent market fills or trade signals.
+- Advanced evaluation requires fresh live inputs. It is not initiated by session replay.
 
-Where Web Locks is supported, a lock serializes cooperating dashboard evaluations. The rule state is persisted before an attempted notification so that repeated concurrent processing does not intentionally double-send. Consequently an attempted notification that fails after state persistence is **not retried automatically**. This is *at-most-once attempt*, not exactly-once delivery. Without Web Locks the advanced path fails closed. Actual browser multi-tab and MV3 suspension tests remain a release blocker.
+## Concurrent dashboards and notifications
 
-## User expectations
+The Web Locks API coordinates cooperating open dashboards; when locking is unavailable, the advanced path fails closed. The trigger state is **persisted before** attempting a native notification. This intentionally favors no duplicate attempts over delivery retries.
 
-A triggered condition is not equivalent to a delivered OS notification, a tradable signal, a live exchange fill, or a guarantee that every threshold crossing will be observed. Test notification permissions and use external risk controls for consequential trading decisions.
+**At-most-once *attempt*** is the best available description, not exactly-once or guaranteed delivery. If the OS blocks the message, the browser is suspended, storage is unavailable, or the notification attempt fails, a condition may be recorded without an observed popup. Persistence and notification delivery are not one atomic transaction.
+
+## Diagnosing a missing alert
+
+Check rule enablement, permission status, current workspace and open-dashboard state, feed validity/age, evaluation windows, Web Locks availability, cooldown/arming state and alert history. Background price checks can miss fast threshold excursions between polls; browser scheduling is not a real-time clock.
+
+> [!WARNING]
+> Alerts are informational. Never use them as the sole stop-loss, liquidation or exposure control.
+
+[User guide](USAGE.md) · [Architecture](ARCHITECTURE.md) · [Tests](TESTING.md)
+

@@ -4,6 +4,7 @@ export const UPDATE_MESSAGE = 'BTC_LIVE_UPDATE_CHECK';
 export const UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const RELEASES_API = 'https://api.github.com/repos/jsmlabs/btc-live/releases';
 const RELEASE_BASE = 'https://github.com/jsmlabs/btc-live/releases/tag/';
+const RETRY_INTERVAL_MS = 15 * 60 * 1000;
 const VALID_VERSION = /^(?:v)?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/;
 export function parseVersion(value) {
   if (typeof value !== 'string' || value.length > 100) return null;
@@ -52,6 +53,7 @@ export function sanitizeUpdateState(raw, installed) {
   const x = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
   const channel = x.channel === 'preview' ? 'preview' : 'stable';
   const safeTime = v => Number.isSafeInteger(v) && v > 0 && v <= Date.now() + 60000 ? v : null;
+  const safeRetry = v => Number.isSafeInteger(v) && v > 0 && v <= Date.now() + 86400000 ? v : null;
   const release = x.release && parseVersion(x.release.version) &&
     x.release.url === RELEASE_BASE + encodeURIComponent(x.release.version) ||
     x.release && parseVersion(x.release.version) &&
@@ -62,7 +64,7 @@ export function sanitizeUpdateState(raw, installed) {
     release, lastAttemptAt: safeTime(x.lastAttemptAt), lastSuccessAt: safeTime(x.lastSuccessAt),
     checkedInstalled: x.checkedInstalled === installed ? installed : null,
     error: ['OFFLINE', 'CHECK_FAILED', 'RATE_LIMITED'].includes(x.error) ? x.error : null,
-    retryAfter: safeTime(x.retryAfter), dismissed: typeof x.dismissed === 'string' && parseVersion(x.dismissed) ? x.dismissed : null };
+    retryAfter: safeRetry(x.retryAfter), dismissed: typeof x.dismissed === 'string' && parseVersion(x.dismissed) ? x.dismissed : null };
 }
 export function createUpdateController({ api = globalThis.browser ?? globalThis.chrome, fetchFn = globalThis.fetch, now = Date.now } = {}) {
   let inFlight = null;
@@ -93,18 +95,25 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
         if (result.status === 'UNSUPPORTED') return write({ ...state, status: 'UNSUPPORTED', release: null, checkedInstalled: installed, lastSuccessAt: time });
         return write({ ...state, ...result, checkedInstalled: installed, lastSuccessAt: time });
       } catch {
-        return write({ ...state, error: 'CHECK_FAILED' });
+        return write({ ...state, error: 'CHECK_FAILED', retryAfter: time + RETRY_INTERVAL_MS });
       } finally { clearTimeout(timeout); }
     })().finally(() => { inFlight = null; });
     return inFlight;
   }
   async function configure(options) {
+    if (inFlight) await inFlight;
     const state = await read();
+    const changedChannel = (options.channel === 'stable' || options.channel === 'preview') && options.channel !== state.channel;
     const next = await write({ ...state,
       enabled: typeof options.enabled === 'boolean' ? options.enabled : state.enabled,
       channel: options.channel === 'preview' ? 'preview' : options.channel === 'stable' ? 'stable' : state.channel,
       dismissed: typeof options.dismissed === 'string' && parseVersion(options.dismissed) ? options.dismissed : state.dismissed,
-      lastSuccessAt: options.channel && options.channel !== state.channel ? null : state.lastSuccessAt });
+      status: changedChannel ? 'NOT_CHECKED' : state.status,
+      release: changedChannel ? null : state.release,
+      checkedInstalled: changedChannel ? null : state.checkedInstalled,
+      lastSuccessAt: changedChannel ? null : state.lastSuccessAt,
+      error: changedChannel ? null : state.error,
+      retryAfter: changedChannel ? null : state.retryAfter });
     return next;
   }
   return { read, check, configure };

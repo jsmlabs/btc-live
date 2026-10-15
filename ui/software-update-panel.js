@@ -1,6 +1,6 @@
 import { UPDATE_KEY, UPDATE_MESSAGE } from '../app/software-updates.js';
 
-export function mountSoftwareUpdates({ container, compact = false, api = globalThis.browser ?? globalThis.chrome }) {
+export function mountSoftwareUpdates({ container, compact = false, indicator = null, api = globalThis.browser ?? globalThis.chrome }) {
   if (!container || !api?.runtime?.sendMessage) return () => {};
   const root = document.createElement('section');
   root.className = 'software-updates';
@@ -67,6 +67,10 @@ export function mountSoftwareUpdates({ container, compact = false, api = globalT
       ' · Last checked: ' + formatTime(state.lastSuccessAt) + (state.error ? ' · Previous result may be outdated' : '');
     const eligible = state.release && ['UPDATE_AVAILABLE', 'PREVIEW_AVAILABLE'].includes(state.status);
     link.hidden = !eligible;
+    if (indicator) {
+      indicator.hidden = !eligible || state.dismissed === state.release.version;
+      indicator.textContent = eligible ? 'BTC Live ' + state.release.version + ' available · View in Settings' : '';
+    }
     if (eligible) link.href = state.release.url;
     else link.removeAttribute('href');
   }
@@ -88,5 +92,5 @@ export function mountSoftwareUpdates({ container, compact = false, api = globalT
   };
   api.storage?.onChanged?.addListener(storageListener);
   void execute({ action: 'check', force: false });
-  return () => { disposed = true; api.storage?.onChanged?.removeListener(storageListener); root.remove(); };
+  return () => { disposed = true; api.storage?.onChanged?.removeListener(storageListener); root.remove(); if (indicator) indicator.hidden = true; };
 }

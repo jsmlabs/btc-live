@@ -47,3 +47,38 @@ test('failed lookups do not claim up-to-date', async () => {
  assert.equal(state.error,'CHECK_FAILED');
  assert.notEqual(state.status,'UP_TO_DATE');
 });
+
+test('switching release channels invalidates previous cached results', async () => {
+ let state={};
+ const api={runtime:{getManifest:()=>({version:'1.22.0'})},storage:{local:{
+   get:async()=>state,set:async x=>{state={...state,...x}}
+ }}};
+ let calls=0;
+ const controller=createUpdateController({api,fetchFn:async()=>{
+   calls++;
+   return {ok:true,status:200,json:async()=>[release('v1.23.0-rc.1',true)]};
+ }});
+ const stable=await controller.check();
+ assert.equal(stable.status,'UNSUPPORTED');
+ const preview=await controller.configure({channel:'preview'});
+ assert.equal(preview.status,'NOT_CHECKED');
+ assert.equal(preview.lastSuccessAt,null);
+ assert.equal(preview.release,null);
+ const checked=await controller.check();
+ assert.equal(checked.status,'PREVIEW_AVAILABLE');
+ assert.equal(calls,2);
+});
+test('failures are throttled but a manual retry still runs', async () => {
+ let persisted={}, count=0;
+ const api={runtime:{getManifest:()=>({version:'1.22.0'})},storage:{local:{
+   get:async()=>persisted,set:async x=>{persisted={...persisted,...x}}
+ }}};
+ const controller=createUpdateController({api,fetchFn:async()=>{count++; throw Error('network');}});
+ const a=await controller.check();
+ assert.equal(a.error,'CHECK_FAILED');
+ assert.ok(a.retryAfter>Date.now());
+ await controller.check();
+ assert.equal(count,1);
+ await controller.check({force:true});
+ assert.equal(count,2);
+});

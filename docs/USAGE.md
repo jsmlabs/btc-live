@@ -1,6 +1,6 @@
 # User guide
 
-**Applies to:** the `main` **development candidate**, manifest `1.24.1`. The Chrome Web Store may distribute a different build. Use this guide for evaluation, not as a production-readiness certificate.
+**Applies to:** the `main` **development candidate**, manifest `1.24.2`. The Chrome Web Store may distribute a different build. Use this guide for evaluation, not as a production-readiness certificate.
 
 ## Install without affecting an existing profile
 

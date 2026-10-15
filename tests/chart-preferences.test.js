@@ -12,7 +12,7 @@ test('chart preferences sanitize interval, mode and volume independently', () =>
   assert.deepEqual(sanitizeChartPreferences({ interval: '1m', mode: 'line', showVolume: false }), {
     ...DEFAULT_CHART_PREFERENCES, interval: '1m', mode: 'line', showVolume: false
   });
-  assert.deepEqual(sanitizeChartPreferences({ interval: '1h', mode: 'bars', showVolume: 'yes' }), DEFAULT_CHART_PREFERENCES);
+  assert.deepEqual(sanitizeChartPreferences({ interval: '2h', mode: 'bars', showVolume: 'yes' }), DEFAULT_CHART_PREFERENCES);
 });
 
 test('chart preferences round-trip through local extension storage', async (t) => {

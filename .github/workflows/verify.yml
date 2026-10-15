@@ -18,6 +18,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm run verify
+      - run: npm run docs:check
       - run: npm run release:check
       - run: node scripts/package-extension.mjs --skip-verify
       - name: Validate candidate ZIP

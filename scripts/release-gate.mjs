@@ -48,7 +48,14 @@ if (isCli) {
     const commit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim();
     if (process.env.GITHUB_SHA && process.env.GITHUB_SHA !== commit) throw Error('GitHub SHA does not match checked-out source');
     const manifest = JSON.parse(readFileSync(path.join(root, 'manifest.json'), 'utf8'));
-    const record = JSON.parse(readFileSync(path.join(root, 'docs/release-acceptance.json'), 'utf8'));
+    // Approval is stored outside the source tree to avoid a self-referential commit SHA.
+    // The committed record is a deliberately pending template.
+    const approvalPath = process.env.RELEASE_ACCEPTANCE_FILE
+      ? path.resolve(process.env.RELEASE_ACCEPTANCE_FILE)
+      : path.join(root, 'docs/release-acceptance.json');
+    const status = execFileSync('git', ['status', '--porcelain', '--untracked-files=no'], { cwd: root, encoding: 'utf8' }).trim();
+    if (status) throw Error('Source checkout has uncommitted tracked changes');
+    const record = JSON.parse(readFileSync(approvalPath, 'utf8'));
     const failures = validateReleaseAcceptance(record, { commit, version: manifest.version });
     if (failures.length) {
       console.error('Stable release blocked:\n- ' + failures.join('\n- '));

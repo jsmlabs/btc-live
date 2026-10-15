@@ -1,6 +1,6 @@
 # Release acceptance record
 
-The file [`release-acceptance.json`](release-acceptance.json) is a machine-readable **blocking release gate**. It is deliberately `pending`: a reproducible package and green automated CI are not proof of a production-ready Chromium extension.
+The tracked [`release-acceptance.json`](release-acceptance.json) is a machine-readable **pending template**, not an approval. It is deliberately `pending`: a reproducible package and green automated CI are not proof of a production-ready Chromium extension.
 
 ## Required acceptance
 
@@ -29,6 +29,16 @@ npm run release:gate
 
 The first five prepare and verify a **candidate**. The last command must fail while any gate is pending, missing, or recorded against another commit. It checks completeness and evidence references; it cannot establish authenticity of reports or substitute for an actual human review.
 
-After acceptance, approve all scenarios in `release-acceptance.json` with real evidence, exact source SHA, approver and UTC approval time. **Important:** A commit modifying this record changes the source SHA; sign off the actual final tested commit and do not subsequently alter it without retesting and re-approval. When the stable release source is approved, reconcile version identifiers, tags, store assets, notes, and the rollback package in [Release readiness](RELEASE.md). Do not promote the candidate ZIP automatically.
+After real acceptance, **copy the pending template to a separate evidence file outside the tracked source tree** (for example, `dist/release-approval.json`), then record each passed scenario, stable evidence URL, the exact tested commit SHA, version, approver and UTC signoff. Do not commit the approved record into that same source commit: embedding a commit's SHA into its own contents is self-referential.
+
+Point the release gate at the external record:
+
+```bash
+RELEASE_ACCEPTANCE_FILE=dist/release-approval.json npm run release:gate
+```
+
+On Windows PowerShell, use `$env:RELEASE_ACCEPTANCE_FILE='dist/release-approval.json'; npm run release:gate`. The gate also rejects dirty tracked files; the source SHA must match the actual checkout. Preserve the approved evidence file with the release materials, but avoid publicly distributing sensitive acceptance data.
+
+When the stable release source is approved, reconcile versions, tags, store assets, notes and rollback artifacts using [Release readiness](RELEASE.md). Do not promote the candidate ZIP automatically.
 
 [Testing](TESTING.md) · [Release status](RELEASE.md) · [Store assets](../STORE_ASSETS.md)

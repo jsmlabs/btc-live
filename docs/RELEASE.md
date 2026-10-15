@@ -17,7 +17,7 @@
 | Existing-install data and settings migration | [Acceptance record](ACCEPTANCE.md) | **Pending** |
 | Store screenshots, permissions and privacy statements | [Store assets](../STORE_ASSETS.md) | **Pending** |
 
-The release gate inventory lives in [`release-acceptance.json`](release-acceptance.json). A check is not passed without real, reproducible evidence. Historical v1.22.0 notes and older CI results do not represent approval for the integrated candidate.
+The pending release gate template lives in [`release-acceptance.json`](release-acceptance.json). Final signoff is supplied as a separate, commit-bound evidence file via `RELEASE_ACCEPTANCE_FILE`; see [acceptance instructions](ACCEPTANCE.md). A check is not passed without real, reproducible evidence. Historical v1.22.0 notes and older CI results do not represent approval for the integrated candidate.
 
 ## Candidate build
 
@@ -53,7 +53,7 @@ The command must remain **non-zero** while any mandatory acceptance is pending, 
 
 1. Freeze the source SHA and verify the complete automated suite on that exact checkout.
 2. Test the actual unpacked candidate and live Binance endpoints across the complete [acceptance matrix](ACCEPTANCE.md).
-3. Record UTC evidence, reviewer and a **same-SHA** decision, and confirm the signed-off source/package correspond.
+3. Record UTC evidence and reviewer in an **external** approval record bound to the tested source SHA (do not edit that SHA into the same commit). Confirm the source, build and signoff correspond.
 4. Decide the customer-visible version; consistently update `manifest.json`, package metadata, changelog, release notes and store listing. **Do not imply v16 is a shipped version until it is approved.**
 5. Rebuild from the intended release SHA, compare checksums, inspect package contents and verify the required permissions and local assets.
 6. Prepare **actual screenshots from the approved extension**, test the upgrade path, verify privacy disclosures and keep rollback artifacts.

@@ -31,7 +31,7 @@ npm run package:metadata
 
 ## Manual acceptance
 
-Complete the [release acceptance matrix](ACCEPTANCE.md) and store scenario evidence in [`release-acceptance.json`](release-acceptance.json). Include: exact SHA, UTC date, OS/browser version, hardware if performance-related, inputs/actions, expected and actual results, diagnostics and evidence links.
+Complete the [release acceptance matrix](ACCEPTANCE.md) and use the pending [`release-acceptance.json`](release-acceptance.json) template and store final evidence in a separate, SHA-bound acceptance file. Include: exact SHA, UTC date, OS/browser version, hardware if performance-related, inputs/actions, expected and actual results, diagnostics and evidence links.
 
 Critical cases:
 

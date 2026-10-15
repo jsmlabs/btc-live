@@ -10,7 +10,7 @@ import {
 
 test('chart preferences sanitize interval, mode and volume independently', () => {
   assert.deepEqual(sanitizeChartPreferences({ interval: '1m', mode: 'line', showVolume: false }), {
-    interval: '1m', mode: 'line', showVolume: false
+    ...DEFAULT_CHART_PREFERENCES, interval: '1m', mode: 'line', showVolume: false
   });
   assert.deepEqual(sanitizeChartPreferences({ interval: '1h', mode: 'bars', showVolume: 'yes' }), DEFAULT_CHART_PREFERENCES);
 });
@@ -32,6 +32,6 @@ test('chart preferences round-trip through local extension storage', async (t) =
   };
 
   await saveChartPreferences({ interval: '15m', mode: 'line', showVolume: false });
-  assert.deepEqual(store[CHART_PREFERENCES_STORAGE_KEY], { interval: '15m', mode: 'line', showVolume: false });
-  assert.deepEqual(await loadChartPreferences(), { interval: '15m', mode: 'line', showVolume: false });
+  assert.deepEqual(store[CHART_PREFERENCES_STORAGE_KEY], { ...DEFAULT_CHART_PREFERENCES, interval: '15m', mode: 'line', showVolume: false });
+  assert.deepEqual(await loadChartPreferences(), { ...DEFAULT_CHART_PREFERENCES, interval: '15m', mode: 'line', showVolume: false });
 });

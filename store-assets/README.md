@@ -1,14 +1,16 @@
-> **Asset status:** Store imagery must correspond to the actually packaged and verified release, currently manifest **1.22.0**. The independently supplied expanded-workspace archive is not yet integrated; do not imply those screenshots represent the shipped extension.
+# Store asset inventory (historical)
 
-# BTC Live Store Assets
+> **Not approved for the v16 development candidate.** This folder contains images from previous product/store iterations. Some may reference Binance Spot or a UI not present in the current candidate. The expanded workspace code is now present in `main`, but that does **not** make these graphics current release evidence.
 
-Historical store asset previews from the v1.0.0 era. **Not approved for BTC Live v1.22.0 publication**: some visuals still depict Binance Spot instead of the current USDⓈ-M Futures source. See `STORE_ASSETS.md` for current acceptance criteria.
+| File | Existing intended use |
+| --- | --- |
+| `promo-440x280.png` | Historical promotional tile |
+| `screenshot-1-1280x800.png` | Historical primary feature preview |
+| `screenshot-2-1280x800.png` | Historical market-data preview |
+| `screenshot-3-1280x800.png` | Historical privacy-focused preview |
+| `real-popup.png` | Archived browser popup capture; not current candidate acceptance |
+| `asset-preview.png` | Internal reference contact sheet |
 
-- `promo-440x280.png` - Chrome Web Store promotional tile
-- `screenshot-1-1280x800.png` - primary product/value screenshot
-- `screenshot-2-1280x800.png` - market-data feature screenshot
-- `screenshot-3-1280x800.png` - privacy positioning screenshot
-- `real-popup.png` - crop from the real Chromium live smoke test
-- `asset-preview.png` - internal review contact sheet
+The extension's **packaged icons** are in `icons/` (16, 32, 48 and 128 px). Generate replacement store screenshots **only after** actual browser acceptance at the intended release commit. Never fabricate prices, states, fills, endorsements or trading performance.
 
-The extension icons used by `manifest.json` are stored in the repository `icons/` directory (16, 32, 48 and 128 px).
+[Store asset policy](../STORE_ASSETS.md) · [Release gate](../docs/RELEASE.md)

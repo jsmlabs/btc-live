@@ -1,60 +1,42 @@
-> **Publication boundary:** Only depict features that ship in a reviewed and browser-tested store package. The supplied expanded-workspace archive has not been merged into `main`; do not use its unverified screens or label it v2.2.0.
+# BTC Live - store asset and visual release policy
 
-# BTC Live - Store Asset Plan
+> [!CAUTION]
+> The v16 development candidate has been integrated into `main`, but **is not yet approved for store publication**. Existing images in [`store-assets/`](store-assets/README.md) are historical and may show Binance Spot or an older UI. **Do not reuse them as evidence of current candidate behavior.**
 
-## Brand direction
+## Identity
 
-The store identity should match the extension UI:
+| Element | Direction |
+| --- | --- |
+| Background | Near-black, aligned with the actual extension UI |
+| Accent | Restrained warm Bitcoin-orange (design reference `#F3A23A`) |
+| Text | High-contrast white/neutral on dark surfaces |
+| Identity | Original BTC Live icon and accurate Futures-market labels |
+| Claims | Public market monitoring and research only; no execution or return promises |
 
-- near-black background
-- white primary mark
-- restrained status accents
-- geometric, technical, minimal
-- no casino-style crypto imagery
-- no Binance logo
-- no claim of Binance affiliation
+No Binance protected logos, fabricated trade outcomes, invented prices, artificial reviews, fake connectivity statuses, or implied endorsement.
 
-## Package icons
+## Required release-specific assets
 
-Required PNG sizes:
+| Asset | Requirement |
+| --- | --- |
+| Extension icons | Confirm packaged PNG sizes 16, 32, 48 and 128 px |
+| Popup screenshot | Real approved build showing BTCUSDT Futures price, data source and status |
+| Dashboard screenshot | Actual chart/workspace and diagnostics with a verifiable observed session |
+| Alert/settings screenshot | Real supported rules, browser limitations and saved settings |
+| Chrome Web Store screenshots | Capture at an accepted resolution (typically 1280×800), inspect store requirements |
+| Promotional tile | If required, create an original 440×280 asset matching approved branding |
 
-- 16x16
-- 32x32
-- 48x48
-- 128x128
+Capture a **tested build at the final release SHA** in a real browser. Check small-screen legibility, visual hierarchy, clipping, chart labels, spacing, contrast and accessibility. Screenshots must be unaltered representations of the released product (privacy-sensitive values may be redacted transparently).
 
-## Chromium store assets
+## Store submission gate
 
-Replace the obsolete Spot screenshots before publication. Prepare current screenshots that reflect v1.22.0 behavior.
+- [ ] Store screenshots match the approved package and its actual UI.
+- [ ] Features shown are covered by real-browser acceptance, not just mocked tests.
+- [ ] Manifest version, package, public listing and screenshots describe the same release.
+- [ ] Permissions, privacy questionnaire, support and security links reviewed.
+- [ ] No legacy Spot wording or outdated v1.0.x/v1.21.x imagery presented as current.
+- [ ] Store review and public publication states confirmed separately.
 
-Recommended set:
+The design archive/branding references may guide **visual styling** but are not acceptance evidence. Check [release readiness](docs/RELEASE.md) and [acceptance](docs/ACCEPTANCE.md) before promoting assets.
 
-1. **Popup Futures market view** - current BTCUSDT Futures price, market context, and connection status.
-2. **Dashboard and chart** - full monitoring dashboard using Futures klines with chart and diagnostics.
-3. **Alert manager** - multiple Above/Below price targets and alert-history UI.
-4. **Privacy / settings** - local settings and the absence of account/API-key requirements.
-
-Suggested screenshot size: 1280x800 where accepted by the target store.
-
-Small promotional tile: 440x280 for Chrome Web Store where required.
-
-## Screenshot rules
-
-All store screenshots must:
-
-- reflect actual shipped v1.22.0 behavior
-- identify the market source as Binance Futures where visible
-- avoid fabricated market values or unsupported features
-- avoid implying trading or order execution
-- avoid implying Binance endorsement
-- avoid fake reviews, performance claims, or investment outcomes
-- remain legible as reduced store previews
-
-## Acceptance criteria
-
-- current Futures-based UI shown, not obsolete Spot screenshots
-- unique project branding
-- icon remains readable at 16x16
-- no third-party protected logo usage
-- no tiny text inside the icon
-- no unnecessary visual complexity
+[Store listing](STORE_LISTING.md) · [README](README.md) · [Asset inventory](store-assets/README.md)

@@ -1,59 +1,39 @@
-> **Scope:** This privacy policy describes the extension currently tracked in repository `main` (manifest version **1.22.0**). The current `main` source also contains candidate recording and replay capabilities, but they are **not production-approved**. Use [current candidate privacy details](docs/PRIVACY.md) for storage categories and [release gates](docs/RELEASE.md) before distribution. The historical policy below must not be treated as a complete privacy audit of the candidate.
+# Privacy Policy - BTC Live
 
-# Privacy Policy
+> **Scope:** This document describes the repository's v16 development candidate (manifest `1.22.0`), **not** a guarantee that the same package is already available in the Chrome Web Store. Privacy disclosures must be reviewed again against the exact approved customer build.
 
-**Reviewed for release:** 1.22.0  
-**Effective date:** 2026-10-06
+BTC Live is designed to show **public BTCUSDT Binance USDⓈ-M Futures market data** directly in a Chromium extension. It does not require a login, wallet connection, Binance credentials or API keys, and does not place orders.
 
-BTC Live is designed to operate without collecting personal user data or using a project-operated backend.
+## Data handling
 
-## Data collection
+| Category | Intended use | Location |
+| --- | --- | --- |
+| Interface, chart and workspace settings | Remember user preferences | Browser extension storage |
+| Configured alerts, cooldown/rearm state and history | Evaluate and display alerts | Browser extension storage |
+| Session and feed diagnostics | Troubleshooting and status display | Browser extension state/storage |
+| Recorded events and replay sessions | Local playback and comparison | IndexedDB in the browser profile |
+| Notification text | Show configured alert content | Browser and operating-system notification interface |
 
-BTC Live does not collect, sell, rent, profile, or transmit personal user information to the project developer.
+The extension has **no project-operated account system or market-data backend**, and the reviewed manifest does not request browsing-history, cookies, page-content or wallet access. The candidate is designed without developer-operated telemetry, ads, trackers or analytics SDKs. Public Binance endpoints receive network requests needed to provide market data; standard network metadata may be visible to the exchange and network intermediaries.
 
-The extension does not use:
+## Permissions and external connections
 
-- user accounts
-- authentication
-- analytics
-- advertising networks
-- telemetry services
-- fingerprinting
-- tracking cookies
-- browsing-history collection
-- page-content collection
-- wallet access
-- Binance account access
-- API keys
+| Declaration | Purpose |
+| --- | --- |
+| `storage` | Save preferences, rules and supported local state |
+| `notifications` | Display permitted native alerts |
+| `alarms` | Schedule sampled background price checks |
+| `https://fapi.binance.com/*` | Fetch public USDⓈ-M Futures REST data |
+| `wss://fstream.binance.com` (CSP) | Subscribe to public Futures market streams |
 
-## Local extension storage
+There are no content scripts or order-submission permissions in the reviewed candidate manifest. Browser profile access, OS notifications, exports, screenshots and diagnostics can expose saved observations or preferences. Users should control local storage, exported copies and access to their devices.
 
-BTC Live stores extension state locally through Chromium extension storage. Depending on enabled features, this can include:
+## Reliability and retention
 
-- display preferences
-- chart preferences
-- notification preferences
-- configured BTC price-alert targets and labels
-- alert trigger/re-arm state
-- a bounded local alert history
-- temporary connection/session diagnostics
+Recorded sessions and settings persist according to browser storage behavior and application-supported cleanup paths; do not assume browser storage provides encrypted backup or indefinite retention. Browser closure, extension removal, profile deletion, quota pressure or corruption can result in loss of locally stored state. Background checks are sampled, not continuous.
 
-This data is used only to provide extension functionality and is not sent to project infrastructure.
+## Changes and contact
 
-## Browser notifications
+Before a public release, verify this policy, extension permissions and the store privacy questionnaire against the **exact published package**. For a private security concern, see [SECURITY.md](SECURITY.md). For usage issues, see [SUPPORT.md](SUPPORT.md).
 
-If browser notifications are enabled, BTC Live uses Chromium's native notification API. Notification content is generated locally from the extension's current market state and configured alert rules.
-
-## External network requests
-
-BTC Live connects directly to Binance public USDⓈ-M Futures market-data services for BTCUSDT. This includes public REST and WebSocket endpoints used for live aggregate trades, 24h market statistics, top-of-book data, chart klines, recovery, and background alert checks.
-
-No Binance account or API key is required.
-
-## Financial information
-
-BTC Live displays public market data only. It does not access exchange balances, orders, positions, payment information, wallets, or financial account credentials, and it does not execute trades.
-
-## Changes
-
-If a future release changes this privacy model, this policy and the extension's permission disclosures must be updated before release.
+[Detailed data handling](docs/PRIVACY.md) · [Release status](docs/RELEASE.md)

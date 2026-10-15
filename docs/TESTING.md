@@ -1,48 +1,56 @@
-# Test strategy and verification evidence
+# Verification strategy
 
-This guide separates **deterministic repository checks**, **simulated browser checks**, and **real Chromium / live Binance acceptance**. None is interchangeable. The packaging script writes a candidate ZIP; CI checks ZIP integrity, runtime-only file paths, the fixed valid DOS timestamp (1980-01-01), and byte-for-byte build reproducibility. Superseded CI runs on the same ref are cancelled.
+BTC Live separates three distinct evidence levels. A result in one level **never** certifies another.
 
-## Automated commands
+| Level | Verified by | What it cannot prove |
+| --- | --- | --- |
+| **Static and deterministic** | Node syntax/import checks, unit/regression tests, manifest and local-document contracts | Runtime behavior in Chromium |
+| **Simulated browser harness** | Optional `python scripts/browser-smoke.py` with Playwright/Chromium and mocked feed | Real extension MV3 lifecycle or real Binance network behavior |
+| **Real acceptance** | Unpacked MV3 extension, live Binance traffic, actual browser interaction, load and migration evidence | Must be recorded independently; no shortcut via green CI |
 
-Run from the repository root with Node.js >=20 (CI uses 22):
+## Automated verification
+
+Node.js **20+**; GitHub Actions uses **22**. From repository root:
 
 ```bash
 npm run verify
 npm run docs:check
 npm run release:check
 npm run package:extension
+npm run package:metadata
 ```
 
-`verify` performs static checks and deterministic Node tests, rejecting symbolic links in the source tree. Individual JavaScript syntax checks have a 10-second timeout; each Node test file runs in a separate process with a 20-second timeout. All test files are attempted, and any failure or timeout makes verification fail. This provides a file-specific diagnosis instead of an opaque aggregate timeout. `docs:check` validates local Markdown link targets without accessing external websites and fails CI on missing or unsafe paths. `release:check` validates the candidate's static release contract. `package:extension` reruns source verification and builds `dist/btc-live-chromium-v1.22.0-candidate.zip`; CI validates archive integrity. These do not install the extension into Chromium or test a real Binance connection.
+- `verify` checks source syntax/references and invokes the complete deterministic Node test suite with per-test-file timeouts.
+- `docs:check` checks **local** Markdown and applicable HTML link targets. External site availability is not validated.
+- `release:check` inspects manifest permissions, CSP, extension exposures and packaged runtime resources.
+- `package:extension` creates the runtime-only deterministic candidate ZIP (and runs source verification unless explicitly skipped).
+- `package:metadata` creates `BUILD_INFO.json` and `SHA256SUMS.txt` from the actual ZIP. It is a metadata generator, not a runtime smoke test.
+- CI verifies ZIP integrity, sorted paths and fixed timestamps, two-build SHA-256 reproducibility and build metadata/checksum consistency before artifact upload.
 
-**Integrated-main CI regression (2026-10-15):** The first bounded main run failed, exposing legacy chart preference assertions that ignored newly added default fields and a chart freshness assertion that expected a live label for a stale stream. The test fixtures have been updated to reflect actual intended contracts. Additional CI evidence identified outdated `1h` rejection expectations and legacy chart runtime tests that generated OHLCV from ticker trades and opened uncontrolled sockets. Tests now use isolated adapters and verify the exchange-origin candle boundary. These regression fixes subsequently passed automated CI on [main commit `a7920d2`](https://github.com/jsmlabs/btc-live/actions/runs/38689981950). This does not establish live Chromium or exchange acceptance.
+**CI must be checked on the exact candidate SHA.** Failed, cancelled, queued or skipped jobs are not passing evidence. The optional browser harness requires additional locally installed Playwright and Chromium; it is not part of the default Node suite and uses deterministic mocked transport.
 
-**Historical evidence:** The isolated Phase-10 candidate reported 45/45 deterministic tests and static/package checks passing. The candidate is now in `main`, with additional files and changes; the complete automated suite passed for `a7920d2`; check CI again after later commits. Do not quote that historical count as a current CI result.
+## Manual acceptance
 
-## Manual acceptance matrix
+Complete the [release acceptance matrix](ACCEPTANCE.md) and store scenario evidence in [`release-acceptance.json`](release-acceptance.json). Include: exact SHA, UTC date, OS/browser version, hardware if performance-related, inputs/actions, expected and actual results, diagnostics and evidence links.
 
-| Scenario | Expected observable behavior | Evidence required |
-| --- | --- | --- |
-| Chromium load | Unpacked extension loads; popup and dashboard render without material console errors | Browser/build, screenshots, console |
-| Narrow viewport, input and accessibility | No clipped primary controls; visible keyboard focus; chart gestures and undo/redo work | Viewport/steps, interaction record |
-| Market startup and dropout | Feed status matches freshness, not merely socket connectivity | Timestamped status and reconnect logs |
-| Depth sequence gap and snapshot race | Invalid dependent depth metrics are withheld until valid resync | Gap/snapshot trace |
-| Missing or stale trades | CVD/volume-dependent values withheld, not silently replaced with zero | Controlled gap evidence |
-| Alerts and denial | Allowed and denied notifications are handled; failed attempts are not misreported as delivered | Permission, trigger and history log |
-| Duplicate tabs and locks | Rules do not intentionally double-attempt under cooperating tabs; missing Web Locks fails closed | Two-tab steps and stored state |
-| Dashboard closure and MV3 restart | Advanced rules do not imply ongoing closed-page evaluation; sampled background checks follow browser scheduling | Lifecycle steps and timestamps |
-| Replay isolation | Seeking/playing recorded data never fires live trading alerts | Replay fixture and alert history |
-| Prolonged sessions | Memory, CPU, rendering and event backlog remain acceptable to defined budgets | Hardware, duration, traces, thresholds |
-| Existing install/update | Existing storage and settings are retained or migrated per documented contract | Before/after snapshot |
+Critical cases:
 
-Document each run with: **commit SHA, UTC date, OS/browser build, Node version if applicable, steps/fixture, expected result, actual result, evidence link and pass/fail/block status**. Redact sensitive local information.
+1. Unpacked MV3 load, popup/dashboard navigation, responsive layout, keyboard focus, chart drawings and accessibility.
+2. Real REST/WebSocket startup, exchange timestamps, stale/disconnect/reconnect and independent data-source degradation.
+3. Depth snapshot gaps and diff races: invalid book-dependent metrics remain unavailable until valid recovery.
+4. Foreground price and advanced alert rules, browser permission denial, background alarms, multi-tab locking, worker suspension and dashboard closure.
+5. Replay-only state isolation, invalid/oversized imports, recording persistence and sustained-session resource use.
+6. Migration from the **actually installed build**, including local storage snapshots and rollback behavior.
+7. Exact build assets, permissions, privacy disclosures, screenshots and listing claims.
 
-## Failure handling
+```bash
+npm run release:gate
+```
 
-- A failed or skipped test is **not passed**. Record owner and blocker rather than hiding the result.
-- A mocked WebSocket or DOM test is not evidence of real Binance availability.
-- A screenshot or illustrative concept graphic is not a substitute for a repeatable interactive check.
-- Do not claim numerical performance gains without a comparable baseline, workload and measurements.
-- Before approval, reconcile the candidate with `main`, rerun the complete suite at the final head and retain CI evidence.
+This command is expected to **fail** while acceptance is pending; it verifies recorded requirements and commit binding, not the authenticity of evidence. A reviewer must evaluate every underlying test.
 
-See [Release readiness](RELEASE.md), [Alert semantics](ALERTS.md) and any prior [smoke checklist](SMOKE-TEST.md).
+## Failure policy
+
+A missing scenario remains **pending**. Do not substitute a screenshot or mock run for an interactive browser test, or present benchmark/synthetic measurements as real-client performance. Record failures and retest after fixes. Preserve previous release artifacts and user data when validating migration.
+
+[Release procedure](RELEASE.md) · [Browser smoke checklist](SMOKE-TEST.md) · [Candidate guide](USAGE.md)

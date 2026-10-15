@@ -1,41 +1,71 @@
 # Release readiness and version policy
 
-**Status as of 2026-10-15:** v16 Phase 01-10 is a **development candidate**, not a published, production-approved version. `manifest.json` still reports **1.22.0**. The candidate was integrated into `main` by [merged PR #3](https://github.com/jsmlabs/btc-live/pull/3) (merge commit [`70977d9`](https://github.com/jsmlabs/btc-live/commit/70977d92f5b9b84a6906698a4cde7c16688ffeca)). **Integration into `main` is not equivalent to release approval.** Historical v1.22.0 release notes remain separate.
+> [!IMPORTANT]
+> **Status: development candidate / NOT APPROVED FOR PUBLIC RELEASE.** The `main` branch includes the v16 Phase 01–10 implementation, but `manifest.json` remains `1.22.0`. Neither a successful CI run nor an automatically generated package authorizes customer publication.
 
-## Release readiness at a glance
+## Current release decision
 
-Automated source checks, local Markdown link validation, static release validation, ZIP integrity, deterministic package generation, and artifact upload have passed for the cited `main` revision. This confirms the repository pipeline at the cited commit, **not** a browser-tested release. After any additional commit, check the [latest GitHub Actions results](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml) on the **exact new head**. Manual gates remain blocking until supported by reproducible evidence.
-
-## Evidence and status
-
-| Area | Recorded evidence | Current decision |
+| Area | Evidence | Decision |
 | --- | --- | --- |
-| Automated verification on integrated `main` | [Verified `b7e4ebe` CI](https://github.com/jsmlabs/btc-live/actions/runs/38715232184) succeeded | **Passed for that exact commit**; re-check after future changes |
-| Static release check, candidate ZIP integrity and reproducibility | [Verified `b7e4ebe` CI](https://github.com/jsmlabs/btc-live/actions/runs/38715232184) | **Passed for that exact commit** |
-| Local Markdown link integrity | [Verified `b7e4ebe` CI](https://github.com/jsmlabs/btc-live/actions/runs/38715232184) | **Passed for that exact commit** |
-| Chromium popup/dashboard | No accepted end-to-end evidence recorded | **Blocked** |
-| Binance feed and depth recovery | No accepted live/reconnect sequence recorded | **Blocked** |
-| MV3 lifecycle and multi-tab notifications | No accepted suspension/race evidence recorded | **Blocked** |
-| Long-session resources and replay | No accepted performance and memory evidence recorded | **Blocked** |
-| Existing-install migration | Not fully established | **Blocked** |
+| Automated source, test, docs and static-release validation | [GitHub Actions: latest main](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml) | Check that the **exact candidate SHA** is green |
+| Reproducible candidate ZIP and SHA-256/provenance | CI package step and `BUILD_INFO.json` / `SHA256SUMS.txt` | Candidate packaging only |
+| Real Chromium popup, dashboard, accessibility and keyboard | [Acceptance record](ACCEPTANCE.md) | **Pending** |
+| Live Binance Futures REST, WebSocket and feed recovery | [Acceptance record](ACCEPTANCE.md) | **Pending** |
+| Depth sequence-gap/snapshot recovery | [Acceptance record](ACCEPTANCE.md) | **Pending** |
+| MV3 suspension, multi-tab locks, notification permissions | [Acceptance record](ACCEPTANCE.md) | **Pending** |
+| Recording/replay isolation and sustained load | [Acceptance record](ACCEPTANCE.md) | **Pending** |
+| Existing-install data and settings migration | [Acceptance record](ACCEPTANCE.md) | **Pending** |
+| Store screenshots, permissions and privacy statements | [Store assets](../STORE_ASSETS.md) | **Pending** |
 
-Passing scripts or a green CI run must not be presented as live-browser, market-feed or production evidence. Verification uses bounded subprocesses and fails closed on timeouts or invalid source-tree entries; cancelled CI runs are not passes.
+The release gate inventory lives in [`release-acceptance.json`](release-acceptance.json). A check is not passed without real, reproducible evidence. Historical v1.22.0 notes and older CI results do not represent approval for the integrated candidate.
 
-## Version rules
+## Candidate build
 
-- **1.22.0** is the current extension manifest and historical release-notes identifier; it is neither proof of a public-store update nor a substitute name for v16.
-- **v16 candidate** identifies a development milestone, not a published Chrome Web Store release.
-- Do not bump the manifest, publish store packages, create a stable release tag, or present the merged PR #3 as stable-release approval until all gates are satisfied.
-- When ready, choose a single version and update the manifest, release notes, changelog, package metadata and public listing together. Preserve release artifacts and a rollback path.
+**Prerequisite:** Node.js 20+ and npm. CI uses Node.js 22.
 
-## Required acceptance procedure
+```bash
+npm run verify
+npm run docs:check
+npm run release:check
+npm run package:extension
+npm run package:metadata
+```
 
-1. **Integrate:** PR #3 was merged; review the integrated `main` diff and ensure that all changes since the merge remain covered by validation.
-2. **Verify:** In a clean checkout at the candidate commit run `npm run verify`, `npm run release:check` and `npm run package:extension`. The last command now creates a deterministic ZIP in `dist/`; record OS, Node version, commit SHA, exit codes and the package checksum.
-3. **Exercise in Chromium:** Install unpacked, inspect extension/background consoles and verify popup/dashboard, focus, keyboard, responsive breakpoints, chart pointer behavior and notification permissions.
-4. **Exercise feeds:** Test real Binance REST/WS startup, stale/disconnect/reconnect conditions, depth gaps, snapshot resync and suppression of invalid dependent metrics.
-5. **Exercise lifecycle:** Test browser restart, MV3 worker suspension, multiple tabs, alert at-most-once *attempt* semantics, denied notifications and dashboard-closed behavior.
-6. **Exercise load/migration:** Run representative prolonged sessions, observe memory/CPU/rendering/queues, test persisted settings and upgrade from the existing version.
-7. **Release only after acceptance:** Update consistent version identifiers, inspect the generated candidate ZIP and CI artifact, verify its contents/checksums, then promote only an accepted release build, publish from the tested commit and preserve rollback artifacts.
+The resulting `dist/` directory contains:
 
-Use [Repository workflow](REPOSITORY.md) for the maintained-branch policy and [Testing](TESTING.md) for test evidence and [Alerts](ALERTS.md) for notification caveats. Any missing or failed gate remains a release blocker.
+| File | Purpose |
+| --- | --- |
+| `btc-live-chromium-v1.22.0-candidate.zip` | Runtime-only Manifest V3 test build |
+| `SHA256SUMS.txt` | Verifiable SHA-256 checksum of the candidate ZIP |
+| `BUILD_INFO.json` | Manifest version, source SHA when available, artifact size/checksum and candidate status |
+
+GitHub Actions verifies archive integrity, deterministic re-packaging, metadata and checksum agreement, then uploads the package with its provenance files. Download the **latest successful exact-SHA** artifact from [Actions](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml). Extract the extension ZIP to a folder before **Load unpacked**; do not select the ZIP directly. Use a separate browser profile for candidate testing.
+
+## Stable-release gate
+
+```bash
+npm run release:gate
+```
+
+The command must remain **non-zero** while any mandatory acceptance is pending, evidence is absent, the signoff is missing, or the recorded source commit/version differs. Passing this metadata gate still requires a reviewer to inspect the actual test evidence and packaged extension.
+
+### Promotion steps (only after all gates pass)
+
+1. Freeze the source SHA and verify the complete automated suite on that exact checkout.
+2. Test the actual unpacked candidate and live Binance endpoints across the complete [acceptance matrix](ACCEPTANCE.md).
+3. Record UTC evidence, reviewer and a **same-SHA** decision, and confirm the signed-off source/package correspond.
+4. Decide the customer-visible version; consistently update `manifest.json`, package metadata, changelog, release notes and store listing. **Do not imply v16 is a shipped version until it is approved.**
+5. Rebuild from the intended release SHA, compare checksums, inspect package contents and verify the required permissions and local assets.
+6. Prepare **actual screenshots from the approved extension**, test the upgrade path, verify privacy disclosures and keep rollback artifacts.
+7. Create a version tag and publish a GitHub release only for an accepted build; separately submit the reviewed package/listing to the Chrome Web Store and track its review state.
+
+Never overwrite historical tags or use a candidate name as evidence that a store version is already live.
+
+## Historical version distinctions
+
+- `1.22.0` is the repository manifest and a historical release-notes label, **not** proof that this candidate was published to the store.
+- `v16 Phase 01–10` describes a development milestone, **not** a release semver.
+- The [historical v1.22.0 notes](../GITHUB_RELEASE.md), [old release checklist](../RELEASE_CHECKLIST.md) and [Phase 10 notes](PHASE10.md) retain their original context.
+- `main` is the single maintained integration branch; the legacy branch is described in [repository policy](REPOSITORY.md).
+
+[README](../README.md) · [Testing](TESTING.md) · [User guide](USAGE.md) · [Security](../SECURITY.md)

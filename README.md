@@ -17,7 +17,7 @@ A local-first Chromium extension for live **BTCUSDT Binance USDⓈ-M Futures** p
 ---
 
 > [!IMPORTANT]
-> **Repository status:** `main` contains **v1.22.0**. A separately supplied archive named `btc-live_v2.2(1).zip` also declares v1.22.0, but has additional, **not yet merged** depth, order-flow and recording/replay code. Those capabilities are **not shipped in this repository state**. See [Archive Integration](ARCHIVE_INTEGRATION.md). The filename is not evidence of a v2.2.0 release.
+> **Repository status:** `main` contains **v1.22.0**. A separately reviewed candidate archive also declares v1.22.0 and includes additional, **not yet merged** depth, order-flow and recording/replay code. Those capabilities are **not shipped in this repository state**. See [Archive Integration](ARCHIVE_INTEGRATION.md). That archive is not a tagged or published v2.2.0 release.
 
 ## Overview
 
@@ -40,7 +40,7 @@ BTC Live puts an at-a-glance market view in the toolbar and a fuller monitoring 
 | **Local preferences** | Display/chart settings, alert configuration and bounded diagnostics in extension storage |
 | **Read-only operation** | No trading, wallet access, private exchange endpoints or API keys |
 
-**Alert limitations:** Background checks are sampled, approximately once per minute under normal browser scheduling; they are **not continuous tick-by-tick monitoring**. Chromium may delay or suspend alarms, and alerts are not guaranteed when the browser is closed or inactive. Stale or disconnected market prices must not produce fresh price alerts.
+**Alert limitations:** Background checks are sampled, approximately once per minute under normal browser scheduling; they are **not continuous tick-by-tick monitoring**. Chromium may delay or suspend alarms, and alerts are not guaranteed when the browser is closed or its background processing is suspended. Stale or disconnected market prices must not produce fresh price alerts.
 
 ## Installation
 
@@ -96,7 +96,7 @@ background/service-worker.js  →  sampled alert checks
 tests/ & scripts/              →  verification and packaging
 ```
 
-Market payloads are external, untrusted input; validation and freshness checks precede state updates and alert evaluation. Rendering is coalesced separately from market ingestion and alert processing. See [Architecture](ARCHITECTURE.md) for module responsibilities and trust boundaries.
+Market payloads are external, untrusted input. Parsers validate incoming data before acceptance; runtime freshness checks govern feed health and alert eligibility. Rendering is coalesced separately from market ingestion and alert processing. See [Architecture](ARCHITECTURE.md) for module responsibilities and trust boundaries.
 
 ### Permissions and connections
 

@@ -45,7 +45,7 @@ The order book is only valid after snapshot/diff synchronization; a gap or cross
 
 ## Trust and privilege boundaries
 
-- **Network:** `https://fapi.binance.com/*` is the sole host permission; the extension CSP permits HTTPS Binance REST and `wss://fstream.binance.com`. Data from those endpoints is untrusted.
+- **Network:** Host permissions are scoped to `https://fapi.binance.com/*` for market data and `https://api.github.com/*` for release discovery; the extension CSP permits those HTTPS origins and `wss://fstream.binance.com`. Data from those endpoints is untrusted.
 - **Extension:** MV3 with `storage`, `notifications`, `alarms`. No page content scripts, remote executable code, wallet access or order submission.
 - **Persistence:** Browser extension storage and IndexedDB can contain settings, rules, diagnostics and recorded observations. Malformed imported records and storage errors require safe handling.
 - **Alerts:** Standard background checks are sampled. Advanced rules evaluate only in a live dashboard; Web Locks coordinate cooperating tabs. State is claimed before notification attempts, so delivery can be lost without being retried. Replay is isolated.

@@ -1,4 +1,4 @@
-> **Measurement scope:** This report records a synthetic rendering-work comparison for v1.21.0 retained in the current v1.22.0 repository. It is not a live Chromium performance measurement and does not cover the separately supplied, unmerged expanded dashboard.
+> **Measurement scope:** This report records a synthetic rendering-work comparison for v1.21.0 retained in the current v1.22.0 repository. It is not a live Chromium performance measurement and does not cover the now-integrated v16 development candidate dashboard or establish live browser performance.
 
 # BTC Live v1.21.0 - Render performance measurement
 

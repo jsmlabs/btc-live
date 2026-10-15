@@ -4,6 +4,10 @@
 
 BTC Live is a Manifest V3 browser extension with a popup, a long-lived page dashboard when open, and a service worker that may be suspended by the browser.
 
+## Related guides
+
+[Usage](USAGE.md) covers user-visible workflows; [Alerts](ALERTS.md) defines notification semantics; [Privacy](PRIVACY.md) records data boundaries; and [Testing](TESTING.md) separates simulated checks from real-browser acceptance.
+
 ## Runtime data path
 
 `Binance REST/WebSocket -> market validators and state -> app runtime -> UI selectors and render scheduler -> popup/dashboard`.

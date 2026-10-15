@@ -79,8 +79,10 @@ export function mountSoftwareUpdates({ container, compact = false, api = globalT
   }
   button.addEventListener('click', () => void execute({ action: 'check', force: true }));
   toggle.addEventListener('change', () => void execute({ action: 'configure', enabled: toggle.checked }));
-  channel.addEventListener('change', () => void execute({ action: 'configure', channel: channel.value })
-    .then(() => execute({ action: 'check', force: true })));
+  channel.addEventListener('change', () => { void (async () => {
+    await execute({ action: 'configure', channel: channel.value });
+    await execute({ action: 'check', force: true });
+  })(); });
   const storageListener = (changes, area) => {
     if (area === 'local' && changes?.[UPDATE_KEY]) render(changes[UPDATE_KEY].newValue);
   };

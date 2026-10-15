@@ -5,12 +5,12 @@ import { REQUIRED_RELEASE_GATES, validateReleaseAcceptance } from '../scripts/re
 const sha = 'a'.repeat(40);
 function record() {
   return {
-    schema_version: 1, manifest_version: '1.22.0', commit: sha,
+    schema_version: 1, manifest_version: '1.23.0', commit: sha,
     decision: 'approved', approved_by: 'Release reviewer', approved_at: '2026-10-15T10:00:00Z',
     gates: REQUIRED_RELEASE_GATES.map(id => ({ id, status: 'passed', evidence: ['https://github.com/jsmlabs/btc-live/actions/runs/123'] }))
   };
 }
-const check = r => validateReleaseAcceptance(r, { commit: sha, version: '1.22.0' });
+const check = r => validateReleaseAcceptance(r, { commit: sha, version: '1.23.0' });
 test('release gate allows a complete exact-SHA acceptance record', () => {
   assert.deepEqual(check(record()), []);
 });

@@ -53,3 +53,18 @@ test('timeout cannot permit a retry while Git is still alive', async () => {
  assert.match(script,/\$progress\.Value=0/);
  assert.match(script,/if\(\$current\.manifest_version -ne 3 -or \$current\.version -ne \$targetVersion\)/);
 });
+
+test('updater serializes execution per checkout and resets stale state', async () => {
+ const source=await readFile(new URL('../scripts/update-btc-live.ps1',import.meta.url),'utf8');
+ assert.match(source,/New-Object Threading\.Mutex/);
+ assert.match(source,/\$instanceLock\.WaitOne\(0\)/);
+ assert.match(source,/\$instanceLock\.ReleaseMutex\(\)/);
+ assert.match(source,/\$script:oldCommit=''/);
+ assert.match(source,/\$script:targetCommit=''/);
+ assert.match(source,/\$browser\.Enabled=\$false/);
+});
+test('update panel never recommends deleted CMD launcher', async () => {
+ const panel=await readFile(new URL('../ui/software-update-panel.js',import.meta.url),'utf8');
+ assert.match(panel,/update-btc-live\.bat/);
+ assert.doesNotMatch(panel,/Update BTC Live\.cmd/);
+});

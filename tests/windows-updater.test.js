@@ -27,7 +27,7 @@ test('native updater only fast-forwards official Git main with safeguards', asyn
  ]) assert.match(script,expected);
  assert.doesNotMatch(script,/\b(?:reset|stash|clean -fd|merge --no-ff|pull --rebase)\b/i);
  assert.match(script,/GIT_TERMINAL_PROMPT/);
- assert.match(script,/Operation timed out/);
+ assert.match(script,/Git operation timed out/);
 });
 
 test('GUI cannot close or time out during repository-changing fast-forward', async () => {

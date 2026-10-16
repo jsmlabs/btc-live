@@ -59,6 +59,23 @@ try{
         if(screenshotDir)await page.screenshot({path:path.join(screenshotDir,'installed-'+name+'.png'),fullPage:true});
       }
     }
+    // Exercise the distributed MV3 pages at narrow and intermediate widths as well.
+    for(const responsiveWidth of (view.startsWith('popup')?[320,360,390,408]:[320,390,800,1440])){
+      await page.setViewportSize({width:responsiveWidth,height:900});
+      const measure=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,width:innerWidth}));
+      assert.ok(measure.scroll<=measure.width+1,`Installed MV3 ${view} at ${responsiveWidth}px: ${JSON.stringify(measure)}`);
+      if(view.startsWith('popup')){
+        const rects=await page.locator('.stats-grid').evaluate(grid=>({
+          outer:grid.getBoundingClientRect().toJSON(),
+          cards:[...grid.querySelectorAll('.metric-card')].map(card=>card.getBoundingClientRect().toJSON())
+        }));
+        assert.equal(rects.cards.length,3);
+        assert.ok(rects.cards.every(card=>card.left>=rects.outer.left-1&&card.right<=rects.outer.right+1));
+      }
+    }
+    await page.emulateMedia({reducedMotion:'reduce'});
+    assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--motion-fast').trim()),'0ms');
+    await page.setViewportSize({width,height:900});
     if(screenshotDir)await page.screenshot({path:path.join(screenshotDir,view.startsWith('popup')?'installed-popup.png':'installed-dashboard.png'),fullPage:true});
     console.log(`Installed MV3 smoke: ${view} at ${width}px`);
   }

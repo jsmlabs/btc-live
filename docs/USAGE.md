@@ -1,6 +1,6 @@
 # User guide
 
-**Applies to:** the `main` **development candidate**, manifest `1.24.2`. The Chrome Web Store may distribute a different build. Use this guide for evaluation, not as a production-readiness certificate.
+**Applies to:** the `main` **development candidate**, manifest `1.25.0`. The Chrome Web Store may distribute a different build. Use this guide for evaluation, not as a production-readiness certificate.
 
 ## Install without affecting an existing profile
 
@@ -11,6 +11,10 @@
 5. Click the toolbar icon for the popup; choose **Open market terminal** to access the full terminal.
 
 **From an Actions build:** Download the artifact matching the source SHA, verify `SHA256SUMS.txt`, unpack the inner candidate ZIP, then load the extracted extension directory. A ZIP itself cannot be selected by Load unpacked. There is no npm build required for use; a network path to the public Binance Futures endpoints is required for data.
+
+## One-click Windows source updates
+
+For a Git-cloned unpacked development installation, double-click `Update BTC Live.cmd` in the root folder. Git for Windows must be installed. The updater requires a clean `main` checkout of the official `jsmlabs/btc-live` origin; it aborts on missing Git, unknown origin, local edits/untracked files, wrong branch and failed fast-forward. It reports the old and new Git commit and attempts to open Chrome's extension manager. **Click Reload** on BTC Live there; a successful Git update alone does not reload the running extension or prove its browser functionality. If Chrome is not found, open `chrome://extensions` yourself. The updater does not install Git, modify browser profiles, update Chrome Web Store installations or bypass release-acceptance gates.
 
 ## Explore the six workspaces
 

@@ -5,7 +5,11 @@ import {fileURLToPath} from 'node:url';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const exclusions=new Set(['node_modules','.git','dist']);
 const syntaxTimeoutMs=10_000;
-const testTimeoutMs=20_000;
+const configuredTestTimeout = process.env.BTC_LIVE_TEST_TIMEOUT_MS;
+const testTimeoutMs = configuredTestTimeout === undefined ? 20_000 : Number(configuredTestTimeout);
+if (!Number.isSafeInteger(testTimeoutMs) || testTimeoutMs < 1_000 || testTimeoutMs > 300_000) {
+ throw Error('BTC_LIVE_TEST_TIMEOUT_MS must be an integer between 1000 and 300000 milliseconds');
+}
 async function walk(dir){
  const result=[];
  for(const e of await readdir(dir,{withFileTypes:true})){

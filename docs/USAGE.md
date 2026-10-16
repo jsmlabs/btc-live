@@ -14,7 +14,7 @@
 
 ## One-click Windows source updates
 
-For a Git-cloned unpacked development installation, double-click `Update BTC Live.cmd` in the root folder. Git for Windows must be installed. The updater requires a clean `main` checkout of the official `jsmlabs/btc-live` origin; it aborts on missing Git, unknown origin, local edits/untracked files, wrong branch and failed fast-forward. It reports the old and new Git commit and attempts to open Chrome's extension manager. **Click Reload** on BTC Live there; a successful Git update alone does not reload the running extension or prove its browser functionality. If Chrome is not found, open `chrome://extensions` yourself. The updater does not install Git, modify browser profiles, update Chrome Web Store installations or bypass release-acceptance gates.
+For a Git-cloned unpacked development installation, double-click `Update BTC Live.cmd` in the root folder. Git for Windows must be installed. The updater requires a clean `main` checkout of the official `jsmlabs/btc-live` origin; it aborts on missing Git, an unexpected repository root or origin, local edits/untracked files, wrong branch, divergent history or failed fast-forward. It compares the resulting commit with the fetched target before reporting success. It reports the old and new Git commit and attempts to open Chrome's extension manager. **Click Reload** on BTC Live there; a successful Git update alone does not reload the running extension or prove its browser functionality. If Chrome is not found, open `chrome://extensions` yourself. The updater does not install Git, modify browser profiles, update Chrome Web Store installations or bypass release-acceptance gates.
 
 ## Explore the six workspaces
 

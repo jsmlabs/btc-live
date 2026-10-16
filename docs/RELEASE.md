@@ -1,9 +1,16 @@
 # Release and build guide
 
 > [!IMPORTANT]
-> **Development candidate - NOT approved for customer publication.** Current `main` contains the extension development candidate, while `manifest.json` reports `1.25.0`. A green CI badge does not change its release status.
+> **Development candidate - NOT approved for customer publication.** Current `main` contains the extension development candidate, while `manifest.json` reports `1.25.7`. A green CI badge does not change its release status.
 
-## Development-candidate changes in 1.25.0
+## Development-candidate changes in 1.25.7
+
+- Chart-window price and volume bounds use a single-pass calculation to avoid unnecessary arrays and unbounded spread argument lists.
+- Chart expansion synchronizes accessible expanded state; chart redraw observers are independently managed and stale animation-frame callbacks are ignored.
+- Non-positive market reference overlays are rejected rather than rendered.
+- These development changes do not satisfy real-browser testing or any customer-release acceptance gate.
+
+## Previous development-candidate changes in 1.25.0
 
 - Expose a release's official SHA-256 checksum-manifest link next to a validated extension ZIP, with independent same-release asset validation and cached URL sanitization.
 - Provide regression coverage for checksum asset integrity metadata, malformed or duplicate assets and the software-update panel's download controls.
@@ -62,7 +69,7 @@ npm run package:metadata
 
 | Artifact in `dist/` | Function |
 | --- | --- |
-| `btc-live-chromium-v1.25.0-candidate.zip` | Deterministic package of manifest and reviewed runtime directories |
+| `btc-live-chromium-v1.25.7-candidate.zip` | Deterministic package of manifest and reviewed runtime directories |
 | `SHA256SUMS.txt` | SHA-256 digest for the runtime ZIP |
 | `BUILD_INFO.json` | Manifest version, candidate status, source SHA (when available) and artifact metadata |
 

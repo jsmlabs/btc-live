@@ -5,6 +5,11 @@ All notable changes to the BTC Live development candidate are recorded here. Ent
 
 ## Unreleased
 
+### Premium visual polish
+- Refine popup price hero, consolidated metric strip, range, order quote row and primary terminal action with consistent shape, rhythm and narrow-window safeguards.
+- Unify dashboard workspace heading, active navigation, chart-toolbar wrapping, key-value typography and settings/replay panel details.
+- Extend shared optical tokens without changing data, chart math, permissions or storage.
+
 ### Popup visual refinement
 - Replace the visually fragmented three-card 24-hour OHLC summary with a unified, compact statistic strip using subtle dividers, stable numeric alignment and narrow-popup typography.
 

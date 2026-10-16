@@ -2,6 +2,15 @@
 
 All notable changes to the BTC Live development candidate are recorded here. Entries are not evidence of an approved customer release.
 
+## [1.25.3] - 2026-10-16
+
+### Fixed
+- Ignore zero, negative and non-finite live/24-hour price references when constructing chart overlays, preventing invalid market values from distorting the visible scale.
+- Add deterministic chart model regression coverage for invalid and valid references.
+
+### Verification
+- Development candidate; live browser and release acceptance remain separate mandatory checks.
+
 ## [1.25.2] - 2026-10-16
 
 ### Fixed

@@ -56,7 +56,7 @@ export function buildChartModel(candles, {
   const highs = valid.map((candle) => candle.high);
   // A present-day trade price must not compress a manually inspected historical range.
   const following = view?.following !== false;
-  if (following && Number.isFinite(currentPrice)) {
+  if (following && Number.isFinite(currentPrice) && currentPrice > 0) {
     lows.push(currentPrice);
     highs.push(currentPrice);
   }
@@ -124,7 +124,7 @@ export function buildChartModel(candles, {
     { key: 'high24h', label: '24H H', value: show24h && following ? high24h : null },
     { key: 'open24h', label: '24H O', value: show24h && following ? open24h : null },
     { key: 'low24h', label: '24H L', value: show24h && following ? low24h : null }
-  ].filter((level) => Number.isFinite(level.value)).map((level) => ({
+  ].filter((level) => Number.isFinite(level.value) && level.value > 0).map((level) => ({
     ...level,
     inRange: level.value >= minPrice && level.value <= maxPrice,
     y: yForPrice(level.value)

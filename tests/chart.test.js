@@ -34,6 +34,22 @@ test('chart model expands price area when volume is hidden', () => {
   assert.equal(withoutVolume.showVolume, false);
 });
 
+test('invalid nonpositive market references are omitted rather than charted', () => {
+  const baseline = buildChartModel(candles);
+  const model = buildChartModel(candles, {
+    currentPrice: 0,
+    open24h: -1,
+    high24h: 0,
+    low24h: Number.POSITIVE_INFINITY
+  });
+  assert.deepEqual(model.referenceLevels, []);
+  assert.equal(model.minPrice, baseline.minPrice);
+  assert.equal(model.maxPrice, baseline.maxPrice);
+  const valid = buildChartModel(candles, {currentPrice: 150, high24h: 125});
+  assert.equal(valid.referenceLevels.length, 2);
+  assert.ok(valid.maxPrice > baseline.maxPrice);
+});
+
 test('chart model handles empty data explicitly', () => {
   assert.equal(buildChartModel([]), null);
   assert.equal(buildChartModel(null), null);

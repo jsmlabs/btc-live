@@ -43,6 +43,23 @@ test('flush renders pending data immediately and cancels the obsolete frame', ()
   assert.equal(calls, 1);
 });
 
+test('late cancelled frame cannot consume a new scheduled redraw', () => {
+  const frames = fakeFrames();
+  let calls = 0;
+  const scheduler = createRenderScheduler(() => calls++, frames);
+  scheduler.schedule();
+  const cancelledCallback = [...frames.frames.values()][0];
+  scheduler.flush();
+  scheduler.schedule();
+  cancelledCallback();
+  assert.equal(calls, 1);
+  assert.equal(frames.frames.size, 1);
+  frames.tick();
+  assert.equal(calls, 2);
+  assert.equal(scheduler.diagnostics().frames, 2);
+  scheduler.dispose();
+});
+
 test('dispose prevents pending, late and subsequent visual work', () => {
   const frames = fakeFrames();
   let calls = 0;

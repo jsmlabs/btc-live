@@ -2,6 +2,15 @@
 
 All notable changes to the BTC Live development candidate are recorded here. Entries are not evidence of an approved customer release.
 
+## [1.25.2] - 2026-10-16
+
+### Fixed
+- Normalize the BAT launcher's root-directory argument to avoid an invalid path caused by the trailing backslash before a quoted argument.
+- Update the launcher regression test to require safe Windows path quoting.
+
+### Verification
+- Windows CI and interactive GUI acceptance must still be checked; this is a development candidate, not a published release.
+
 ## [1.25.1] - 2026-10-16
 
 ### Fixed

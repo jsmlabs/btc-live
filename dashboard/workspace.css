@@ -333,3 +333,22 @@ body:has(.analytics-overview[data-analytics-active-view="behavior"]) .flow-behav
 @media (forced-colors: active) {
   .dashboard-shell .workspace-link[aria-pressed="true"] { outline: 2px solid Highlight; }
 }
+
+/* Chart control hierarchy: primary interval/style/navigation groups remain visually distinct. */
+.dashboard-shell .chart-toolbar { column-gap: 9px; row-gap: 8px; }
+.dashboard-shell .chart-toolbar > .segmented[aria-label="Chart interval"] { border-color: var(--border-strong); }
+.dashboard-shell .chart-toolbar > .segmented[aria-label="Chart style"] { border-color: var(--border); }
+.dashboard-shell .chart-toolbar > .segmented[aria-label="Chart navigation"] { margin-inline-start: auto; }
+.dashboard-shell .chart-toolbar > .chart-menu > summary { white-space: nowrap; }
+.dashboard-shell .chart-toolbar :is(.chart-control, .chart-menu > summary):focus-visible { outline-offset: 2px; }
+@media (max-width: 1100px) {
+  .dashboard-shell .chart-toolbar > .segmented[aria-label="Chart navigation"] { margin-inline-start: 0; }
+}
+@media (max-width: 560px) {
+  .dashboard-shell .chart-toolbar > .segmented[aria-label="Chart interval"] { width: 100%; }
+  .dashboard-shell .chart-toolbar > .segmented[aria-label="Chart style"] { width: 100%; }
+  .dashboard-shell .chart-toolbar > .segmented[aria-label="Chart navigation"] { width: 100%; }
+}
+@media (forced-colors: active) {
+  .dashboard-shell .chart-toolbar > .segmented[aria-label="Chart interval"] { border-color: CanvasText; }
+}

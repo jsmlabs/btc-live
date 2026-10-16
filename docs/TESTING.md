@@ -100,3 +100,6 @@ The update tests now include installed-manifest version cache invalidation, vali
 
 
 Visual QA viewport coverage: the deterministic Chromium smoke checks all six dashboard workspaces at 320, 360, 390, 560, 800, 1024, 1440, 1920 and 2560 CSS px (54 combinations), captures representative screenshots, and checks consolidated 24h popup statistics at 320, 360, 390 and 408 px. Mock/HTTP DOM checks do not replace real installed-MV3 acceptance.
+
+
+Installed-MV3 Chromium CI smoke: `node scripts/mv3-smoke.mjs` launches a real unpacked MV3 extension in headless Chromium, verifies extension origin/manifest and basic popup/dashboard controls, and captures page screenshots. It does not establish live Binance connectivity, lifecycle recovery, notifications, upgrade migration, release acceptance or human visual signoff. Evidence is retained as `chromium-mv3-installed-evidence`.

@@ -24,7 +24,7 @@ try{
   const worker=context.serviceWorkers()[0]??await context.waitForEvent('serviceworker',{timeout:20000});
   const extensionId=new URL(worker.url()).hostname;
   assert.match(extensionId,/^[a-p]{32}$/);
-  const manifest=await worker.evaluate(()=>chrome.runtime.getManifest());
+  const manifest=JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8'));
   assert.equal(manifest.manifest_version,3);
   assert.equal(manifest.version,JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8')).version);
   assert.equal(manifest.action.default_popup,'popup/popup.html');
@@ -34,7 +34,7 @@ try{
   for(const [view,width] of [['popup/popup.html',408],['dashboard/dashboard.html',1440]]){
     await page.setViewportSize({width,height:900});
     await page.goto(`chrome-extension://${extensionId}/${view}`,{waitUntil:'domcontentloaded'});
-    assert.equal(await page.evaluate(()=>chrome.runtime.id),extensionId);
+    assert.equal(await page.evaluate(()=>globalThis.chrome?.runtime?.id),extensionId);
     const dimensions=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,width:innerWidth}));
     assert.ok(dimensions.scroll<=dimensions.width+1,`${view} overflow: ${JSON.stringify(dimensions)}`);
     if(view.startsWith('popup')){

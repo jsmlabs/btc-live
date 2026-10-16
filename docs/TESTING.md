@@ -103,3 +103,5 @@ Visual QA viewport coverage: the deterministic Chromium smoke checks all six das
 
 
 Installed-MV3 Chromium CI smoke: `node scripts/mv3-smoke.mjs` launches a real unpacked MV3 extension from the exact generated candidate ZIP during CI in headless Chromium, verifies extension origin/manifest and basic popup/dashboard controls, and captures popup and all six workspace screenshots plus observed DOM/load navigation timings as a local evidence baseline (not a before/after performance claim). It does not establish live Binance connectivity, lifecycle recovery, notifications, upgrade migration, release acceptance or human visual signoff. Evidence is retained as `chromium-mv3-installed-evidence`.
+
+Installed packaged MV3 responsive checks also validate the popup at 320/360/390/408 px, dashboard at 320/390/800/1440 px, the unified 24h metric strip bounds, and the effective reduced-motion token directly inside Chromium extension pages.

@@ -81,3 +81,6 @@ jobs:
           [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PWD 'scripts/update-btc-live.ps1'), [ref]$tokens, [ref]$errors) | Out-Null
           if ($errors.Count -gt 0) { $errors | Format-List; exit 1 }
           if (-not (Test-Path 'update-btc-live.bat')) { throw 'Missing Windows entrypoint' }
+      - name: Exercise local Git update scenarios
+        shell: powershell
+        run: ./tests/windows-updater-git.integration.ps1

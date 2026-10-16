@@ -1,7 +1,13 @@
 # Release and build guide
 
 > [!IMPORTANT]
-> **Development candidate - NOT approved for customer publication.** Current `main` contains the extension development candidate, while `manifest.json` reports `1.24.2`. A green CI badge does not change its release status.
+> **Development candidate - NOT approved for customer publication.** Current `main` contains the extension development candidate, while `manifest.json` reports `1.25.0`. A green CI badge does not change its release status.
+
+## Development-candidate changes in 1.25.0
+
+- Expose a release's official SHA-256 checksum-manifest link next to a validated extension ZIP, with independent same-release asset validation and cached URL sanitization.
+- Provide regression coverage for checksum asset integrity metadata, malformed or duplicate assets and the software-update panel's download controls.
+- Preserve manual unpacked installation, existing Stable release acceptance gates, and the explicitly untested Experimental Preview path. Download links do not perform or prove file integrity checks automatically.
 
 ## Development-candidate changes in 1.24.2
 
@@ -56,7 +62,7 @@ npm run package:metadata
 
 | Artifact in `dist/` | Function |
 | --- | --- |
-| `btc-live-chromium-v1.24.2-candidate.zip` | Deterministic package of manifest and reviewed runtime directories |
+| `btc-live-chromium-v1.25.0-candidate.zip` | Deterministic package of manifest and reviewed runtime directories |
 | `SHA256SUMS.txt` | SHA-256 digest for the runtime ZIP |
 | `BUILD_INFO.json` | Manifest version, candidate status, source SHA (when available) and artifact metadata |
 
@@ -120,7 +126,7 @@ Before triggering, verify the source commit and all seven real-browser, Binance,
 
 Do not configure or trigger the workflow solely to make Software Updates display an update. A repository administrator must establish the protected environment and approve each actual release. Repository branch protection and a successful workflow for the exact commit are separate requirements.
 
-When a published eligible release contains exactly one uploaded, size-bounded archive named `btc-live-chromium-v<manifest-version>-candidate.zip` at its canonical GitHub Releases download URL, the panel displays **Download Extension ZIP** alongside release notes. An absent, duplicated, oversized, incomplete or foreign asset does not generate a download action. Downloading the ZIP never constitutes installation; checksum verification, extraction and manual loading remain the user's responsibility.
+When a published eligible release contains exactly one uploaded, size-bounded archive named `btc-live-chromium-v<manifest-version>-candidate.zip` at its canonical GitHub Releases download URL, the panel displays **Download Extension ZIP** alongside release notes. An absent, duplicated, oversized, incomplete or foreign asset does not generate a download action. Downloading the ZIP never constitutes installation; checksum verification, extraction and manual loading remain the user's responsibility. When the same release also publishes exactly one small, uploaded `SHA256SUMS.txt` at its official GitHub Releases asset URL, the panel displays **SHA-256 Checksums** alongside the ZIP. The user must independently compare the ZIP digest against the manifest; a visible checksum link is not proof of a matching downloaded archive.
 
 When the installed manifest version exceeds the most recent eligible published release, the panel displays **Installed version is newer** rather than claiming a normal up-to-date published installation. This may occur for unpacked development builds.
 

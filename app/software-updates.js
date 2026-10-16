@@ -60,6 +60,16 @@ function validatedDownload(assets, tag) {
   return matches.length === 1 ? expected : null;
 }
 
+// A checksum manifest belongs to the same exact GitHub release as the archive.
+function validatedChecksums(assets, tag) {
+  if (!Array.isArray(assets)) return null;
+  const name = 'SHA256SUMS.txt';
+  const expected = 'https://github.com/jsmlabs/btc-live/releases/download/' + encodeURIComponent(tag) + '/' + name;
+  const matches = assets.filter(asset => asset && asset.name === name && asset.browser_download_url === expected &&
+    asset.state === 'uploaded' && Number.isSafeInteger(asset.size) && asset.size > 0 && asset.size <= 16384);
+  return matches.length === 1 ? expected : null;
+}
+
 export function selectRelease(items, installed, channel = 'stable') {
   if (!Array.isArray(items) || !parseVersion(installed)) return { status: 'UNSUPPORTED' };
   let best = null;
@@ -73,7 +83,8 @@ export function selectRelease(items, installed, channel = 'stable') {
     const url = RELEASE_BASE + encodeURIComponent(r.tag_name);
     if (!best || compareVersions(r.tag_name, best.version) > 0)
       best = { version: r.tag_name.replace(/^v/, ''), url, prerelease: r.prerelease,
-        downloadUrl: validatedDownload(r.assets, r.tag_name) };
+        downloadUrl: validatedDownload(r.assets, r.tag_name),
+        checksumUrl: validatedChecksums(r.assets, r.tag_name) };
   }
   if (!best) return { status: 'UNSUPPORTED' };
   return { status: releaseStatus(best.version, installed, best.prerelease), release: best };
@@ -100,7 +111,9 @@ export function sanitizeUpdateState(raw, installed) {
       const tag = candidate.url.slice(RELEASE_BASE.length);
       const expected = 'https://github.com/jsmlabs/btc-live/releases/download/' + tag + '/' + name;
       release = { version: canonical, url: candidate.url, prerelease: candidate.prerelease,
-        downloadUrl: candidate.downloadUrl === expected ? expected : null };
+        downloadUrl: candidate.downloadUrl === expected ? expected : null,
+        checksumUrl: candidate.checksumUrl === 'https://github.com/jsmlabs/btc-live/releases/download/' + tag + '/SHA256SUMS.txt'
+          ? candidate.checksumUrl : null };
     }
   }
   let status = 'NOT_CHECKED';

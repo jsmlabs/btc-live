@@ -10,7 +10,7 @@ Live BTCUSDT market observation · Charts and order flow · Local replay · Conf
 
 [![Verification](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml/badge.svg?branch=main)](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml)
 ![Chromium](https://img.shields.io/badge/Chromium-Manifest_V3-30343B?logo=googlechrome&logoColor=white)
-![Version](https://img.shields.io/badge/manifest-1.24.2-F3A23A)
+![Version](https://img.shields.io/badge/manifest-1.25.0-F3A23A)
 ![Status](https://img.shields.io/badge/status-development_candidate-555)
 [![License](https://img.shields.io/badge/license-MIT-30343B)](LICENSE)
 
@@ -19,7 +19,7 @@ Live BTCUSDT market observation · Charts and order flow · Local replay · Conf
 </div>
 
 > [!IMPORTANT]
-> **Development candidate, not an approved customer release.** The current `main` branch declares version **1.24.2** in `manifest.json`. Automated checks do not establish live Chromium/MV3 behavior, real Binance connectivity, alert delivery, migration safety or Chrome Web Store approval. See [release acceptance](docs/ACCEPTANCE.md).
+> **Development candidate, not an approved customer release.** The current `main` branch declares version **1.25.0** in `manifest.json`. Automated checks do not establish live Chromium/MV3 behavior, real Binance connectivity, alert delivery, migration safety or Chrome Web Store approval. See [release acceptance](docs/ACCEPTANCE.md).
 
 ### Product snapshot
 
@@ -139,7 +139,7 @@ npm run package:metadata
 
 | Output | Meaning |
 | :-- | :-- |
-| `dist/btc-live-chromium-v1.24.2-candidate.zip` | Reproducible Chromium candidate package |
+| `dist/btc-live-chromium-v1.25.0-candidate.zip` | Reproducible Chromium candidate package |
 | `dist/SHA256SUMS.txt` | Artifact checksum |
 | `dist/BUILD_INFO.json` | Candidate status, version, source commit and artifact metadata |
 | [CI workflow](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml) | Automated syntax/tests, documentation/release checks, archive integrity and reproducibility |

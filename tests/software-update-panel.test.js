@@ -38,7 +38,7 @@ test('software update panel validates storage events and never exposes an untrus
   const dispose = mountSoftwareUpdates({container, indicator, api});
   await new Promise(resolve => setImmediate(resolve));
   const [title, status, detail, note, toggleLabel, channelLabel, controls] = container.children[0].children;
-  const [button, link, downloadLink, sourceLink] = controls.children;
+  const [button, link, downloadLink, checksumLink, sourceLink] = controls.children;
   assert.equal(sourceLink.hidden, false);
   assert.equal(sourceLink.href, 'https://github.com/jsmlabs/btc-live#get-started');
   assert.equal(sourceLink.target, '_blank');
@@ -82,6 +82,15 @@ test('software update panel validates storage events and never exposes an untrus
   listener({btcLiveSoftwareUpdates:{newValue:withDownload}},'local');
   assert.equal(downloadLink.hidden,false);
   assert.equal(downloadLink.href,withDownload.release.downloadUrl);
+  assert.equal(checksumLink.hidden,true);
+  const withChecksum = {...withDownload,release:{...withDownload.release,
+    checksumUrl:'https://github.com/jsmlabs/btc-live/releases/download/v1.25.0/SHA256SUMS.txt'}};
+  listener({btcLiveSoftwareUpdates:{newValue:withChecksum}},'local');
+  assert.equal(checksumLink.hidden,false);
+  assert.equal(checksumLink.href,withChecksum.release.checksumUrl);
+  listener({btcLiveSoftwareUpdates:{newValue:{...withChecksum,release:{...withChecksum.release,checksumUrl:'https://evil.example/checksums'}}}},'local');
+  assert.equal(checksumLink.hidden,true);
+  assert.equal(checksumLink.href,undefined);
   listener({btcLiveSoftwareUpdates:{newValue:{...withDownload,release:{...withDownload.release,downloadUrl:'https://evil.example/extension.zip'}}}},'local');
   assert.equal(downloadLink.hidden,true);
   assert.equal(downloadLink.href,undefined);

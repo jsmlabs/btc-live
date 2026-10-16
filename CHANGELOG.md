@@ -42,6 +42,9 @@ All notable changes to the BTC Live development candidate are recorded here. Ent
 - Visually distinguish primary chart controls, align navigation on wider viewports and maintain full-width control groups on narrow viewports.
 - Expand Chromium DOM regression assertions without altering chart calculations, market data or extension permissions.
 
+### Installed Chromium extension smoke
+- Exercise a genuinely loaded Manifest V3 extension in Chromium, verify extension origin and key popup/dashboard controls, and archive screenshots; keep manual live-data/release acceptance explicitly separate.
+
 ## [1.25.8] - 2026-10-16
 
 ### Fixed

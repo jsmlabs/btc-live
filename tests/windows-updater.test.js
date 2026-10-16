@@ -47,8 +47,9 @@ test('GUI cannot close or time out during repository-changing fast-forward', asy
 
 test('timeout cannot permit a retry while Git is still alive', async () => {
  const script=await readFile(new URL('../scripts/update-btc-live.ps1',import.meta.url),'utf8');
- assert.match(script,/if\(-not \$process\.HasExited\)\{Set-Status 'Waiting for timed-out Git operation to stop/);
- assert.match(script,/\$script:process=\$null\s+Fail 'Git operation timed out/);
+ assert.match(script,/\$script:timedOut=\$true/);
+ assert.match(script,/if\(\$timedOut\)\{Fail 'Git operation timed out/);
+ assert.match(script,/\$process\.Dispose\(\)\s+\$script:process=\$null\s+if\(\$timedOut\)/);
  assert.match(script,/\$progress\.Value=0/);
  assert.match(script,/if\(\$current\.manifest_version -ne 3 -or \$current\.version -ne \$targetVersion\)/);
 });

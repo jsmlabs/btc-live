@@ -118,7 +118,7 @@ export function sanitizeUpdateState(raw, installed) {
     }
   }
   const developmentVersion = lastSuccessAt !== null && typeof x.developmentVersion === 'string' &&
-    /^\\d+\\.\\d+\\.\\d+$/.test(x.developmentVersion) && parseVersion(x.developmentVersion) &&
+    /^\d+\\.\d+\\.\d+$/.test(x.developmentVersion) && parseVersion(x.developmentVersion) &&
     compareVersions(x.developmentVersion, installed) > 0 ? x.developmentVersion : null;
   let status = 'NOT_CHECKED';
   if (lastSuccessAt !== null) {
@@ -201,8 +201,8 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
               const entry = await sourceResponse.json();
               if (entry?.type === 'file' && entry.path === 'manifest.json' &&
                   entry.encoding === 'base64' && typeof entry.content === 'string' && entry.content.length < 20000) {
-                const sourceManifest = JSON.parse(atob(entry.content.replace(/\\s/g, '')));
-                if (typeof sourceManifest.version === 'string' && /^\\d+\\.\\d+\\.\\d+$/.test(sourceManifest.version) &&
+                const sourceManifest = JSON.parse(atob(entry.content.replace(/\s/g, '')));
+                if (typeof sourceManifest.version === 'string' && /^\d+\\.\d+\\.\d+$/.test(sourceManifest.version) &&
                     parseVersion(sourceManifest.version) && compareVersions(sourceManifest.version, installed) > 0)
                   developmentVersion = sourceManifest.version;
               }

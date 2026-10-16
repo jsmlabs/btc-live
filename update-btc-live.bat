@@ -9,7 +9,7 @@ set "POWERSHELL=%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe"
 if not exist "%UPDATER%" goto missing_updater
 if not exist "%POWERSHELL%" goto missing_powershell
 
-"%POWERSHELL%" -NoLogo -NoProfile -NonInteractive -STA -ExecutionPolicy Bypass -File "%UPDATER%" -RepoRoot "%~dp0"
+"%POWERSHELL%" -NoLogo -NoProfile -NonInteractive -STA -ExecutionPolicy Bypass -File "%UPDATER%" -RepoRoot "%~dp0."
 set "RESULT=%ERRORLEVEL%"
 if not "%RESULT%"=="0" goto launch_failed
 exit /b 0

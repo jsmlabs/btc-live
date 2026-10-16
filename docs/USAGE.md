@@ -1,6 +1,6 @@
 # User guide
 
-**Applies to:** the `main` **development candidate**, manifest `1.25.1`. The Chrome Web Store may distribute a different build. Use this guide for evaluation, not as a production-readiness certificate.
+**Applies to:** the `main` **development candidate**, manifest `1.25.2`. The Chrome Web Store may distribute a different build. Use this guide for evaluation, not as a production-readiness certificate.
 
 ## Install without affecting an existing profile
 
@@ -18,7 +18,7 @@ The panel shows the installed version, the available published release or develo
 
 ## Native Windows one-click updater
 
-For a Git-cloned, unpacked development installation, double-click `update-btc-live.bat` at the checkout root. The small Windows PowerShell 5.1 / Windows Forms interface shows local and fetched manifest versions, the current Git operation, and a single **Update BTC Live** button. Git for Windows must already be installed; the updater needs no additional GUI framework or administrator permissions.
+For a Git-cloned, unpacked development installation, double-click `update-btc-live.bat` at the checkout root. The launcher passes a normalized directory argument (`%~dp0.`), avoiding the Windows trailing-backslash quoting ambiguity. The small Windows PowerShell 5.1 / Windows Forms interface shows local and fetched manifest versions, the current Git operation, and a single **Update BTC Live** button. Git for Windows must already be installed; the updater needs no additional GUI framework or administrator permissions.
 
 The GUI uses a per-checkout Windows mutex to reject competing updater windows. After the update completes or the window closes, the lock is released. The updater checks the repository root, branch `main`, official `origin`, and absence of local edits or untracked files. It downloads the remote commit without tags, rejects fetched manifest versions older than the installed version (including when Git history is fast-forward), verifies fast-forward ancestry, updates without a merge commit, and confirms that HEAD matches the fetched commit. It stops on errors or diverged history without intentionally resetting or stashing work. If a bounded Git operation times out, the updater terminates and reaps that process before allowing Retry; it never interrupts the fast-forward merge. Progress remains indeterminate while work is ongoing because Git does not provide a reliable overall percentage. While Git is running, the window cannot be closed to avoid interrupting a repository-changing step; the fast-forward merge is never forcibly terminated by a UI timeout. After completion, the checked-out manifest must match the fetched version before success is displayed.
 

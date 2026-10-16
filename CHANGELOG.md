@@ -33,6 +33,10 @@ All notable changes to the BTC Live development candidate are recorded here. Ent
 - Development candidate only; manual Chromium, market-data and release acceptance remain pending.
 
 
+### Visual regression coverage
+- Expand deterministic dashboard workspace width matrix to 320–2560 CSS px (54 workspace/viewport pairs), retain additional responsive screenshots and check the unified 24h popup strip at four popup widths.
+- These HTTP-served Chromium fixtures do not constitute installed-MV3 release acceptance.
+
 ## [1.25.8] - 2026-10-16
 
 ### Fixed

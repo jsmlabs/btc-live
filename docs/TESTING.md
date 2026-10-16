@@ -97,3 +97,6 @@ The update tests now include installed-manifest version cache invalidation, vali
 ## Software Updates 1.24.2 verification
 
 `tests/software-updates.test.js` now checks multi-page public release discovery, SemVer build-metadata equivalence, bounded pagination (five pages of 100 results), page-specific rate limiting, malformed later pages and the rule that incomplete release histories cannot be presented as definitive absence or currency. Network and browser behavior remain separate manual acceptance requirements.
+
+
+Visual QA viewport coverage: the deterministic Chromium smoke checks all six dashboard workspaces at 320, 360, 390, 560, 800, 1024, 1440, 1920 and 2560 CSS px (54 combinations), captures representative screenshots, and checks consolidated 24h popup statistics at 320, 360, 390 and 408 px. Mock/HTTP DOM checks do not replace real installed-MV3 acceptance.

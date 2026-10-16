@@ -86,6 +86,7 @@ function Fail([string]$message){
  $script:running=$false
  $timer.Stop()
  $progress.Style='Blocks'
+ $progress.Value=0
  $update.Enabled=$true
  $update.Text='Retry update'
  Set-Status $message $true
@@ -95,13 +96,13 @@ function Start-Step{
    $timer.Stop()
    $script:running=$false
    $progress.Style='Blocks'
+     try { $current=Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json }
+   catch { Fail 'Git completed but the local extension manifest could not be read.'; return }
+   if($current.manifest_version -ne 3 -or $current.version -ne $targetVersion){Fail 'Local manifest does not match the verified target version.';return}
    $progress.Value=100
    $update.Enabled=$true
    $update.Text='Check again'
    $browser.Enabled=$true
-   try { $current=Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json }
-   catch { Fail 'Git completed but the local extension manifest could not be read.'; return }
-   if($current.manifest_version -ne 3 -or $current.version -ne $targetVersion){Fail 'Local manifest does not match the verified target version.';return}
    $versions.Text="Installed: $($current.version)    |    Available: $targetVersion"
    if($oldCommit -eq $targetCommit){Set-Status 'Already current. No files changed.'}
    else{Set-Status 'Source updated. Reload the extension in Chrome.'}
@@ -159,6 +160,9 @@ $timer.Add_Tick({
  if(-not $process.HasExited){
    if([int]$steps[$step].Timeout -gt 0 -and $watch.ElapsedMilliseconds -gt [int]$steps[$step].Timeout){
      try{$process.Kill();$process.WaitForExit(5000)}catch{}
+     if(-not $process.HasExited){Set-Status 'Waiting for timed-out Git operation to stop...' $true;return}
+     $process.Dispose()
+     $script:process=$null
      Fail 'Git operation timed out. Check your connection and retry.'
    }
    return

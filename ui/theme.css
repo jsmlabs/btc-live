@@ -74,3 +74,14 @@ button[aria-busy="true"] { cursor: progress; }
 @media (forced-colors: active) {
   :is(button, a, summary):focus-visible { outline: 2px solid Highlight; outline-offset: 3px; }
 }
+
+/* Cross-surface optical consistency and restrained interaction emphasis. */
+:root {
+  --terminal-label-tracking: .075em;
+  --terminal-reading-line-height: 1.55;
+}
+:is(.eyebrow, .metric-label) { letter-spacing: var(--terminal-label-tracking); }
+:is(.operation-feedback, .settings-scope-note) { line-height: var(--terminal-reading-line-height); }
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion-ease: linear; }
+}

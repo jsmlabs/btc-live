@@ -151,3 +151,25 @@
   .app-shell .stats-grid .metric-value { font-size: clamp(10px, 3.25vw, 12px); }
 }
 @media (forced-colors: active) { .app-shell .stats-grid .metric-card + .metric-card { border-left-color: CanvasText; } }
+
+/* Premium detail pass: restrained hierarchy across the existing popup surfaces. */
+.app-shell .price-block { border-radius: 12px; padding-block: 17px; }
+.app-shell .price-caption { line-height: 1.35; }
+.app-shell .current-price { line-height: 1.07; }
+.app-shell .change-line { display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px; }
+.app-shell .stats-grid { border-radius: 11px; }
+.app-shell .range-card { padding-block: 14px; }
+.app-shell .range-heading, .app-shell .range-scale { font-variant-numeric: tabular-nums; }
+.app-shell .market-row { overflow: hidden; border-radius: 10px; }
+.app-shell .market-cell { min-width: 0; }
+.app-shell .open-terminal-button { border-radius: 11px; }
+.app-shell .open-terminal-button:hover { background: var(--accent-soft); }
+.app-shell .footer { line-height: 1.55; }
+@media (max-width: 390px) {
+  .app-shell .price-block { padding: 14px 12px; }
+  .app-shell .stats-grid .metric-value { letter-spacing: -.035em; }
+  .app-shell .market-cell { padding-inline: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell .open-terminal-button { transition: none; }
+}

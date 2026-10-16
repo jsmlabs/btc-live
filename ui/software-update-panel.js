@@ -28,6 +28,11 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
   downloadLink.target = '_blank';
   downloadLink.rel = 'noopener noreferrer';
   downloadLink.hidden = true;
+  const checksumLink = document.createElement('a');
+  checksumLink.textContent = 'SHA-256 Checksums';
+  checksumLink.target = '_blank';
+  checksumLink.rel = 'noopener noreferrer';
+  checksumLink.hidden = true;
   const toggleLabel = document.createElement('label');
   toggleLabel.className = 'setting-row';
   toggleLabel.append('Automatic daily checks');
@@ -45,7 +50,7 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
     channel.append(option);
   }
   channelLabel.append(channel);
-  controls.append(button, link, downloadLink);
+  controls.append(button, link, downloadLink, checksumLink);
   const note = document.createElement('p');
   note.className = 'settings-scope-note';
   note.textContent = 'Development builds in the repository are not published updates. To refresh an unpacked installation, update the local source and reload it in chrome://extensions. This checker does not install software.';
@@ -108,6 +113,9 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
     downloadLink.hidden = !eligible || !state.release.downloadUrl;
     if (!downloadLink.hidden) downloadLink.href = state.release.downloadUrl;
     else downloadLink.removeAttribute('href');
+    checksumLink.hidden = !eligible || !state.release.checksumUrl || !state.release.downloadUrl;
+    if (!checksumLink.hidden) checksumLink.href = state.release.checksumUrl;
+    else checksumLink.removeAttribute('href');
     if (indicator) {
       indicator.hidden = !eligible || state.dismissed === state.release.version;
       indicator.textContent = eligible ? (state.status === 'EXPERIMENTAL_AVAILABLE'

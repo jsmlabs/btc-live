@@ -5,6 +5,9 @@ All notable changes to the BTC Live development candidate are recorded here. Ent
 
 ## Unreleased
 
+### Popup visual refinement
+- Replace the visually fragmented three-card 24-hour OHLC summary with a unified, compact statistic strip using subtle dividers, stable numeric alignment and narrow-popup typography.
+
 ### Quality assurance
 - Run the existing synthetic Chromium DOM smoke suite as a separate GitHub Actions job and retain screenshots/logs as CI artifacts.
 - Explicitly distinguish browser DOM regression evidence from installed-extension and manual release approval.

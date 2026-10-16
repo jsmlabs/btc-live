@@ -2,13 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
-test('Windows CMD entrypoint launches only the bundled native updater', async () => {
- const script=await readFile(new URL('../Update BTC Live.cmd',import.meta.url),'utf8');
+test('Windows BAT entrypoint launches only the bundled native updater', async () => {
+ const script=await readFile(new URL('../update-btc-live.bat',import.meta.url),'utf8');
  assert.match(script,/setlocal DisableDelayedExpansion/);
  assert.match(script,/System32\\WindowsPowerShell\\v1\.0\\powershell\.exe/);
- assert.match(script,/-NoProfile -STA -ExecutionPolicy Bypass -File/);
+ assert.match(script,/-NoProfile -NonInteractive -STA -ExecutionPolicy Bypass -File/);
  assert.match(script,/scripts\\update-btc-live\.ps1/);
  assert.match(script,/-RepoRoot "%~dp0"/);
+ assert.match(script,/if not exist "%UPDATER%" goto missing_updater/);
+ assert.match(script,/if not exist "%POWERSHELL%" goto missing_powershell/);
+ assert.match(script,/set "RESULT=%ERRORLEVEL%"/);
+ assert.match(script,/exit \/b 1/);
  assert.doesNotMatch(script,/\b(?:git|curl|bitsadmin)\s+(?:fetch|pull|merge|reset|clone|download)\b/i);
 });
 

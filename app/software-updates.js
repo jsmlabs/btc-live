@@ -31,6 +31,21 @@ export function compareVersions(a, b) {
   }
   return 0;
 }
+// Experimental prereleases can package the same numeric manifest version.
+// Surface them as downloads, never as installed-version upgrades.
+function releaseStatus(version, installed, prerelease) {
+  const precedence = compareVersions(version, installed);
+  if (precedence > 0) return prerelease ? 'PREVIEW_AVAILABLE' : 'UPDATE_AVAILABLE';
+  const candidate = parseVersion(version);
+  const current = parseVersion(installed);
+  if (prerelease && candidate?.pre.length === 2 && candidate.pre[0] === 'preview' &&
+      /^\\d+$/.test(candidate.pre[1]) && current &&
+      candidate.numbers.every((part, index) => part === current.numbers[index])) {
+    return 'EXPERIMENTAL_AVAILABLE';
+  }
+  return 'UP_TO_DATE';
+}
+
 export function selectRelease(items, installed, channel = 'stable') {
   if (!Array.isArray(items) || !parseVersion(installed)) return { status: 'UNSUPPORTED' };
   let best = null;
@@ -46,8 +61,7 @@ export function selectRelease(items, installed, channel = 'stable') {
       best = { version: r.tag_name.replace(/^v/, ''), url, prerelease: r.prerelease };
   }
   if (!best) return { status: 'UNSUPPORTED' };
-  const newer = compareVersions(best.version, installed);
-  return { status: newer > 0 ? (best.prerelease ? 'PREVIEW_AVAILABLE' : 'UPDATE_AVAILABLE') : 'UP_TO_DATE', release: best };
+  return { status: releaseStatus(best.version, installed, best.prerelease), release: best };
 }
 export function sanitizeUpdateState(raw, installed) {
   const x = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
@@ -73,8 +87,7 @@ export function sanitizeUpdateState(raw, installed) {
   let status = 'NOT_CHECKED';
   if (lastSuccessAt !== null) {
     if (release) {
-      const newer = compareVersions(release.version, installed);
-      status = newer > 0 ? (release.prerelease ? 'PREVIEW_AVAILABLE' : 'UPDATE_AVAILABLE') : 'UP_TO_DATE';
+      status = releaseStatus(release.version, installed, release.prerelease);
     } else if (x.status === 'UNSUPPORTED') status = 'UNSUPPORTED';
   }
   return {

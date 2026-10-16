@@ -11,9 +11,16 @@ test('one-click Windows updater preserves local changes and fast-forward-only se
  assert.match(script,/github\.com\/jsmlabs\/btc-live/);
  assert.match(script,/status --porcelain --untracked-files=all/);
  assert.match(script,/if defined DIRTY goto dirty/);
- assert.match(script,/pull --ff-only origin main/);
+ assert.match(script,/rev-parse --show-toplevel/);
+ assert.match(script,/fetch --no-tags origin main/);
+ assert.match(script,/merge-base --is-ancestor HEAD FETCH_HEAD/);
+ assert.match(script,/merge --ff-only FETCH_HEAD/);
+ assert.match(script,/if \/I not "%AFTER%"=="%TARGET%" goto mismatch/);
+ assert.match(script,/:diverged/);
+ assert.match(script,/:wrongfolder/);
  assert.match(script,/rev-parse HEAD/g);
  assert.match(script,/chrome:\/\/extensions/);
  assert.doesNotMatch(script,/git\s+(?:reset|clean|stash|push)\b/i);
+ assert.doesNotMatch(script,/\b(?:merge --no-ff|pull --rebase|fetch --tags)\b/i);
  assert.doesNotMatch(script,/curl|Invoke-WebRequest|powershell -enc/i);
 });

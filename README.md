@@ -63,7 +63,7 @@ There is **no install/build requirement** for loading unpacked source. For a ver
 
 ### Update an unpacked Windows installation
 
-If BTC Live was cloned with Git, double-click **[Update BTC Live.cmd](Update%20BTC%20Live.cmd)** in that cloned folder. The updater checks the official origin, `main` branch and local changes before running `git pull --ff-only origin main`. It never resets or stashes files. After the update, click **Reload** for BTC Live in `chrome://extensions`; the updater attempts to open Chrome's extensions page. Git for Windows must be installed and accessible on PATH. This updates **development source**, not an approved published Stable release. Existing ZIP-based installs must first be moved to a Git clone manually; do not overwrite an existing profile or installation without a migration plan.
+If BTC Live was cloned with Git, double-click **[Update BTC Live.cmd](Update%20BTC%20Live.cmd)** in that cloned folder. The updater checks the official origin, `main` branch and local changes before fetching `origin/main`, verifying its ancestry, and applying `git merge --ff-only FETCH_HEAD`. It never resets or stashes files. After the update, click **Reload** for BTC Live in `chrome://extensions`; the updater attempts to open Chrome's extensions page. Git for Windows must be installed and accessible on PATH. This updates **development source**, not an approved published Stable release. Existing ZIP-based installs must first be moved to a Git clone manually; do not overwrite an existing profile or installation without a migration plan.
 
 [Full installation and user guide →](docs/USAGE.md)
 

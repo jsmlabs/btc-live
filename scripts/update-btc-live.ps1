@@ -44,6 +44,7 @@ $update.ForeColor=[Drawing.Color]::White
 $update.FlatStyle='Flat'
 $update.FlatAppearance.BorderSize=0
 $form.Controls.Add($update)
+$form.AcceptButton=$update
 $browser=New-Object Windows.Forms.Button
 $browser.Text='Open browser extensions'
 $browser.Location=New-Object Drawing.Point(255,231)
@@ -72,7 +73,7 @@ $steps=@(
  @{ Args=@('rev-parse','FETCH_HEAD'); Label='Reading fetched commit'; Timeout=15000 },
  @{ Args=@('show','FETCH_HEAD:manifest.json'); Label='Reading available version'; Timeout=15000 },
  @{ Args=@('merge-base','--is-ancestor','HEAD','FETCH_HEAD'); Label='Verifying fast-forward'; Timeout=15000 },
- @{ Args=@('merge','--ff-only','FETCH_HEAD'); Label='Applying safe update'; Timeout=90000 },
+ @{ Args=@('merge','--ff-only','FETCH_HEAD'); Label='Applying safe update'; Timeout=0 },
  @{ Args=@('rev-parse','HEAD'); Label='Confirming resulting commit'; Timeout=15000 }
 )
 function Set-Status([string]$message,[bool]$errorState=$false){
@@ -98,7 +99,9 @@ function Start-Step{
    $update.Enabled=$true
    $update.Text='Check again'
    $browser.Enabled=$true
-   $current=Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+   try { $current=Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json }
+   catch { Fail 'Git completed but the local extension manifest could not be read.'; return }
+   if($current.manifest_version -ne 3 -or $current.version -ne $targetVersion){Fail 'Local manifest does not match the verified target version.';return}
    $versions.Text="Installed: $($current.version)    |    Available: $targetVersion"
    if($oldCommit -eq $targetCommit){Set-Status 'Already current. No files changed.'}
    else{Set-Status 'Source updated. Reload the extension in Chrome.'}
@@ -154,9 +157,9 @@ function Check-Result([int]$exit,[string]$output){
 $timer.Add_Tick({
  if(-not $running -or $null -eq $process){return}
  if(-not $process.HasExited){
-   if($watch.ElapsedMilliseconds -gt [int]$steps[$step].Timeout){
-     try{$process.Kill()}catch{}
-     Fail 'Operation timed out. Check network and retry.'
+   if([int]$steps[$step].Timeout -gt 0 -and $watch.ElapsedMilliseconds -gt [int]$steps[$step].Timeout){
+     try{$process.Kill();$process.WaitForExit(5000)}catch{}
+     Fail 'Git operation timed out. Check your connection and retry.'
    }
    return
  }
@@ -193,8 +196,14 @@ $browser.Add_Click({
  } else { Set-Status 'Open chrome://extensions manually.' }
 })
 $form.Add_FormClosing({
+ param($sender,$e)
+ if($running){
+   $e.Cancel=$true
+   Set-Status 'Update in progress. Please wait until Git has finished.'
+   return
+ }
  $timer.Stop()
- if($process -and -not $process.HasExited){try{$process.Kill()}catch{}}
+ if($process){try{$process.Dispose()}catch{}}
 })
 if(-not $gitExe){Set-Status 'Git for Windows is missing. Install it first.' $true}
 [void]$form.ShowDialog()

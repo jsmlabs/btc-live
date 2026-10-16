@@ -10,6 +10,7 @@ export function createRenderScheduler(render, {
   let pending = null;
   let dirty = false;
   let disposed = false;
+  let generation = 0;
   const metrics = {frames:0, requests:0, coalesced:0, errors:0, maxRenderMs:0, totalRenderMs:0};
 
   function draw() {
@@ -31,12 +32,16 @@ export function createRenderScheduler(render, {
     if (disposed) return;
     if (dirty) metrics.coalesced++;
     dirty = true;
-    if (pending === null) { pending = requestFrame(draw); metrics.requests++; }
+    if (pending === null) {
+      const token = ++generation;
+      pending = requestFrame(() => { if (!disposed && token === generation) draw(); });
+      metrics.requests++;
+    }
   }
 
   function flush() {
     if (disposed || !dirty) return;
-    if (pending !== null) cancelFrame(pending);
+    if (pending !== null) { cancelFrame(pending); ++generation; pending = null; }
     draw();
   }
 
@@ -45,6 +50,7 @@ export function createRenderScheduler(render, {
     disposed = true;
     dirty = false;
     if (pending !== null) cancelFrame(pending);
+    ++generation;
     pending = null;
   }
 

@@ -46,6 +46,20 @@ function releaseStatus(version, installed, prerelease) {
   return 'UP_TO_DATE';
 }
 
+// Only advertise an archive when its asset URL and metadata match this repository.
+function validatedDownload(assets, tag) {
+  if (!Array.isArray(assets)) return null;
+  const parsed = parseVersion(tag);
+  if (!parsed) return null;
+  const version = parsed.numbers.join('.');
+  const name = 'btc-live-chromium-v' + version + '-candidate.zip';
+  const expected = 'https://github.com/jsmlabs/btc-live/releases/download/' + encodeURIComponent(tag) + '/' + name;
+  const matches = assets.filter(asset => asset && asset.name === name &&
+    asset.browser_download_url === expected && Number.isSafeInteger(asset.size) &&
+    asset.size > 0 && asset.size <= 30_000_000 && asset.state === 'uploaded');
+  return matches.length === 1 ? expected : null;
+}
+
 export function selectRelease(items, installed, channel = 'stable') {
   if (!Array.isArray(items) || !parseVersion(installed)) return { status: 'UNSUPPORTED' };
   let best = null;
@@ -58,7 +72,8 @@ export function selectRelease(items, installed, channel = 'stable') {
     if (typeof r.published_at !== 'string' || !Number.isFinite(Date.parse(r.published_at))) continue;
     const url = RELEASE_BASE + encodeURIComponent(r.tag_name);
     if (!best || compareVersions(r.tag_name, best.version) > 0)
-      best = { version: r.tag_name.replace(/^v/, ''), url, prerelease: r.prerelease };
+      best = { version: r.tag_name.replace(/^v/, ''), url, prerelease: r.prerelease,
+        downloadUrl: validatedDownload(r.assets, r.tag_name) };
   }
   if (!best) return { status: 'UNSUPPORTED' };
   return { status: releaseStatus(best.version, installed, best.prerelease), release: best };
@@ -81,7 +96,11 @@ export function sanitizeUpdateState(raw, installed) {
         (!candidate.prerelease || channel === 'preview') &&
         (candidate.url === RELEASE_BASE + encodeURIComponent(canonical) ||
          candidate.url === RELEASE_BASE + encodeURIComponent('v' + canonical))) {
-      release = { version: canonical, url: candidate.url, prerelease: candidate.prerelease };
+      const name = 'btc-live-chromium-v' + parsed.numbers.join('.') + '-candidate.zip';
+      const tag = candidate.url.slice(RELEASE_BASE.length);
+      const expected = 'https://github.com/jsmlabs/btc-live/releases/download/' + tag + '/' + name;
+      release = { version: canonical, url: candidate.url, prerelease: candidate.prerelease,
+        downloadUrl: candidate.downloadUrl === expected ? expected : null };
     }
   }
   let status = 'NOT_CHECKED';

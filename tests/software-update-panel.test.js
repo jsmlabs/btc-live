@@ -38,7 +38,7 @@ test('software update panel validates storage events and never exposes an untrus
   const dispose = mountSoftwareUpdates({container, indicator, api});
   await new Promise(resolve => setImmediate(resolve));
   const [title, status, detail, note, toggleLabel, channelLabel, controls] = container.children[0].children;
-  const [button, link, sourceLink] = controls.children;
+  const [button, link, downloadLink, sourceLink] = controls.children;
   assert.equal(sourceLink.hidden, false);
   assert.equal(sourceLink.href, 'https://github.com/jsmlabs/btc-live#get-started');
   assert.equal(sourceLink.target, '_blank');
@@ -54,6 +54,7 @@ test('software update panel validates storage events and never exposes an untrus
   listener({btcLiveSoftwareUpdates:{newValue:tampered}},'local');
   assert.equal(link.hidden,true);
   assert.equal(link.href,undefined);
+  assert.equal(downloadLink.hidden,true);
   assert.equal(indicator.hidden,true);
   assert.equal(status.textContent,'Not checked yet');
 
@@ -63,6 +64,7 @@ test('software update panel validates storage events and never exposes an untrus
   assert.equal(link.hidden,false);
   assert.equal(sourceLink.hidden,true);
   assert.equal(link.href,valid.release.url);
+  assert.equal(downloadLink.hidden,true);
   assert.equal(indicator.hidden,false);
 
   const experimental = {...stored, channel:'preview', status:'EXPERIMENTAL_AVAILABLE',
@@ -74,6 +76,15 @@ test('software update panel validates storage events and never exposes an untrus
   assert.equal(link.hidden,false);
   assert.match(note.textContent,/not an upgrade|unchanged/i);
   assert.match(indicator.textContent,/Not an upgrade/);
+
+  const withDownload = {...valid, release: {...valid.release,
+    downloadUrl:'https://github.com/jsmlabs/btc-live/releases/download/v1.25.0/btc-live-chromium-v1.25.0-candidate.zip'}};
+  listener({btcLiveSoftwareUpdates:{newValue:withDownload}},'local');
+  assert.equal(downloadLink.hidden,false);
+  assert.equal(downloadLink.href,withDownload.release.downloadUrl);
+  listener({btcLiveSoftwareUpdates:{newValue:{...withDownload,release:{...withDownload.release,downloadUrl:'https://evil.example/extension.zip'}}}},'local');
+  assert.equal(downloadLink.hidden,true);
+  assert.equal(downloadLink.href,undefined);
 
   listener({btcLiveSoftwareUpdates:{newValue:{...valid,checkedInstalled:'1.22.0'}}},'local');
   assert.equal(link.hidden,true);

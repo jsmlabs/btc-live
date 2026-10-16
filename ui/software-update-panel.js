@@ -23,6 +23,11 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
   link.target = '_blank';
   link.rel = 'noopener noreferrer';
   link.hidden = true;
+  const downloadLink = document.createElement('a');
+  downloadLink.textContent = 'Download Extension ZIP';
+  downloadLink.target = '_blank';
+  downloadLink.rel = 'noopener noreferrer';
+  downloadLink.hidden = true;
   const toggleLabel = document.createElement('label');
   toggleLabel.className = 'setting-row';
   toggleLabel.append('Automatic daily checks');
@@ -40,7 +45,7 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
     channel.append(option);
   }
   channelLabel.append(channel);
-  controls.append(button, link);
+  controls.append(button, link, downloadLink);
   const note = document.createElement('p');
   note.className = 'settings-scope-note';
   note.textContent = 'Development builds in the repository are not published updates. To refresh an unpacked installation, update the local source and reload it in chrome://extensions. This checker does not install software.';
@@ -99,6 +104,9 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
     link.hidden = !eligible;
     if (eligible) link.href = state.release.url;
     else link.removeAttribute('href');
+    downloadLink.hidden = !eligible || !state.release.downloadUrl;
+    if (!downloadLink.hidden) downloadLink.href = state.release.downloadUrl;
+    else downloadLink.removeAttribute('href');
     if (indicator) {
       indicator.hidden = !eligible || state.dismissed === state.release.version;
       indicator.textContent = eligible ? (state.status === 'EXPERIMENTAL_AVAILABLE'

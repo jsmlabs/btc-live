@@ -4,7 +4,6 @@ export const UPDATE_MESSAGE = 'BTC_LIVE_UPDATE_CHECK';
 export const UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const RELEASES_API = 'https://api.github.com/repos/jsmlabs/btc-live/releases';
 const RELEASE_BASE = 'https://github.com/jsmlabs/btc-live/releases/tag/';
-const SOURCE_MANIFEST_API = 'https://api.github.com/repos/jsmlabs/btc-live/contents/manifest.json?ref=main';
 const RETRY_INTERVAL_MS = 15 * 60 * 1000;
 const VALID_VERSION = /^(?:v)?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
 export function parseVersion(value) {
@@ -117,18 +116,14 @@ export function sanitizeUpdateState(raw, installed) {
           ? candidate.checksumUrl : null };
     }
   }
-  const developmentVersion = lastSuccessAt !== null && typeof x.developmentVersion === 'string' &&
-    /^\d+\\.\d+\\.\d+$/.test(x.developmentVersion) && parseVersion(x.developmentVersion) &&
-    compareVersions(x.developmentVersion, installed) > 0 ? x.developmentVersion : null;
   let status = 'NOT_CHECKED';
   if (lastSuccessAt !== null) {
     if (release) {
       status = releaseStatus(release.version, installed, release.prerelease);
-    } else if (developmentVersion && x.status === 'DEVELOPMENT_AVAILABLE') status = 'DEVELOPMENT_AVAILABLE';
-    else if (x.status === 'UNSUPPORTED') status = 'UNSUPPORTED';
+    } else if (x.status === 'UNSUPPORTED') status = 'UNSUPPORTED';
   }
   return {
-    enabled: x.enabled !== false, channel, installed, status, release, developmentVersion,
+    enabled: x.enabled !== false, channel, installed, status, release,
     lastAttemptAt: sameInstall ? safeTime(x.lastAttemptAt) : null, lastSuccessAt,
     checkedInstalled: sameInstall ? installed : null,
     error: sameInstall && ['OFFLINE', 'CHECK_FAILED', 'RATE_LIMITED'].includes(x.error) ? x.error : null,
@@ -189,29 +184,8 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
         // Never claim UP_TO_DATE or UNSUPPORTED from a truncated release list.
         if (!complete) throw Error('GitHub release listing exceeded safe page limit');
         const result = selectRelease(releases, installed, state.channel);
-        if (result.status === 'UNSUPPORTED') {
-          // A source commit is not a GitHub Release. Only offer a manual source upgrade.
-          let developmentVersion = null;
-          try {
-            const sourceResponse = await fetchFn(SOURCE_MANIFEST_API, {
-              headers: { Accept: 'application/vnd.github+json' }, signal: controller.signal,
-              redirect: 'error', cache: 'no-store'
-            });
-            if (sourceResponse.ok) {
-              const entry = await sourceResponse.json();
-              if (entry?.type === 'file' && entry.path === 'manifest.json' &&
-                  entry.encoding === 'base64' && typeof entry.content === 'string' && entry.content.length < 20000) {
-                const sourceManifest = JSON.parse(atob(entry.content.replace(/\s/g, '')));
-                if (typeof sourceManifest.version === 'string' && /^\d+\\.\d+\\.\d+$/.test(sourceManifest.version) &&
-                    parseVersion(sourceManifest.version) && compareVersions(sourceManifest.version, installed) > 0)
-                  developmentVersion = sourceManifest.version;
-              }
-            }
-          } catch { /* Optional source lookup must not invent a published release. */ }
-          return write({ ...state, status: developmentVersion ? 'DEVELOPMENT_AVAILABLE' : 'UNSUPPORTED',
-            release: null, developmentVersion, checkedInstalled: installed, lastSuccessAt: time });
-        }
-        return write({ ...state, ...result, developmentVersion: null, checkedInstalled: installed, lastSuccessAt: time });
+        if (result.status === 'UNSUPPORTED') return write({ ...state, status: 'UNSUPPORTED', release: null, checkedInstalled: installed, lastSuccessAt: time });
+        return write({ ...state, ...result, checkedInstalled: installed, lastSuccessAt: time });
       } catch {
         return write({ ...state, error: isOnline() === false ? 'OFFLINE' : 'CHECK_FAILED',
           retryAfter: time + RETRY_INTERVAL_MS });
@@ -229,7 +203,6 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
       dismissed: typeof options.dismissed === 'string' && parseVersion(options.dismissed) ? options.dismissed : state.dismissed,
       status: changedChannel ? 'NOT_CHECKED' : state.status,
       release: changedChannel ? null : state.release,
-      developmentVersion: changedChannel ? null : state.developmentVersion,
       checkedInstalled: changedChannel ? null : state.checkedInstalled,
       lastSuccessAt: changedChannel ? null : state.lastSuccessAt,
       error: changedChannel ? null : state.error,

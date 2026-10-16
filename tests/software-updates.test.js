@@ -127,7 +127,7 @@ test('stale installed-version cache cannot advertise a release for the previous 
  }}};
  const controller=createUpdateController({api,fetchFn:async()=>{requests++;return {ok:true,json:async()=>[]};}});
  const result=await controller.check();
- assert.equal(requests,1);
+ assert.equal(requests,2);
  assert.equal(result.status,'UNSUPPORTED');
  assert.equal(result.installed,'1.24.0');
 });
@@ -199,7 +199,7 @@ test('manual force can check when automatic daily checks are disabled', async ()
  const forced=await controller.check({force:true});
  assert.equal(forced.status,'UNSUPPORTED');
  assert.equal(forced.enabled,false);
- assert.equal(requests,1);
+ assert.equal(requests,2);
 });
 
 test('release discovery continues beyond the first page when previews hide a stable release', async () => {

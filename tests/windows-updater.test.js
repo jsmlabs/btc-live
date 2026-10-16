@@ -8,7 +8,7 @@ test('Windows BAT entrypoint launches only the bundled native updater', async ()
  assert.match(script,/System32\\WindowsPowerShell\\v1\.0\\powershell\.exe/);
  assert.match(script,/-NoProfile -NonInteractive -STA -ExecutionPolicy Bypass -File/);
  assert.match(script,/scripts\\update-btc-live\.ps1/);
- assert.match(script,/-RepoRoot "%~dp0"/);
+ assert.match(script,/-RepoRoot "%~dp0\."/);
  assert.match(script,/if not exist "%UPDATER%" goto missing_updater/);
  assert.match(script,/if not exist "%POWERSHELL%" goto missing_powershell/);
  assert.match(script,/set "RESULT=%ERRORLEVEL%"/);

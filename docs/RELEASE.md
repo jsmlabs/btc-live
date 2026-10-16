@@ -1,7 +1,12 @@
 # Release and build guide
 
 > [!IMPORTANT]
-> **Development candidate - NOT approved for customer publication.** Current `main` contains the extension development candidate, while `manifest.json` reports `1.25.7`. A green CI badge does not change its release status.
+> **Development candidate - NOT approved for customer publication.** Current `main` contains the extension development candidate, while `manifest.json` reports `1.25.8`. A green CI badge does not change its release status.
+
+## Development-candidate changes in 1.25.8
+
+- Chart source candles now require valid finite, nonnegative numeric open timestamps before entering time ticks and chart interaction models.
+- Add invalid-timestamp regression coverage; all seven manual release gates remain pending.
 
 ## Development-candidate changes in 1.25.7
 
@@ -69,7 +74,7 @@ npm run package:metadata
 
 | Artifact in `dist/` | Function |
 | --- | --- |
-| `btc-live-chromium-v1.25.7-candidate.zip` | Deterministic package of manifest and reviewed runtime directories |
+| `btc-live-chromium-v1.25.8-candidate.zip` | Deterministic package of manifest and reviewed runtime directories |
 | `SHA256SUMS.txt` | SHA-256 digest for the runtime ZIP |
 | `BUILD_INFO.json` | Manifest version, candidate status, source SHA (when available) and artifact metadata |
 

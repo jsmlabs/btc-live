@@ -99,3 +99,55 @@
 .app-shell .alert-target-form :is(input, select):focus-visible { border-color: var(--accent); }
 @media (max-width: 390px) { .app-shell .header-actions { flex-shrink: 0; } .app-shell .status-pill { max-width: 90px; } }
 @media (prefers-reduced-motion: reduce) { .app-shell .setting-row { scroll-behavior: auto; } }
+
+/* Consolidated 24h market statistics: one surface, quiet separators, no card clutter. */
+.app-shell .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 10px;
+  padding: 4px 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-surface-raised);
+}
+.app-shell .stats-grid .metric-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  min-height: 70px;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transition: none;
+}
+.app-shell .stats-grid .metric-card + .metric-card { border-left: 1px solid var(--border); }
+.app-shell .stats-grid .metric-card:hover { border-color: var(--border); background: transparent; }
+.app-shell .stats-grid .metric-label {
+  color: var(--text-muted);
+  font-size: 9px;
+  line-height: 1.4;
+  font-weight: 700;
+  letter-spacing: .035em;
+  white-space: nowrap;
+}
+.app-shell .stats-grid .metric-value {
+  margin-top: 8px;
+  color: var(--text-primary);
+  font-size: clamp(11px, 3.15vw, 14px);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -.025em;
+  font-variant-numeric: tabular-nums;
+}
+.app-shell[data-density="compact"] .stats-grid .metric-card { min-height: 58px; padding: 8px 10px; }
+@media (max-width: 390px) {
+  .app-shell .stats-grid .metric-card { padding: 10px 8px; }
+  .app-shell .stats-grid .metric-label { font-size: 8px; }
+  .app-shell .stats-grid .metric-value { font-size: clamp(10px, 3.25vw, 12px); }
+}
+@media (forced-colors: active) { .app-shell .stats-grid .metric-card + .metric-card { border-left-color: CanvasText; } }

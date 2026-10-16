@@ -307,3 +307,29 @@ body:has(.analytics-overview[data-analytics-active-view="behavior"]) .flow-behav
 @media (min-width: 561px) and (max-width: 900px) {
   .dashboard-shell .chart-menu-content { left: auto; right: 0; max-width: min(420px, calc(100vw - 32px)); }
 }
+
+/* Premium rhythm shared by six workspaces; never changes feed/chart geometry. */
+.dashboard-shell .topbar { border-bottom-color: var(--border); }
+.dashboard-shell .workspace-heading h1 { font-weight: 700; letter-spacing: -.038em; }
+.dashboard-shell .workspace-context { line-height: 1.65; }
+.dashboard-shell .workspace-link { border-radius: 9px; }
+.dashboard-shell .workspace-link[aria-pressed="true"] { background: var(--accent-soft); }
+.dashboard-shell .workspace-nav .nav-note { line-height: 1.7; }
+.dashboard-shell .hero-price { font-variant-numeric: tabular-nums; letter-spacing: -.045em; }
+.dashboard-shell .metric-card strong { font-variant-numeric: tabular-nums; }
+.dashboard-shell .chart-toolbar { align-items: center; row-gap: 8px; }
+.dashboard-shell .chart-toolbar > :is(.segmented, .chart-menu) { flex-shrink: 0; }
+.dashboard-shell .chart-control { border-radius: 7px; }
+.dashboard-shell :is(.replay-session-controls, .keyboard-reference, .software-updates) { border-radius: 11px; }
+.dashboard-shell .setting-row:focus-within { background: var(--accent-soft); }
+.dashboard-shell .replay-step-heading h3 { letter-spacing: -.01em; }
+@media (max-width: 1100px) {
+  .dashboard-shell .chart-toolbar { flex-wrap: wrap; }
+}
+@media (max-width: 560px) {
+  .dashboard-shell .chart-toolbar > :is(.segmented, .chart-menu) { flex-shrink: 1; }
+  .dashboard-shell .hero-price { overflow-wrap: anywhere; }
+}
+@media (forced-colors: active) {
+  .dashboard-shell .workspace-link[aria-pressed="true"] { outline: 2px solid Highlight; }
+}

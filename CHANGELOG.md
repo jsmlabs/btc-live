@@ -45,6 +45,9 @@ All notable changes to the BTC Live development candidate are recorded here. Ent
 ### Installed Chromium extension smoke
 - Exercise a genuinely loaded Manifest V3 extension in Chromium, verify extension origin and key popup/dashboard controls, and archive screenshots; keep manual live-data/release acceptance explicitly separate.
 
+### Distribution candidate validation
+- Load the unpacked release-candidate ZIP, not source checkout files, for the Chromium MV3 installation smoke and six-workspace screenshots.
+
 ## [1.25.8] - 2026-10-16
 
 ### Fixed

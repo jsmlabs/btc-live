@@ -102,6 +102,7 @@ function Start-Step{
    $versions.Text="Installed: $($current.version)    |    Available: $targetVersion"
    if($oldCommit -eq $targetCommit){Set-Status 'Already current. No files changed.'}
    else{Set-Status 'Source updated. Reload the extension in Chrome.'}
+   if($oldCommit -ne $targetCommit){$browser.PerformClick()}
    return
  }
  $item=$steps[$step]

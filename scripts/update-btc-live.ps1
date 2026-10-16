@@ -165,6 +165,77 @@ function Check-Result([int]$exit,[string]$output){
    6 { if($value -notmatch '^[a-f0-9]{40,64}$'){Fail 'Invalid fetched commit.';return};$script:targetCommit=$value }
    7 { try{$remote=$value | ConvertFrom-Json
            if($remote.manifest_version -ne 3 -or $remote.version -notmatch '^\d+\.\d+\.\d+$'){throw 'Invalid manifest'}
+           # Refuse rollback even when the new commit is a Git fast-forward.
+           if($manifest.version -notmatch '^\d+\.\d+\.\d+"Installed: $($manifest.version)    |    Available: $targetVersion"
+       }catch{Fail 'Downloaded manifest is invalid.';return} }
+   10 { if($value -cne $targetCommit){Fail 'Resulting commit differs from fetched target.';return} }
+ }
+ $script:step++
+ try{Start-Step}catch{Fail ('Git execution error: '+$_.Exception.Message)}
+}
+$timer.Add_Tick({
+ if(-not $running -or $null -eq $process){return}
+ if(-not $process.HasExited){
+   if(-not $timedOut -and [int]$steps[$step].Timeout -gt 0 -and $watch.ElapsedMilliseconds -gt [int]$steps[$step].Timeout){
+     $script:timedOut=$true
+     Set-Status 'Stopping a timed-out Git operation...' $true
+     try{$process.Kill()}catch{}
+   }
+   return
+ }
+ if(-not $outTask.IsCompleted -or -not $errTask.IsCompleted){return}
+ try{
+   $exit=$process.ExitCode
+   $output=$outTask.GetAwaiter().GetResult()
+   $null=$errTask.GetAwaiter().GetResult()
+   $process.Dispose()
+   $script:process=$null
+   if($timedOut){Fail 'Git operation timed out. Check your connection and retry.';return}
+   Check-Result $exit $output
+ }catch{Fail ('Unable to verify result: '+$_.Exception.Message)}
+})
+$update.Add_Click({
+ if($running){return}
+ if(-not $gitExe){Fail 'Git for Windows is missing. Install Git and retry.';return}
+ $script:step=0
+ $script:oldCommit=''
+ $script:targetCommit=''
+ $script:targetVersion=''
+ $script:running=$true
+ $update.Enabled=$false
+ $browser.Enabled=$false
+ $progress.Style='Marquee'
+ $progress.MarqueeAnimationSpeed=25
+ try{Start-Step;$timer.Start()}catch{Fail ('Unable to start: '+$_.Exception.Message)}
+})
+$browser.Add_Click({
+ $candidates=@()
+ if($env:ProgramFiles){$candidates+=Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'}
+ $x86=[Environment]::GetEnvironmentVariable('ProgramFiles(x86)')
+ if($x86){$candidates+=Join-Path $x86 'Google\Chrome\Application\chrome.exe'}
+ $chrome=$candidates | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
+ if($chrome){
+   try { Start-Process -FilePath $chrome -ArgumentList 'chrome://extensions' -ErrorAction Stop }
+   catch { Set-Status 'Open chrome://extensions manually.' }
+ } else { Set-Status 'Open chrome://extensions manually.' }
+})
+$form.Add_FormClosing({
+ param($sender,$e)
+ if($running){
+   $e.Cancel=$true
+   Set-Status 'Update in progress. Please wait until Git has finished.'
+   return
+ }
+ $timer.Stop()
+ if($process){try{$process.Dispose()}catch{}}
+})
+if(-not $gitExe){Set-Status 'Git for Windows is missing. Install it first.' $true}
+try { [void]$form.ShowDialog() }
+finally { if($ownsLock){$instanceLock.ReleaseMutex()};$instanceLock.Dispose();$form.Dispose() }
+){throw 'Invalid installed version'}
+           $installed=[version]::Parse([string]$manifest.version)
+           $available=[version]::Parse([string]$remote.version)
+           if($available -lt $installed){Fail 'Fetched source has an older version. No files changed.';return}
            $script:targetVersion=$remote.version
            $versions.Text="Installed: $($manifest.version)    |    Available: $targetVersion"
        }catch{Fail 'Downloaded manifest is invalid.';return} }

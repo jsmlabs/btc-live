@@ -65,6 +65,19 @@ test('large chart windows calculate finite ranges without spread argument limits
   assert.ok(full.maxPrice > 110);
 });
 
+test('chart ignores malformed candle timestamps before constructing time overlays', () => {
+  const invalid = [
+    {...candles[0],openTime: Number.NaN},
+    {...candles[0],openTime: Number.POSITIVE_INFINITY},
+    {...candles[0],openTime: -1},
+    {...candles[0],openTime: null},
+    {...candles[0],openTime: '1000'}
+  ];
+  const model = buildChartModel([...invalid,...candles]);
+  assert.deepEqual(model.candles.map(c => c.openTime),candles.map(c => c.openTime));
+  assert.deepEqual(model.timeTicks.map(t=>t.value),candles.map(c=>c.openTime));
+});
+
 test('chart model handles empty data explicitly', () => {
   assert.equal(buildChartModel([]), null);
   assert.equal(buildChartModel(null), null);

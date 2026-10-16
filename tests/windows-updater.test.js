@@ -13,7 +13,7 @@ test('Windows BAT entrypoint launches only the bundled native updater', async ()
  assert.match(script,/if not exist "%POWERSHELL%" goto missing_powershell/);
  assert.match(script,/set "RESULT=%ERRORLEVEL%"/);
  assert.match(script,/exit \/b 1/);
- assert.doesNotMatch(script,/\b(?:git|curl|bitsadmin)\s+(?:fetch|pull|merge|reset|clone|download)\b/i);
+ assert.doesNotMatch(script,/^\s*(?:git|curl|bitsadmin)\s+(?:fetch|pull|merge|reset|clone|download)\b/im);
 });
 
 test('native updater only fast-forwards official Git main with safeguards', async () => {

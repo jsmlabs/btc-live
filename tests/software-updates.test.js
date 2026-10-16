@@ -303,3 +303,22 @@ test('experimental preview is an optional same-manifest download, never a versio
  assert.equal(state.status, 'EXPERIMENTAL_AVAILABLE');
  assert.equal(state.release.url, result.release.url);
 });
+
+test('only official uploaded extension ZIP assets become download links', () => {
+ const tag = 'v1.25.0';
+ const name = 'btc-live-chromium-v1.25.0-candidate.zip';
+ const url = 'https://github.com/jsmlabs/btc-live/releases/download/' + tag + '/' + name;
+ const asset = {name, browser_download_url:url, size:125000, state:'uploaded'};
+ const good = selectRelease([{...release(tag),assets:[asset]}], '1.24.2');
+ assert.equal(good.status,'UPDATE_AVAILABLE');
+ assert.equal(good.release.downloadUrl,url);
+ const unsafe = selectRelease([{...release(tag),assets:[{...asset,browser_download_url:'https://example.org/injected.zip'}]}], '1.24.2');
+ assert.equal(unsafe.release.downloadUrl,null);
+ assert.equal(selectRelease([{...release(tag),assets:[{...asset,size:40_000_000}]}],'1.24.2').release.downloadUrl,null);
+ assert.equal(selectRelease([{...release(tag),assets:[asset,asset]}],'1.24.2').release.downloadUrl,null);
+ const time=Date.now();
+ const state={channel:'stable',checkedInstalled:'1.24.2',lastSuccessAt:time,release:good.release};
+ assert.equal(sanitizeUpdateState(state,'1.24.2').release.downloadUrl,url);
+ state.release={...good.release,downloadUrl:'javascript:alert(1)'};
+ assert.equal(sanitizeUpdateState(state,'1.24.2').release.downloadUrl,null);
+});

@@ -5,12 +5,14 @@ export function createChartExpansion({ root = document, redraw = () => {} } = {}
   const dialog = root.getElementById('dashboardChartDialog');
   const button = root.getElementById('dashboardChartFocus');
   let scrollPosition = 0;
+  button.setAttribute('aria-expanded', String(dialog.open));
   function restore() {
     if (dialog.open || panel.parentElement !== dialog) return;
     panel.classList.remove('chart-focus');
     home.append(panel);
     root.documentElement.classList.remove('chart-expanded');
     button.setAttribute('aria-pressed', 'false');
+    button.setAttribute('aria-expanded', 'false');
     button.textContent = 'Expand chart';
     root.defaultView?.scrollTo({ top: scrollPosition, behavior: 'instant' });
     if (!home.hidden) button.focus({ preventScroll: true });
@@ -25,6 +27,7 @@ export function createChartExpansion({ root = document, redraw = () => {} } = {}
     panel.classList.add('chart-focus');
     root.documentElement.classList.add('chart-expanded');
     button.setAttribute('aria-pressed', 'true');
+    button.setAttribute('aria-expanded', 'true');
     button.textContent = 'Restore chart';
     dialog.showModal();
     button.focus({ preventScroll: true });

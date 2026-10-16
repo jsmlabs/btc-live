@@ -14,11 +14,11 @@
 
 ## Simplified Software Updates panel
 
-The panel shows the installed version, the available published release or development source, and one **Check now** action. When a published release exists, **Get update** opens its release page; when only newer source exists, **Get latest development source** opens the installation guide. Use **More options** for automatic-check settings, release channel, and direct archive/checksum links. The extension never overwrites itself. For Git-based Windows development installs use the `Update BTC Live.cmd` starter and click **Reload** at `chrome://extensions`.
+The panel shows the installed version, the available published release or development source, and one **Check now** action. When a published release exists, **Get update** opens its release page; when only newer source exists, **Get latest development source** opens the installation guide. Use **More options** for automatic-check settings, release channel, and direct archive/checksum links. The extension never overwrites itself. For Git-based Windows development installs use the `update-btc-live.bat` starter and click **Reload** at `chrome://extensions`.
 
 ## Native Windows one-click updater
 
-For a Git-cloned, unpacked development installation, double-click `Update BTC Live.cmd` at the checkout root. The small Windows PowerShell 5.1 / Windows Forms interface shows local and fetched manifest versions, the current Git operation, and a single **Update BTC Live** button. Git for Windows must already be installed; the updater needs no additional GUI framework or administrator permissions.
+For a Git-cloned, unpacked development installation, double-click `update-btc-live.bat` at the checkout root. The small Windows PowerShell 5.1 / Windows Forms interface shows local and fetched manifest versions, the current Git operation, and a single **Update BTC Live** button. Git for Windows must already be installed; the updater needs no additional GUI framework or administrator permissions.
 
 The updater checks the repository root, branch `main`, official `origin`, and absence of local edits or untracked files. It downloads the remote commit without tags, verifies fast-forward ancestry, updates without a merge commit, and confirms that HEAD matches the fetched commit. It stops on errors, diverged history, or timeouts without intentionally resetting or stashing work. Progress remains indeterminate while work is ongoing because Git does not provide a reliable overall percentage. While Git is running, the window cannot be closed to avoid interrupting a repository-changing step; the fast-forward merge is never forcibly terminated by a UI timeout. After completion, the checked-out manifest must match the fetched version before success is displayed.
 

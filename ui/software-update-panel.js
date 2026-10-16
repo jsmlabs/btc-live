@@ -16,7 +16,7 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
   controls.className = 'settings-actions-inline';
   const button = document.createElement('button');
   button.type = 'button';
-  button.textContent = 'Check for Updates';
+  button.textContent = 'Check now';
   button.className = compact ? 'secondary-button' : 'button tertiary';
   const link = document.createElement('a');
   link.textContent = 'View Release Notes';
@@ -56,13 +56,17 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
   note.textContent = 'Development builds in the repository are not published updates. To refresh an unpacked installation, update the local source and reload it in chrome://extensions. This checker does not install software.';
   note.hidden = true;
   const sourceLink = document.createElement('a');
-  sourceLink.textContent = 'Open official source and upgrade guide';
+  sourceLink.textContent = 'Get latest development source';
   sourceLink.href = 'https://github.com/jsmlabs/btc-live#get-started';
   sourceLink.target = '_blank';
   sourceLink.rel = 'noopener noreferrer';
   sourceLink.hidden = true;
   controls.append(sourceLink);
-  root.append(title, status, detail, note, toggleLabel, channelLabel, controls);
+  const advanced = document.createElement('details');
+  const advancedTitle = document.createElement('summary');
+  advancedTitle.textContent = 'More options';
+  advanced.append(advancedTitle, toggleLabel, channelLabel, downloadLink, checksumLink);
+  root.append(title, status, detail, note, controls, advanced);
   container.append(root);
   let disposed = false;
   let busy = false;
@@ -74,7 +78,6 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
     if (!reply?.ok) throw Error('Version check unavailable');
     return reply.state;
   };
-  const formatTime = value => value ? new Date(value).toLocaleString() : 'Never';
   function render(raw) {
     if (disposed || !raw) return;
     // Storage changes are untrusted; never use an unchecked cached release URL.
@@ -97,23 +100,26 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
       : state.error === 'OFFLINE' ? 'Network unavailable'
       : state.error ? 'Unable to check for updates'
       : descriptions[state.status] ?? 'Not checked yet';
-    detail.textContent = 'Installed: ' + state.installed + ' · Available: ' + (state.release?.version ?? 'None') +
-      (state.developmentVersion ? ' · Development source: ' + state.developmentVersion : '') +
-      ' · Last successful check: ' + formatTime(state.lastSuccessAt) +
-      ' · Last attempt: ' + formatTime(state.lastAttemptAt) +
-      (state.error ? ' · Previous result may be outdated' : '');
-    note.hidden = !['UNSUPPORTED', 'EXPERIMENTAL_AVAILABLE', 'DEVELOPMENT_AVAILABLE'].includes(state.status);
-    note.textContent = state.status === 'DEVELOPMENT_AVAILABLE'
-      ? 'A newer development manifest is on GitHub, but no eligible release is published. Refresh unpacked source manually and reload in chrome://extensions. This checker never installs updates.'
-      : state.status === 'EXPERIMENTAL_AVAILABLE'
-      ? 'Untested experimental download. The packaged manifest version is unchanged. GitHub does not install this extension: inspect the release, verify its checksum, and manually load unpacked in a disposable browser profile.'
-      : 'Development builds in the repository are not published updates. To refresh an unpacked installation, update the local source and reload it in chrome://extensions. This checker does not install software.';
-    sourceLink.hidden = !['UNSUPPORTED', 'DEVELOPMENT_AVAILABLE'].includes(state.status);
+    detail.textContent = 'Installed: ' + state.installed +
+      (state.release ? ' · Release: ' + state.release.version : '') +
+      (state.developmentVersion ? ' · Source: ' + state.developmentVersion : '') +
+      (state.error ? ' · Last check failed' : '');
+    const development = state.status === 'DEVELOPMENT_AVAILABLE';
+    const experimental = state.status === 'EXPERIMENTAL_AVAILABLE';
+    note.hidden = !['UNSUPPORTED', 'DEVELOPMENT_AVAILABLE', 'EXPERIMENTAL_AVAILABLE', 'UPDATE_AVAILABLE', 'PREVIEW_AVAILABLE'].includes(state.status);
+    note.textContent = development
+      ? 'New development source is available, not a published release. In your Git-cloned folder, run Update BTC Live.cmd, then click Reload in chrome://extensions.'
+      : experimental
+      ? 'Untested experimental build, not an upgrade. Inspect the release and verify the checksum before manually loading.'
+      : ['UPDATE_AVAILABLE', 'PREVIEW_AVAILABLE'].includes(state.status)
+      ? 'Open the release for download instructions. Unpacked installations need manual file replacement and browser Reload.'
+      : 'No published update. For a Git-based unpacked installation, run Update BTC Live.cmd in your local folder, then Reload in chrome://extensions.';
     const eligible = state.release && ['UPDATE_AVAILABLE', 'PREVIEW_AVAILABLE', 'EXPERIMENTAL_AVAILABLE'].includes(state.status);
-    link.textContent = state.status === 'EXPERIMENTAL_AVAILABLE' ? 'View Experimental Download' : 'View Release Notes';
+    link.textContent = experimental ? 'View experimental build' : 'Get update';
     link.hidden = !eligible;
     if (eligible) link.href = state.release.url;
     else link.removeAttribute('href');
+    sourceLink.hidden = !['UNSUPPORTED', 'DEVELOPMENT_AVAILABLE'].includes(state.status);
     downloadLink.hidden = !eligible || !state.release.downloadUrl;
     if (!downloadLink.hidden) downloadLink.href = state.release.downloadUrl;
     else downloadLink.removeAttribute('href');

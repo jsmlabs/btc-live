@@ -108,12 +108,12 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
     const experimental = state.status === 'EXPERIMENTAL_AVAILABLE';
     note.hidden = !['UNSUPPORTED', 'DEVELOPMENT_AVAILABLE', 'EXPERIMENTAL_AVAILABLE', 'UPDATE_AVAILABLE', 'PREVIEW_AVAILABLE'].includes(state.status);
     note.textContent = development
-      ? 'New development source is available, not a published release. In your Git-cloned folder, run Update BTC Live.cmd, then click Reload in chrome://extensions.'
+      ? 'New development source is available, not a published release. In your Git-cloned folder, run update-btc-live.bat, then click Reload in chrome://extensions.'
       : experimental
       ? 'Untested experimental build, not an upgrade. Inspect the release and verify the checksum before manually loading.'
       : ['UPDATE_AVAILABLE', 'PREVIEW_AVAILABLE'].includes(state.status)
       ? 'Open the release for download instructions. Unpacked installations need manual file replacement and browser Reload.'
-      : 'No published update. For a Git-based unpacked installation, run Update BTC Live.cmd in your local folder, then Reload in chrome://extensions.';
+      : 'No published update. For a Git-based unpacked installation, run update-btc-live.bat in your local folder, then Reload in chrome://extensions.';
     const eligible = state.release && ['UPDATE_AVAILABLE', 'PREVIEW_AVAILABLE', 'EXPERIMENTAL_AVAILABLE'].includes(state.status);
     link.textContent = experimental ? 'View experimental build' : 'Get update';
     link.hidden = !eligible;

@@ -4,11 +4,26 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [Windows.Forms.Application]::EnableVisualStyles()
 $root=[IO.Path]::GetFullPath($RepoRoot).TrimEnd('\')
+# A per-checkout mutex prevents competing updater windows from modifying the same checkout.
+$bytes=[Text.Encoding]::UTF8.GetBytes($root.ToUpperInvariant())
+$hash=[Security.Cryptography.SHA256]::Create()
+try { $key=[BitConverter]::ToString($hash.ComputeHash($bytes)).Replace('-','') } finally { $hash.Dispose() }
+$instanceLock=New-Object Threading.Mutex($false,('Local\BTCLiveUpdater-'+$key))
+$ownsLock=$false
+try { $ownsLock=$instanceLock.WaitOne(0) }
+catch [Threading.AbandonedMutexException] { $ownsLock=$true }
+if(-not $ownsLock) {
+ [Windows.Forms.MessageBox]::Show('BTC Live Updater is already running for this folder. Finish that update before trying again.','BTC Live Updater','OK','Information') | Out-Null
+ $instanceLock.Dispose()
+ exit 2
+}
+
 $manifestPath=Join-Path $root 'manifest.json'
 $manifest=Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
 if($manifest.manifest_version -ne 3){throw 'Invalid local manifest'}
 $form=New-Object Windows.Forms.Form
 $form.Text='BTC Live | Updater'
+$form.AccessibleName='BTC Live safe source updater'
 $form.Size=New-Object Drawing.Size(540,355)
 $form.MinimumSize=New-Object Drawing.Size(510,355)
 $form.StartPosition='CenterScreen'
@@ -36,7 +51,7 @@ $progress.Location=New-Object Drawing.Point(28,205)
 $progress.Size=New-Object Drawing.Size(475,5)
 $form.Controls.Add($progress)
 $update=New-Object Windows.Forms.Button
-$update.Text='Update BTC Live'
+$update.Text='&Update BTC Live'
 $update.Location=New-Object Drawing.Point(28,231)
 $update.Size=New-Object Drawing.Size(215,42)
 $update.BackColor=[Drawing.Color]::FromArgb(49,120,238)
@@ -46,7 +61,7 @@ $update.FlatAppearance.BorderSize=0
 $form.Controls.Add($update)
 $form.AcceptButton=$update
 $browser=New-Object Windows.Forms.Button
-$browser.Text='Open browser extensions'
+$browser.Text='Open browser &extensions'
 $browser.Location=New-Object Drawing.Point(255,231)
 $browser.Size=New-Object Drawing.Size(248,42)
 $browser.Enabled=$false
@@ -88,6 +103,7 @@ function Fail([string]$message){
  $timer.Stop()
  $progress.Style='Blocks'
  $progress.Value=0
+ $browser.Enabled=$false
  $update.Enabled=$true
  $update.Text='Retry update'
  Set-Status $message $true
@@ -95,18 +111,18 @@ function Fail([string]$message){
 function Start-Step{
  if($step -ge $steps.Count){
    $timer.Stop()
-   $script:running=$false
    $progress.Style='Blocks'
      try { $current=Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json }
    catch { Fail 'Git completed but the local extension manifest could not be read.'; return }
    if($current.manifest_version -ne 3 -or $current.version -ne $targetVersion){Fail 'Local manifest does not match the verified target version.';return}
+   $script:running=$false
    $progress.Value=100
    $update.Enabled=$true
    $update.Text='Check again'
    $browser.Enabled=$true
    $versions.Text="Installed: $($current.version)    |    Available: $targetVersion"
-   if($oldCommit -eq $targetCommit){Set-Status 'Already current. No files changed.'}
-   else{Set-Status 'Source updated. Reload the extension in Chrome.'}
+   if($oldCommit -eq $targetCommit){Set-Status ('Already current. Commit '+$targetCommit.Substring(0,12))}
+   else{Set-Status ('Source updated to '+$targetCommit.Substring(0,12)+'. Reload in Chrome.')}
    if($oldCommit -ne $targetCommit){$browser.PerformClick()}
    return
  }
@@ -182,6 +198,9 @@ $update.Add_Click({
  if($running){return}
  if(-not $gitExe){Fail 'Git for Windows is missing. Install Git and retry.';return}
  $script:step=0
+ $script:oldCommit=''
+ $script:targetCommit=''
+ $script:targetVersion=''
  $script:running=$true
  $update.Enabled=$false
  $browser.Enabled=$false
@@ -211,4 +230,5 @@ $form.Add_FormClosing({
  if($process){try{$process.Dispose()}catch{}}
 })
 if(-not $gitExe){Set-Status 'Git for Windows is missing. Install it first.' $true}
-[void]$form.ShowDialog()
+try { [void]$form.ShowDialog() }
+finally { if($ownsLock){$instanceLock.ReleaseMutex()};$instanceLock.Dispose();$form.Dispose() }

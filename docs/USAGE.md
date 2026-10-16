@@ -12,6 +12,10 @@
 
 **From an Actions build:** Download the artifact matching the source SHA, verify `SHA256SUMS.txt`, unpack the inner candidate ZIP, then load the extracted extension directory. A ZIP itself cannot be selected by Load unpacked. There is no npm build required for use; a network path to the public Binance Futures endpoints is required for data.
 
+## Simplified Software Updates panel
+
+The panel shows the installed version, the available published release or development source, and one **Check now** action. When a published release exists, **Get update** opens its release page; when only newer source exists, **Get latest development source** opens the installation guide. Use **More options** for automatic-check settings, release channel, and direct archive/checksum links. The extension never overwrites itself. For Git-based Windows development installs use the `Update BTC Live.cmd` starter and click **Reload** at `chrome://extensions`.
+
 ## One-click Windows source updates
 
 For a Git-cloned unpacked development installation, double-click `Update BTC Live.cmd` in the root folder. Git for Windows must be installed. The updater requires a clean `main` checkout of the official `jsmlabs/btc-live` origin; it aborts on missing Git, an unexpected repository root or origin, local edits/untracked files, wrong branch, divergent history or failed fast-forward. It compares the resulting commit with the fetched target before reporting success. It reports the old and new Git commit and attempts to open Chrome's extension manager. **Click Reload** on BTC Live there; a successful Git update alone does not reload the running extension or prove its browser functionality. If Chrome is not found, open `chrome://extensions` yourself. The updater does not install Git, modify browser profiles, update Chrome Web Store installations or bypass release-acceptance gates.

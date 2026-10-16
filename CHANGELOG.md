@@ -2,6 +2,15 @@
 
 All notable changes to the BTC Live development candidate are recorded here. Entries are not evidence of an approved customer release.
 
+## [1.25.7] - 2026-10-16
+
+### Performance
+- Calculate chart-window price and volume ranges in one pass, removing temporary arrays and unbounded spread arguments.
+- Add large-history chart-window regression coverage.
+
+### Verification
+- Development candidate. Performance measurements in real Chromium and all manual acceptance gates remain pending.
+
 ## [1.25.6] - 2026-10-16
 
 ### Accessibility

@@ -2,6 +2,15 @@
 
 All notable changes to the BTC Live development candidate are recorded here. Entries are not evidence of an approved customer release.
 
+## [1.25.6] - 2026-10-16
+
+### Accessibility
+- Synchronize the expanded chart control's `aria-expanded` state on initialization, expansion and restoration.
+- Add a deterministic modal-interaction regression test for the accessible expanded state.
+
+### Verification
+- Development candidate only; real Chromium acceptance and all seven manual release gates remain separate.
+
 ## [1.25.5] - 2026-10-16
 
 ### Fixed

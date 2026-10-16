@@ -1,6 +1,6 @@
 # Architecture and trust boundaries
 
-**Current implementation:** Chromium Manifest V3 candidate, `main`, manifest `1.25.5`. This describes the repository source; browser and live-feed acceptance are separate [release gates](ACCEPTANCE.md).
+**Current implementation:** Chromium Manifest V3 candidate, `main`, manifest `1.25.6`. This describes the repository source; browser and live-feed acceptance are separate [release gates](ACCEPTANCE.md).
 
 ## Components
 

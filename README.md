@@ -61,6 +61,10 @@ BTC Live brings public Binance **USDⓈ-M Futures BTCUSDT** market observations 
 
 There is **no install/build requirement** for loading unpacked source. For a verified CI package instead, download the **`btc-live-candidate-zip` artifact** from [GitHub Actions](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml), verify the included `SHA256SUMS.txt`, extract the inner extension ZIP and load the extracted directory. **Do not submit that candidate ZIP to the store as a stable release.**
 
+### Update an unpacked Windows installation
+
+If BTC Live was cloned with Git, double-click **[Update BTC Live.cmd](Update%20BTC%20Live.cmd)** in that cloned folder. The updater checks the official origin, `main` branch and local changes before running `git pull --ff-only origin main`. It never resets or stashes files. After the update, click **Reload** for BTC Live in `chrome://extensions`; the updater attempts to open Chrome's extensions page. Git for Windows must be installed and accessible on PATH. This updates **development source**, not an approved published Stable release. Existing ZIP-based installs must first be moved to a Git clone manually; do not overwrite an existing profile or installation without a migration plan.
+
 [Full installation and user guide →](docs/USAGE.md)
 
 ## Inside the terminal

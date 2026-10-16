@@ -2,6 +2,15 @@
 
 All notable changes to the BTC Live development candidate are recorded here. Entries are not evidence of an approved customer release.
 
+## [1.25.4] - 2026-10-16
+
+### Fixed
+- Support multiple independent chart redraw listeners per SVG so overlay observers cannot silently replace each other.
+- Unsubscribing one observer no longer detaches another; notification snapshots tolerate subscription changes during redraw.
+
+### Verification
+- Development candidate only; automated CI and manual browser acceptance remain separate gates.
+
 ## [1.25.3] - 2026-10-16
 
 ### Fixed

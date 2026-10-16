@@ -385,3 +385,23 @@ test('malformed development manifest never claims a software update', async () =
    assert.equal(result.developmentVersion,null);
  }
 });
+
+test('Preview channel reports newer development source without inventing a prerelease', async () => {
+ let persisted = {}, urls = [];
+ const api = {runtime:{getManifest:()=>({version:'1.24.2'})},storage:{local:{
+   get:async()=>persisted,set:async value=>{persisted={...persisted,...value}}
+ }}};
+ const manifest = {type:'file',path:'manifest.json',encoding:'base64',
+   content:btoa(JSON.stringify({manifest_version:3,version:'1.25.0'}))};
+ const controller = createUpdateController({api,fetchFn:async url=>{
+   urls.push(url);
+   return {ok:true,status:200,json:async()=>url.includes('/contents/manifest.json')?manifest:[]};
+ }});
+ await controller.configure({channel:'preview'});
+ const state = await controller.check();
+ assert.equal(state.status,'DEVELOPMENT_AVAILABLE');
+ assert.equal(state.developmentVersion,'1.25.0');
+ assert.equal(state.release,null);
+ assert.equal(urls.length,2);
+ assert.equal((await controller.read()).status,'DEVELOPMENT_AVAILABLE');
+});

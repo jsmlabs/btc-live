@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 $base = Join-Path ([IO.Path]::GetTempPath()) ('btc-live-updater-tests-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $base | Out-Null
 function Invoke-RepoGit([string]$dir, [string[]]$commands) {
-  $text = & git.exe -C $dir @commands 2>&1
+  $text = & git.exe -C $dir @commands 2>$null
   if ($LASTEXITCODE -ne 0) { throw "Git $($commands -join ' ') failed: $text" }
   return ($text | Out-String).Trim()
 }
@@ -31,14 +31,14 @@ try {
   $origin = Join-Path $base 'origin.git'
   $author = Join-Path $base 'author'
   $client = Join-Path $base 'client'
-  $null = & git init --bare $origin 2>&1
+  $null = & git init --bare $origin 2>$null
   if ($LASTEXITCODE -ne 0) { throw 'Cannot create local origin' }
-  $null = & git init -b main $author 2>&1
+  $null = & git init -b main $author 2>$null
   if ($LASTEXITCODE -ne 0) { throw 'Cannot initialize main' }
   Commit $author '1.0.0'
   $null = Invoke-RepoGit $author @('remote','add','origin',$origin)
   $null = Invoke-RepoGit $author @('push','-u','origin','main')
-  $null = & git clone --branch main $origin $client 2>&1
+  $null = & git clone --branch main $origin $client 2>$null
   if ($LASTEXITCODE -ne 0) { throw 'Cannot create local clone' }
   if ((Check-Update $client) -ne 'CURRENT') { throw 'Already-current case failed' }
   Commit $author '1.0.1'

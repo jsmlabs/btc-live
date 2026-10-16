@@ -131,7 +131,7 @@
             <div class="eyebrow muted">LIVE MARKET</div>
             <h2>BTCUSDT Chart</h2>
           </div>
-          <div class="chart-toolbar" aria-label="Chart controls">
+          <div class="chart-toolbar" role="group" aria-label="Chart controls: interval, display, indicators and navigation">
             <div class="segmented" aria-label="Chart interval">
               <button id="dashboardChartInterval1m" class="chart-control" type="button" aria-pressed="false">1m</button>
               <button id="dashboardChartInterval5m" class="chart-control" type="button" aria-pressed="true">5m</button>
@@ -145,7 +145,7 @@
               <button id="dashboardChartLine" class="chart-control" type="button" aria-pressed="false">Line</button>
               <button id="dashboardChartArea" class="chart-control" type="button" aria-pressed="false">Area</button>
             </div>
-            <details class="chart-menu"><summary>Appearance</summary><div class="chart-menu-content">
+            <details class="chart-menu" aria-label="Chart appearance options"><summary>Appearance</summary><div class="chart-menu-content">
             <label class="chart-candle-style-control">Candle style <select id="dashboardChartCandleStyle" aria-label="Candlestick appearance"><option value="classic">Classic</option><option value="outline">Outline</option><option value="minimal">Minimal</option></select></label>
             <label class="chart-toggle"><span>Active highlight</span><input id="dashboardChartHighlightActive" type="checkbox" checked></label>
             <span id="dashboardChartComparison" class="chart-compare-status" role="status" aria-live="polite">Candle comparison: Shift+click or press C twice</span>
@@ -153,7 +153,7 @@
             <label class="chart-toggle"><span>Volume analytics</span><input id="dashboardChartVolumeIntelligence" type="checkbox"></label>
             </div></details>
             <label class="chart-toggle"><span>Volume</span><input id="dashboardChartVolume" type="checkbox" checked></label>
-            <details class="chart-menu"><summary>Indicators</summary><div class="chart-menu-content">
+            <details class="chart-menu" aria-label="Technical indicator options"><summary>Indicators</summary><div class="chart-menu-content">
             <div class="chart-indicator-controls" aria-label="Technical indicators">
               <label><input id="dashboardChartema20" type="checkbox"> EMA20</label>
               <label><input id="dashboardChartema50" type="checkbox"> EMA50</label>
@@ -165,14 +165,14 @@
               <button id="dashboardChartOlder" class="chart-control" type="button">Load older</button>
               <span id="dashboardChartHistoryStatus" class="chart-history-status" role="status" aria-live="polite"></span>
             </div>
-            <details class="chart-menu"><summary>Overlays</summary><div class="chart-menu-content">
+            <details class="chart-menu" aria-label="Market overlay options"><summary>Overlays</summary><div class="chart-menu-content">
             <div class="chart-indicator-controls" aria-label="Chart overlays">
               <label><input id="dashboardChartshowAlerts" type="checkbox" checked> Targets</label>
               <label><input id="dashboardChartshowLiquidity" type="checkbox"> Depth</label>
               <label><input id="dashboardChartshowTrades" type="checkbox"> Large trades</label>
             </div>
             </div></details>
-            <details class="chart-menu chart-menu-tools"><summary>Drawing tools</summary><div class="chart-menu-content">
+            <details class="chart-menu chart-menu-tools" aria-label="Chart drawing tools"><summary>Drawing tools</summary><div class="chart-menu-content">
             <div class="segmented" aria-label="Drawing tools">
               <button id="dashboardChartDrawinspect" class="chart-control" type="button" aria-pressed="true">Inspect</button>
               <button id="dashboardChartDrawhorizontal" class="chart-control" type="button" aria-pressed="false">Price line</button>

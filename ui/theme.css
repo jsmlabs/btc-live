@@ -56,3 +56,21 @@ button[aria-busy="true"] { cursor: progress; }
 .software-updates select { max-width: 130px; }
 
 .software-update-indicator:not([hidden]) { display: inline-flex; border: 1px solid var(--border, #30343b); border-radius: 8px; background: transparent; padding: 5px 8px; color: var(--accent, #f3a23a); font-size: 11px; cursor: pointer; }
+
+/* Terminal motion and interaction tokens: presentation never changes market values. */
+:root {
+  --motion-fast: 120ms;
+  --motion-standard: 180ms;
+  --motion-slow: 240ms;
+  --motion-ease: cubic-bezier(.2, .75, .25, 1);
+  --shadow-floating: 0 16px 48px rgb(0 0 0 / 35%);
+}
+:is(button, a, summary) { transition: background-color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease); }
+:is(button, a, summary):focus-visible { scroll-margin: 12px; }
+@media (prefers-reduced-motion: reduce) {
+  :root { --motion-fast: 0ms; --motion-standard: 0ms; --motion-slow: 0ms; }
+  :is(button, a, summary) { transition: none; }
+}
+@media (forced-colors: active) {
+  :is(button, a, summary):focus-visible { outline: 2px solid Highlight; outline-offset: 3px; }
+}

@@ -133,7 +133,7 @@ export function sanitizeUpdateState(raw, installed) {
   const developmentVersion = lastSuccessAt !== null && !release &&
     typeof x.developmentVersion === 'string' && /^\d+\.\d+\.\d+$/.test(x.developmentVersion) &&
     parseVersion(x.developmentVersion) && compareVersions(x.developmentVersion, installed) > 0 &&
-    channel === 'stable' ? x.developmentVersion : null;
+    ['stable', 'preview'].includes(channel) ? x.developmentVersion : null;
   let status = 'NOT_CHECKED';
   if (lastSuccessAt !== null) {
     if (release) {
@@ -205,7 +205,7 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
         const result = selectRelease(releases, installed, state.channel);
         if (result.status === 'UNSUPPORTED') {
           let developmentVersion = null;
-          if (state.channel === 'stable') {
+          {
             try {
               const response = await fetchFn(SOURCE_MANIFEST_API, {
                 headers: { Accept: 'application/vnd.github+json' }, signal: controller.signal,

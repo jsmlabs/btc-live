@@ -130,7 +130,7 @@ When a published eligible release contains exactly one uploaded, size-bounded ar
 
 When the installed manifest version exceeds the most recent eligible published release, the panel displays **Installed version is newer** rather than claiming a normal up-to-date published installation. This may occur for unpacked development builds.
 
-When no eligible published Release exists, a successful check can additionally inspect the public `main` manifest through GitHub's read-only Contents API. A strictly validated, newer manifest version is reported as **Newer development source available** with manual source-refresh guidance; it is never called a published Stable update or automatically installed. If the optional source lookup fails or is malformed, the panel retains the truthful no-published-release result.
+In either Stable or Preview channel, when no eligible published Release exists, a successful check can additionally inspect the public `main` manifest through GitHub's read-only Contents API. A strictly validated, newer manifest version is reported as **Newer development source available** with manual source-refresh guidance; it is never called a published Stable update or automatically installed. If the optional source lookup fails or is malformed, the panel retains the truthful no-published-release result.
 
 ## Software-update discovery
 

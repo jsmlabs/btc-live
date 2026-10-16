@@ -1,6 +1,18 @@
 # Changelog
 
+
 All notable changes to the BTC Live development candidate are recorded here. Entries are not evidence of an approved customer release.
+
+## Unreleased
+
+### UI and accessibility
+- Introduce shared motion-duration and easing tokens for dashboard and popup controls, with reduced-motion overrides.
+- Refine selected navigation states, menu entrance, popup primary-action feedback and narrow-viewport containment without animating market values.
+- Add CSS contract checks for motion fallbacks and semantically selected navigation.
+
+### Verification
+- Development candidate only; manual Chromium, market-data and release acceptance remain pending.
+
 
 ## [1.25.8] - 2026-10-16
 

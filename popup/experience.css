@@ -72,3 +72,20 @@
   .icon-button { width: 30px; }
   .metric-value, .market-value { font-size: 11px; }
 }
+
+/* Popup interaction improvements without animating or rounding the incoming market feed. */
+.current-price, .market-value, .metric-value { font-variant-numeric: tabular-nums; }
+.open-terminal-button { transition: background-color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease); }
+.open-terminal-button:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+@media (prefers-reduced-motion: no-preference) {
+  .open-terminal-button svg { transition: transform var(--motion-standard) var(--motion-ease); }
+  .open-terminal-button:hover svg { transform: translateX(3px); }
+}
+@media (max-width: 390px) {
+  .app-shell { max-width: 100vw; }
+  .current-price { font-size: clamp(30px, 10vw, 40px); overflow-wrap: anywhere; }
+  .stats-grid > *, .market-cell { min-width: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .open-terminal-button, .open-terminal-button svg { transition: none; }
+}

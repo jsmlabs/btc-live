@@ -260,3 +260,32 @@ body:has(.analytics-overview[data-analytics-active-view="behavior"]) .flow-behav
 @media (forced-colors: active) {
   .workspace-link[aria-pressed="true"], .terminal-command-item[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
 }
+
+/* Workspace polish: transform/opacity only for entrance; never animate live price data. */
+.workspace-link, .chart-control, .terminal-command-item {
+  transition: background-color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), color var(--motion-fast) var(--motion-ease);
+}
+.workspace-link[aria-pressed="true"] { background: var(--accent-soft); }
+.workspace-link:hover:not([aria-pressed="true"]), .terminal-command-item:hover { background: var(--bg-surface-subtle); }
+.presentation-menu-content, .chart-menu-content { box-shadow: var(--shadow-floating); }
+@media (prefers-reduced-motion: no-preference) {
+  .presentation-menu[open] > .presentation-menu-content { animation: terminal-menu-enter var(--motion-standard) var(--motion-ease) both; }
+  @keyframes terminal-menu-enter { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+}
+@media (max-width: 800px) {
+  .workspace-nav { backdrop-filter: none; }
+  .workspace-links { overscroll-behavior-inline: contain; }
+  .workspace-link { flex-shrink: 0; }
+  .workspace-heading { min-width: 0; }
+  .workspace-heading > * { min-width: 0; }
+}
+@media (max-width: 560px) {
+  .terminal-controls { flex-wrap: wrap; }
+  .presentation-menu-content { max-width: calc(100vw - 32px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-link, .chart-control, .terminal-command-item { transition: none; }
+}
+@media (forced-colors: active) {
+  .workspace-link[aria-pressed="true"] { border: 2px solid Highlight; }
+}

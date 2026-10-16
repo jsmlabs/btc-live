@@ -323,6 +323,24 @@ test('only official uploaded extension ZIP assets become download links', () => 
  assert.equal(sanitizeUpdateState(state,'1.24.2').release.downloadUrl,null);
 });
 
+test('checksum manifest must be the unique official release asset', () => {
+ const tag = 'v1.25.0';
+ const url = 'https://github.com/jsmlabs/btc-live/releases/download/' + tag + '/SHA256SUMS.txt';
+ const zip = 'https://github.com/jsmlabs/btc-live/releases/download/' + tag + '/btc-live-chromium-v1.25.0-candidate.zip';
+ const archive = {name:'btc-live-chromium-v1.25.0-candidate.zip',browser_download_url:zip,size:120000,state:'uploaded'};
+ const sum = {name:'SHA256SUMS.txt',browser_download_url:url,size:96,state:'uploaded'};
+ const choose = assets => selectRelease([{...release(tag),assets}],'1.24.2').release;
+ assert.equal(choose([archive,sum]).checksumUrl,url);
+ assert.equal(choose([archive]).checksumUrl,null);
+ assert.equal(choose([archive,sum,sum]).checksumUrl,null);
+ assert.equal(choose([archive,{...sum,browser_download_url:'https://evil.example/sums'}]).checksumUrl,null);
+ assert.equal(choose([archive,{...sum,size:50000}]).checksumUrl,null);
+ const state={channel:'stable',checkedInstalled:'1.24.2',lastSuccessAt:Date.now(),release:choose([archive,sum])};
+ assert.equal(sanitizeUpdateState(state,'1.24.2').release.checksumUrl,url);
+ state.release={...state.release,checksumUrl:'javascript:alert(1)'};
+ assert.equal(sanitizeUpdateState(state,'1.24.2').release.checksumUrl,null);
+});
+
 test('installed-ahead status survives trusted cache sanitization', () => {
  const t=Date.now();
  const release={version:'1.24.1',url:'https://github.com/jsmlabs/btc-live/releases/tag/v1.24.1',prerelease:false};

@@ -19,6 +19,7 @@ npm run package:metadata
 ```
 
 - **`verify`** checks JS syntax/imports and runs discovered `tests/*.test.js` separately, including timeout and failure reporting.
+  The default per-test-file timeout is **20 seconds**. For slower runners, set `BTC_LIVE_TEST_TIMEOUT_MS` to an integer from `1000` through `300000` (milliseconds); invalid values fail immediately. This does not change the independent 10-second JavaScript syntax-check timeout. Example: `BTC_LIVE_TEST_TIMEOUT_MS=60000 npm run verify` (PowerShell: `$env:BTC_LIVE_TEST_TIMEOUT_MS='60000'; npm run verify`).
 - **`docs:check`** verifies local Markdown link and embedded HTML paths. It does not verify remote site availability.
 - **`release:check`** enforces a static MV3 manifest/permission/CSP/resource contract. It does **not** build/approve a store release.
 - **`package:extension`** builds the sorted deterministic candidate ZIP, verifying source unless `--skip-verify` is explicitly supplied.

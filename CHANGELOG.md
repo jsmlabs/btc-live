@@ -5,6 +5,10 @@ All notable changes to the BTC Live development candidate are recorded here. Ent
 
 ## Unreleased
 
+### Quality assurance
+- Run the existing synthetic Chromium DOM smoke suite as a separate GitHub Actions job and retain screenshots/logs as CI artifacts.
+- Explicitly distinguish browser DOM regression evidence from installed-extension and manual release approval.
+
 ### Fixed
 - Populate popup and dashboard footer versions from the installed extension manifest rather than hardcoded, outdated HTML.
 - Harden number and control containment across all six dashboard workspaces and the popup.

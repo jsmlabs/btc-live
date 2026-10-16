@@ -302,3 +302,8 @@ body:has(.analytics-overview[data-analytics-active-view="behavior"]) .flow-behav
 .workspace-content .advanced-alert-rule { overflow-wrap: anywhere; }
 @media (max-width: 800px) { .workspace-content .chart-header { min-width: 0; } .workspace-content .chart-toolbar { max-width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .workspace-content :is(.panel, .metric-card, .health-card, .hero-card) { transition: none; } }
+
+/* Keep chart popovers inside intermediate desktop viewports. */
+@media (min-width: 561px) and (max-width: 900px) {
+  .dashboard-shell .chart-menu-content { left: auto; right: 0; max-width: min(420px, calc(100vw - 32px)); }
+}

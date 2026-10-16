@@ -48,6 +48,12 @@ npm run test:ui
 
 Coverage includes all six workspaces at 320/390/560/800/1024/1440/1920px, page overflow, navigation keys, density across market repaints, command filtering/selection/dismissal/focus return, focus mode, native chart modal isolation/restoration and a 320×568 viewport, reference-price disclosure, target create/pause/remove, duplicate submit prevention, failed target/history writes, notification-test outcomes, popup settings and offline rendering. It also checks Analytics filter/keyboard isolation, event record/stop/save/load/delete using isolated IndexedDB, and sample record/stop/clear. Imported/saved replay remains explicitly unverified and offline. `CHROMIUM_PATH` optionally selects an installed executable; `UI_SCREENSHOT_DIR` optionally saves local QA screenshots. These screenshots contain **synthetic prices**, not live observations. DOM geometry checks and visual review do not certify all accessibility requirements, live streams or installed-extension behavior.
 
+### Chromium CI DOM evidence
+
+The separate `chromium-ui-dom` job in `.github/workflows/verify.yml` installs a pinned Playwright developer dependency and its Chromium browser on an isolated Linux runner. It executes `npm run test:ui` using only intercepted, synthetic data and uploads the console log and available viewport screenshots as the `chromium-ui-dom-evidence` artifact, including on failure. A failed job blocks ordinary CI integration; a passing job is **Tier 2 synthetic browser evidence only**.
+
+The test intentionally does not load the actual MV3 extension, validate real Binance streaming, certify visual snapshot baselines, or approve the `chromium-ui` manual release gate. Browser and artifact provenance are available from the matching GitHub Actions run; retain acceptance screenshots and independent reviewer signoff separately.
+
 ## Real-browser acceptance matrix
 
 Use [`SMOKE-TEST.md`](SMOKE-TEST.md) and [`ACCEPTANCE.md`](ACCEPTANCE.md), recording for each case: UTC time, exact SHA and package digest, OS/browser version, source fixtures or live endpoints, actions, expected/actual outcome, relevant console/trace and reviewer.

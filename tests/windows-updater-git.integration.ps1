@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Continue' # Native Git progress on stderr is not a PowerShell exception; exit codes are checked.
 $base = Join-Path ([IO.Path]::GetTempPath()) ('btc-live-updater-tests-' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $base | Out-Null
 function Invoke-RepoGit([string]$dir, [string[]]$commands) {

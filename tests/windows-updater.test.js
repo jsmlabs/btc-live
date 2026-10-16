@@ -63,6 +63,15 @@ test('updater serializes execution per checkout and resets stale state', async (
  assert.match(source,/\$script:targetCommit=''/);
  assert.match(source,/\$browser\.Enabled=\$false/);
 });
+test('updater checks installed and fetched versions before applying Git fast-forward', async () => {
+ const source=await readFile(new URL('../scripts/update-btc-live.ps1',import.meta.url),'utf8');
+ assert.match(source,/\$manifest\.version -notmatch/);
+ assert.match(source,/\$installed=\[version\]::Parse/);
+ assert.match(source,/\$available=\[version\]::Parse/);
+ assert.match(source,/if\(\$available -lt \$installed\)\{Fail 'Fetched source has an older version/);
+ assert.match(source,/7 \{ try\{\$remote=/);
+});
+
 test('update panel never recommends deleted CMD launcher', async () => {
  const panel=await readFile(new URL('../ui/software-update-panel.js',import.meta.url),'utf8');
  assert.match(panel,/update-btc-live\.bat/);

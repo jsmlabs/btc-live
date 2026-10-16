@@ -89,7 +89,8 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
       UPDATE_AVAILABLE: 'A newer stable release is available',
       PREVIEW_AVAILABLE: 'A newer preview release is available',
       EXPERIMENTAL_AVAILABLE: 'Experimental download available (same installed version; not an upgrade)',
-      UNSUPPORTED: 'No eligible published release is available'
+      UNSUPPORTED: 'No eligible published release is available',
+      DEVELOPMENT_AVAILABLE: 'Newer development source available (not a published release)'
     };
     status.textContent = checking ? 'Checking for updates…'
       : state.error === 'RATE_LIMITED' ? 'GitHub rate limit reached'
@@ -97,14 +98,17 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
       : state.error ? 'Unable to check for updates'
       : descriptions[state.status] ?? 'Not checked yet';
     detail.textContent = 'Installed: ' + state.installed + ' · Available: ' + (state.release?.version ?? 'None') +
+      (state.developmentVersion ? ' · Development source: ' + state.developmentVersion : '') +
       ' · Last successful check: ' + formatTime(state.lastSuccessAt) +
       ' · Last attempt: ' + formatTime(state.lastAttemptAt) +
       (state.error ? ' · Previous result may be outdated' : '');
-    note.hidden = !['UNSUPPORTED', 'EXPERIMENTAL_AVAILABLE'].includes(state.status);
-    note.textContent = state.status === 'EXPERIMENTAL_AVAILABLE'
+    note.hidden = !['UNSUPPORTED', 'EXPERIMENTAL_AVAILABLE', 'DEVELOPMENT_AVAILABLE'].includes(state.status);
+    note.textContent = state.status === 'DEVELOPMENT_AVAILABLE'
+      ? 'A newer development manifest is on GitHub, but no eligible release is published. Refresh unpacked source manually and reload in chrome://extensions. This checker never installs updates.'
+      : state.status === 'EXPERIMENTAL_AVAILABLE'
       ? 'Untested experimental download. The packaged manifest version is unchanged. GitHub does not install this extension: inspect the release, verify its checksum, and manually load unpacked in a disposable browser profile.'
       : 'Development builds in the repository are not published updates. To refresh an unpacked installation, update the local source and reload it in chrome://extensions. This checker does not install software.';
-    sourceLink.hidden = state.status !== 'UNSUPPORTED';
+    sourceLink.hidden = !['UNSUPPORTED', 'DEVELOPMENT_AVAILABLE'].includes(state.status);
     const eligible = state.release && ['UPDATE_AVAILABLE', 'PREVIEW_AVAILABLE', 'EXPERIMENTAL_AVAILABLE'].includes(state.status);
     link.textContent = state.status === 'EXPERIMENTAL_AVAILABLE' ? 'View Experimental Download' : 'View Release Notes';
     link.hidden = !eligible;

@@ -55,6 +55,9 @@ All notable changes to the BTC Live development candidate are recorded here. Ent
 ### Installed responsive acceptance smoke
 - Exercise packaged Chromium MV3 popup and dashboard at representative narrow and desktop widths; assert the consolidated 24h strip remains contained and reduced-motion tokens are respected.
 
+### Installed storage persistence check
+- Validate a real MV3 popup setting round-trip through `chrome.storage.local` and a popup reload in an isolated temporary Chromium profile.
+
 ## [1.25.8] - 2026-10-16
 
 ### Fixed

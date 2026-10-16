@@ -5,6 +5,13 @@ All notable changes to the BTC Live development candidate are recorded here. Ent
 
 ## Unreleased
 
+### Fixed
+- Populate popup and dashboard footer versions from the installed extension manifest rather than hardcoded, outdated HTML.
+- Harden number and control containment across all six dashboard workspaces and the popup.
+
+### Tests
+- Add manifest-version label regression tests and assert that both entrypoints use the shared renderer.
+
 ### UI and accessibility
 - Introduce shared motion-duration and easing tokens for dashboard and popup controls, with reduced-motion overrides.
 - Refine selected navigation states, menu entrance, popup primary-action feedback and narrow-viewport containment without animating market values.

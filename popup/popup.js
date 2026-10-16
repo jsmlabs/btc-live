@@ -1,3 +1,4 @@
+import { displayExtensionVersion } from '../ui/version-label.js';
 import { mountSoftwareUpdates } from '../ui/software-update-panel.js';
 let updatePanelDispose = () => {};
 import { createBtcLiveRuntime } from '../app/runtime.js';
@@ -152,3 +153,5 @@ runtime.start().catch((error) => {
 });
 
 window.addEventListener('pagehide', () => updatePanelDispose(), { once: true });
+
+displayExtensionVersion(document, api);

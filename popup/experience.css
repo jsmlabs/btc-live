@@ -89,3 +89,13 @@
 @media (prefers-reduced-motion: reduce) {
   .open-terminal-button, .open-terminal-button svg { transition: none; }
 }
+
+/* Market-first popup polish: precise numbers, legible controls and reliable clipping. */
+.app-shell .price-row { min-width: 0; }
+.app-shell .current-price { min-width: 0; font-feature-settings: 'tnum'; letter-spacing: -.035em; }
+.app-shell .price-block, .app-shell .metric-card, .app-shell .range-card, .app-shell .market-cell { overflow-wrap: anywhere; }
+.app-shell .settings-group-title { letter-spacing: .08em; }
+.app-shell .setting-row:focus-within { background: var(--accent-soft); }
+.app-shell .alert-target-form :is(input, select):focus-visible { border-color: var(--accent); }
+@media (max-width: 390px) { .app-shell .header-actions { flex-shrink: 0; } .app-shell .status-pill { max-width: 90px; } }
+@media (prefers-reduced-motion: reduce) { .app-shell .setting-row { scroll-behavior: auto; } }

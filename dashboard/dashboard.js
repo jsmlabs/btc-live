@@ -1,3 +1,4 @@
+import { displayExtensionVersion } from '../ui/version-label.js';
 import { mountSoftwareUpdates } from '../ui/software-update-panel.js';
 let updatePanelDispose = () => {};
 import {createAdvancedAlertCenter} from '../ui/advanced-alert-center.js';
@@ -861,3 +862,5 @@ Promise.allSettled([runtime.start(), chartRuntime.start()]).then((results) => {
 });
 
 window.addEventListener('pagehide', () => updatePanelDispose(), { once: true });
+
+displayExtensionVersion(document, api);

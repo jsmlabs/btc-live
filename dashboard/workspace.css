@@ -289,3 +289,16 @@ body:has(.analytics-overview[data-analytics-active-view="behavior"]) .flow-behav
 @media (forced-colors: active) {
   .workspace-link[aria-pressed="true"] { border: 2px solid Highlight; }
 }
+
+/* Shared workspace visual rhythm across Live, Analytics, Replay, Alerts, Diagnostics and Settings. */
+.workspace-content { min-width: 0; }
+.workspace-content :is(.panel, .metric-card, .health-card, .hero-card) { min-width: 0; overflow-wrap: anywhere; }
+.workspace-content :is(.panel, .health-card, .hero-card) { border-color: var(--border); }
+.workspace-content :is(.panel, .health-card, .hero-card):focus-within { border-color: var(--border-strong); }
+.workspace-content :is(.metric-value, .hero-price, .market-value, .health-age) { font-variant-numeric: tabular-nums; }
+.workspace-content :is(input, select, textarea) { max-width: 100%; }
+.workspace-content :is(input, select, textarea):focus-visible { border-color: var(--accent); }
+.workspace-content :is(.alert-target-form, .replay-controls, .setting-row) { min-width: 0; }
+.workspace-content .advanced-alert-rule { overflow-wrap: anywhere; }
+@media (max-width: 800px) { .workspace-content .chart-header { min-width: 0; } .workspace-content .chart-toolbar { max-width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .workspace-content :is(.panel, .metric-card, .health-card, .hero-card) { transition: none; } }

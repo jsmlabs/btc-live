@@ -48,6 +48,10 @@ All notable changes to the BTC Live development candidate are recorded here. Ent
 ### Distribution candidate validation
 - Load the unpacked release-candidate ZIP, not source checkout files, for the Chromium MV3 installation smoke and six-workspace screenshots.
 
+### CSS maintenance
+- Consolidate repeated design-token declarations and redundant popup/chart/navigation overrides without changing market rendering contracts.
+- Preserve existing reduced-motion behavior and validate the unchanged visuals through synthetic and installed-MV3 Chromium CI.
+
 ## [1.25.8] - 2026-10-16
 
 ### Fixed

@@ -26,6 +26,8 @@
   --radius-sm: 8px;
   --radius-md: 12px;
   --shadow-panel: 0 6px 24px #0000001f;
+  --terminal-label-tracking: .075em;
+  --terminal-reading-line-height: 1.55;
 }
 
 button, input, select, summary, a { -webkit-tap-highlight-color: transparent; }
@@ -76,10 +78,6 @@ button[aria-busy="true"] { cursor: progress; }
 }
 
 /* Cross-surface optical consistency and restrained interaction emphasis. */
-:root {
-  --terminal-label-tracking: .075em;
-  --terminal-reading-line-height: 1.55;
-}
 :is(.eyebrow, .metric-label) { letter-spacing: var(--terminal-label-tracking); }
 :is(.operation-feedback, .settings-scope-note) { line-height: var(--terminal-reading-line-height); }
 @media (prefers-reduced-motion: reduce) {

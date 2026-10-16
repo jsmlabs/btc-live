@@ -313,11 +313,9 @@ body:has(.analytics-overview[data-analytics-active-view="behavior"]) .flow-behav
 .dashboard-shell .workspace-heading h1 { font-weight: 700; letter-spacing: -.038em; }
 .dashboard-shell .workspace-context { line-height: 1.65; }
 .dashboard-shell .workspace-link { border-radius: 9px; }
-.dashboard-shell .workspace-link[aria-pressed="true"] { background: var(--accent-soft); }
 .dashboard-shell .workspace-nav .nav-note { line-height: 1.7; }
 .dashboard-shell .hero-price { font-variant-numeric: tabular-nums; letter-spacing: -.045em; }
 .dashboard-shell .metric-card strong { font-variant-numeric: tabular-nums; }
-.dashboard-shell .chart-toolbar { align-items: center; row-gap: 8px; }
 .dashboard-shell .chart-toolbar > :is(.segmented, .chart-menu) { flex-shrink: 0; }
 .dashboard-shell .chart-control { border-radius: 7px; }
 .dashboard-shell :is(.replay-session-controls, .keyboard-reference, .software-updates) { border-radius: 11px; }
@@ -335,7 +333,7 @@ body:has(.analytics-overview[data-analytics-active-view="behavior"]) .flow-behav
 }
 
 /* Chart control hierarchy: primary interval/style/navigation groups remain visually distinct. */
-.dashboard-shell .chart-toolbar { column-gap: 9px; row-gap: 8px; }
+.dashboard-shell .chart-toolbar { align-items: center; column-gap: 9px; row-gap: 8px; }
 .dashboard-shell .chart-toolbar > .segmented[aria-label="Chart interval"] { border-color: var(--border-strong); }
 .dashboard-shell .chart-toolbar > .segmented[aria-label="Chart style"] { border-color: var(--border); }
 .dashboard-shell .chart-toolbar > .segmented[aria-label="Chart navigation"] { margin-inline-start: auto; }

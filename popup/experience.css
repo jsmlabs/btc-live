@@ -109,7 +109,7 @@
   padding: 4px 0;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 11px;
   background: var(--bg-surface-raised);
 }
 .app-shell .stats-grid .metric-card {
@@ -157,7 +157,6 @@
 .app-shell .price-caption { line-height: 1.35; }
 .app-shell .current-price { line-height: 1.07; }
 .app-shell .change-line { display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px; }
-.app-shell .stats-grid { border-radius: 11px; }
 .app-shell .range-card { padding-block: 14px; }
 .app-shell .range-heading, .app-shell .range-scale { font-variant-numeric: tabular-nums; }
 .app-shell .market-row { overflow: hidden; border-radius: 10px; }
@@ -169,7 +168,4 @@
   .app-shell .price-block { padding: 14px 12px; }
   .app-shell .stats-grid .metric-value { letter-spacing: -.035em; }
   .app-shell .market-cell { padding-inline: 8px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .app-shell .open-terminal-button { transition: none; }
 }

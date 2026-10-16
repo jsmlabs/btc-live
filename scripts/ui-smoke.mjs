@@ -233,6 +233,10 @@ try {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.locator('#dashboardChartFocus').click();
   await page.keyboard.press('Control+k');
+  assert.equal(await page.locator('#terminalPalette').evaluate(node => node.open), false, 'chart modal isolates command shortcuts');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#dashboardChartDialog').evaluate(node => node.open), false);
+  await page.keyboard.press('Control+k');
   await query.fill('Open Analytics'); await query.press('Enter');
   await page.waitForFunction(() => document.querySelector('[data-workspace-target="analytics"]').getAttribute('aria-pressed') === 'true');
   assert.equal(await page.locator('#dashboardChartDialog').evaluate(node => node.open), false);

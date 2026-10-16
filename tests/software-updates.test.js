@@ -287,3 +287,19 @@ test('malformed later release pages cause retryable errors rather than incomplet
  assert.equal(state.error,'CHECK_FAILED');
  assert.equal(state.lastSuccessAt,null);
 });
+
+test('experimental preview is an optional same-manifest download, never a version upgrade', () => {
+ const experimental = release('v1.24.2-preview.38826758140', true);
+ assert.equal(selectRelease([experimental], '1.24.2', 'stable').status, 'UNSUPPORTED');
+ const result = selectRelease([experimental], '1.24.2', 'preview');
+ assert.equal(result.status, 'EXPERIMENTAL_AVAILABLE');
+ assert.equal(selectRelease([experimental], '1.24.1', 'preview').status, 'PREVIEW_AVAILABLE');
+ assert.equal(selectRelease([release('v1.24.1-preview.5', true)], '1.24.2', 'preview').status, 'UP_TO_DATE');
+ assert.equal(selectRelease([release('v1.24.2-rc.1', true)], '1.24.2', 'preview').status, 'UP_TO_DATE');
+ const time = Date.now();
+ const state = sanitizeUpdateState({ enabled: true, channel: 'preview', checkedInstalled: '1.24.2',
+   status: 'EXPERIMENTAL_AVAILABLE', lastSuccessAt: time,
+   release: { ...result.release } }, '1.24.2');
+ assert.equal(state.status, 'EXPERIMENTAL_AVAILABLE');
+ assert.equal(state.release.url, result.release.url);
+});

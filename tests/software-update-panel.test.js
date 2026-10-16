@@ -65,6 +65,16 @@ test('software update panel validates storage events and never exposes an untrus
   assert.equal(link.href,valid.release.url);
   assert.equal(indicator.hidden,false);
 
+  const experimental = {...stored, channel:'preview', status:'EXPERIMENTAL_AVAILABLE',
+    release:{ version:'1.24.1-preview.38826758140', prerelease:true,
+      url:'https://github.com/jsmlabs/btc-live/releases/tag/v1.24.1-preview.38826758140' }};
+  listener({btcLiveSoftwareUpdates:{newValue:experimental}},'local');
+  assert.match(status.textContent,/Experimental download available/);
+  assert.equal(link.textContent,'View Experimental Download');
+  assert.equal(link.hidden,false);
+  assert.match(note.textContent,/not an upgrade|unchanged/i);
+  assert.match(indicator.textContent,/Not an upgrade/);
+
   listener({btcLiveSoftwareUpdates:{newValue:{...valid,checkedInstalled:'1.22.0'}}},'local');
   assert.equal(link.hidden,true);
   assert.equal(indicator.hidden,true);

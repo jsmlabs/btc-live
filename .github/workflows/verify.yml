@@ -117,3 +117,30 @@ jobs:
             dist/ui-smoke-screenshots/
           if-no-files-found: warn
           retention-days: 14
+
+  chromium-mv3-installed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium for real MV3 extension origin
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Smoke test installed unpacked MV3 (no live acceptance)
+        env:
+          MV3_SCREENSHOT_DIR: dist/installed-mv3-screenshots
+        run: node scripts/mv3-smoke.mjs
+      - name: Preserve MV3 browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chromium-mv3-installed-evidence
+          path: dist/installed-mv3-screenshots/
+          if-no-files-found: warn
+          retention-days: 14

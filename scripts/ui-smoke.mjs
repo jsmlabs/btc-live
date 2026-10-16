@@ -112,6 +112,13 @@ try {
     }
   }
   results.push('54 workspace/viewport combinations without page overflow');
+  assert.equal(await page.locator('.chart-toolbar').getAttribute('role'), 'group');
+  assert.equal(await page.locator('.chart-toolbar > .segmented[aria-label="Chart interval"]').count(), 1);
+  assert.equal(await page.locator('.chart-toolbar > .segmented[aria-label="Chart navigation"]').count(), 1);
+  for (const label of ['Chart appearance options', 'Technical indicator options', 'Market overlay options', 'Chart drawing tools']) {
+    assert.equal(await page.locator('.chart-toolbar > details.chart-menu[aria-label="' + label + '"]').count(), 1);
+  }
+  results.push('semantic chart toolbar groups retain existing control structure');
   await nav('live').click();
   for (const width of [1440, 800, 560, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });

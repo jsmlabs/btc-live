@@ -80,6 +80,7 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
     const descriptions = {
       NOT_CHECKED: 'Not checked yet',
       UP_TO_DATE: 'Up to date with the latest eligible published release',
+      INSTALLED_AHEAD: 'Installed version is newer than the latest eligible published release',
       UPDATE_AVAILABLE: 'A newer stable release is available',
       PREVIEW_AVAILABLE: 'A newer preview release is available',
       EXPERIMENTAL_AVAILABLE: 'Experimental download available (same installed version; not an upgrade)',

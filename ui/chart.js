@@ -61,22 +61,26 @@ export function buildChartModel(candles, {
   const plotRight = chartWidth - PADDING.right;
   const plotWidth = plotRight - plotLeft;
   const priceHeight = priceBottom - PADDING.top;
-  const lows = valid.map((candle) => candle.low);
-  const highs = valid.map((candle) => candle.high);
+  // One pass avoids temporary arrays and spread argument limits on long recordings.
+  let minPrice = Infinity;
+  let maxPrice = -Infinity;
+  let maxVolume = 1;
+  for (const candle of valid) {
+    if (candle.low < minPrice) minPrice = candle.low;
+    if (candle.high > maxPrice) maxPrice = candle.high;
+    if (Number.isFinite(candle.volume) && candle.volume > maxVolume) maxVolume = candle.volume;
+  }
   // A present-day trade price must not compress a manually inspected historical range.
   const following = view?.following !== false;
   if (following && Number.isFinite(currentPrice) && currentPrice > 0) {
-    lows.push(currentPrice);
-    highs.push(currentPrice);
+    minPrice = Math.min(minPrice, currentPrice);
+    maxPrice = Math.max(maxPrice, currentPrice);
   }
-  let minPrice = Math.min(...lows);
-  let maxPrice = Math.max(...highs);
   const rawSpan = maxPrice - minPrice;
   const padding = rawSpan > 0 ? rawSpan * 0.08 : Math.max(maxPrice * 0.002, 1);
   minPrice -= padding;
   maxPrice += padding;
   const priceSpan = maxPrice - minPrice;
-  const maxVolume = Math.max(1, ...valid.map((candle) => Number.isFinite(candle.volume) ? candle.volume : 0));
   const slot = plotWidth / valid.length;
   const bodyWidth = Math.max(0.8, Math.min(candleStyle === 'minimal' ? 5 : 10, slot * (candleStyle === 'minimal' ? 0.38 : 0.62)));
 

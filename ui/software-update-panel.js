@@ -77,6 +77,7 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
       UP_TO_DATE: 'Up to date with the latest eligible published release',
       UPDATE_AVAILABLE: 'A newer stable release is available',
       PREVIEW_AVAILABLE: 'A newer preview release is available',
+      EXPERIMENTAL_AVAILABLE: 'Experimental download available (same installed version; not an upgrade)',
       UNSUPPORTED: 'No eligible published release is available'
     };
     status.textContent = checking ? 'Checking for updates…'
@@ -88,15 +89,21 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
       ' · Last successful check: ' + formatTime(state.lastSuccessAt) +
       ' · Last attempt: ' + formatTime(state.lastAttemptAt) +
       (state.error ? ' · Previous result may be outdated' : '');
-    note.hidden = state.status !== 'UNSUPPORTED';
+    note.hidden = !['UNSUPPORTED', 'EXPERIMENTAL_AVAILABLE'].includes(state.status);
+    note.textContent = state.status === 'EXPERIMENTAL_AVAILABLE'
+      ? 'Untested experimental download. The packaged manifest version is unchanged. GitHub does not install this extension: inspect the release, verify its checksum, and manually load unpacked in a disposable browser profile.'
+      : 'Development builds in the repository are not published updates. To refresh an unpacked installation, update the local source and reload it in chrome://extensions. This checker does not install software.';
     sourceLink.hidden = state.status !== 'UNSUPPORTED';
-    const eligible = state.release && ['UPDATE_AVAILABLE', 'PREVIEW_AVAILABLE'].includes(state.status);
+    const eligible = state.release && ['UPDATE_AVAILABLE', 'PREVIEW_AVAILABLE', 'EXPERIMENTAL_AVAILABLE'].includes(state.status);
+    link.textContent = state.status === 'EXPERIMENTAL_AVAILABLE' ? 'View Experimental Download' : 'View Release Notes';
     link.hidden = !eligible;
     if (eligible) link.href = state.release.url;
     else link.removeAttribute('href');
     if (indicator) {
       indicator.hidden = !eligible || state.dismissed === state.release.version;
-      indicator.textContent = eligible ? 'BTC Live ' + state.release.version + ' available · View in Settings' : '';
+      indicator.textContent = eligible ? (state.status === 'EXPERIMENTAL_AVAILABLE'
+        ? 'BTC Live experimental download · Not an upgrade'
+        : 'BTC Live ' + state.release.version + ' available · View in Settings') : '';
     }
   }
   const setBusy = value => {

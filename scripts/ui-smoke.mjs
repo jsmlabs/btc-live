@@ -95,7 +95,7 @@ try {
   await page.waitForFunction(() => document.querySelector('#dashboardPrice').textContent === '100,000.00');
   await page.waitForFunction(() => document.querySelectorAll('#dashboardChartSvg .chart-body').length > 0);
   await shot('dashboard-live-desktop');
-  for (const width of [1920, 1440, 1024, 800, 560, 390, 320]) {
+  for (const width of [2560, 1920, 1440, 1024, 800, 560, 390, 360, 320]) {
     await page.setViewportSize({ width, height: 1000 });
     if (width <= 560) {
       assert.equal(await nav('live').evaluate(button => button.getBoundingClientRect().height >= 44), true);
@@ -108,10 +108,10 @@ try {
       await nav(view).click();
       await noOverflow(`${width}/${view}`);
       assert.equal(await nav(view).getAttribute('aria-pressed'), 'true');
-      if ([1440, 390].includes(width)) await shot(`${view}-${width}`);
+      if ([2560, 1440, 390, 320].includes(width)) await shot(`${view}-${width}`);
     }
   }
-  results.push('42 workspace/viewport combinations without page overflow');
+  results.push('54 workspace/viewport combinations without page overflow');
   await nav('live').click();
   for (const width of [1440, 800, 560, 390, 320]) {
     await page.setViewportSize({ width, height: 1000 });
@@ -358,12 +358,21 @@ try {
   assert.equal(await page.locator('#dashboardResetSettings').getAttribute('aria-describedby'), 'dashboardResetScope');
   assert.match(await page.locator('#dashboardResetScope').textContent(), /notification/);
 
-  for (const width of [408, 360, 320]) {
+  for (const width of [408, 390, 360, 320]) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto(`${base}/popup/popup.html`);
     await page.waitForFunction(() => document.querySelector('#currentPrice').textContent === '100,000.00');
     await noOverflow(`popup/${width}`);
-    if (width === 408) await shot('popup');
+    await shot(`popup-${width}`);
+    const statStrip = await page.locator('.stats-grid').evaluate(grid => {
+      const cards = [...grid.querySelectorAll('.metric-card')];
+      const bounds = grid.getBoundingClientRect();
+      return { count: cards.length, within: cards.every(card => {
+        const box = card.getBoundingClientRect();
+        return box.left >= bounds.left - 1 && box.right <= bounds.right + 1;
+      }) };
+    });
+    assert.deepEqual(statStrip, { count: 3, within: true }, `unified 24h strip at ${width}`);
     await page.locator('#settingsButton').click();
     await noOverflow(`popup settings/${width}`);
     await page.locator('#testNotificationButton').click();

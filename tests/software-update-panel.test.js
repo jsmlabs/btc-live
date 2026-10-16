@@ -37,8 +37,12 @@ test('software update panel validates storage events and never exposes an untrus
   const indicator = fakeElement('button');
   const dispose = mountSoftwareUpdates({container, indicator, api});
   await new Promise(resolve => setImmediate(resolve));
-  const [title, status, detail, note, toggleLabel, channelLabel, controls] = container.children[0].children;
-  const [button, link, downloadLink, checksumLink, sourceLink] = controls.children;
+  const [title, status, detail, note, controls, advanced] = container.children[0].children;
+  const [button, link, , , sourceLink] = controls.children;
+  const [advancedTitle, toggleLabel, channelLabel, downloadLink, checksumLink] = advanced.children;
+  assert.equal(advanced.tag,'details');
+  assert.equal(advancedTitle.textContent,'More options');
+  assert.equal(button.textContent,'Check now');
   assert.equal(sourceLink.hidden, false);
   assert.equal(sourceLink.href, 'https://github.com/jsmlabs/btc-live#get-started');
   assert.equal(sourceLink.target, '_blank');
@@ -46,8 +50,8 @@ test('software update panel validates storage events and never exposes an untrus
   assert.equal(status.textContent, 'No eligible published release is available');
   assert.equal(note.hidden,false);
   assert.equal(button.disabled,false);
-  assert.match(detail.textContent,/Last successful check/);
-  assert.match(detail.textContent,/Last attempt/);
+  assert.match(detail.textContent,/Installed:/);
+  assert.doesNotMatch(detail.textContent,/Last attempt/);
 
   const tampered = {...stored,status:'UPDATE_AVAILABLE',
     release:{version:'1.25.0',prerelease:false,url:'javascript:alert(1)'}};
@@ -72,9 +76,9 @@ test('software update panel validates storage events and never exposes an untrus
       url:'https://github.com/jsmlabs/btc-live/releases/tag/v1.24.1-preview.38826758140' }};
   listener({btcLiveSoftwareUpdates:{newValue:experimental}},'local');
   assert.match(status.textContent,/Experimental download available/);
-  assert.equal(link.textContent,'View Experimental Download');
+  assert.equal(link.textContent,'View experimental build');
   assert.equal(link.hidden,false);
-  assert.match(note.textContent,/not an upgrade|unchanged/i);
+  assert.match(note.textContent,/not an upgrade/i);
   assert.match(indicator.textContent,/Not an upgrade/);
 
   const withDownload = {...valid, release: {...valid.release,
@@ -98,7 +102,7 @@ test('software update panel validates storage events and never exposes an untrus
   const development={...stored,developmentVersion:'1.25.0',status:'DEVELOPMENT_AVAILABLE'};
   listener({btcLiveSoftwareUpdates:{newValue:development}},'local');
   assert.match(status.textContent,/Newer development source available/);
-  assert.match(detail.textContent,/Development source: 1.25.0/);
+  assert.match(detail.textContent,/Source: 1.25.0/);
   assert.equal(sourceLink.hidden,false);
   assert.equal(link.hidden,true);
   assert.equal(downloadLink.hidden,true);

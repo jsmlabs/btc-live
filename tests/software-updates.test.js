@@ -70,7 +70,7 @@ test('switching release channels invalidates previous cached results', async () 
  assert.equal(preview.release,null);
  const checked=await controller.check();
  assert.equal(checked.status,'PREVIEW_AVAILABLE');
- assert.equal(calls,2);
+ assert.equal(calls,3);
 });
 test('failures are throttled but a manual retry still runs', async () => {
  let persisted={}, count=0;

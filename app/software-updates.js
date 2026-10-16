@@ -98,7 +98,7 @@ export function validateDevelopmentManifest(payload, installed) {
     const decoded = atob(payload.content.replace(/\s/g, ''));
     const obj = JSON.parse(decoded);
     if (obj?.manifest_version !== 3 || typeof obj.version !== 'string' ||
-        !/^\d+\\.\d+\\.\d+$/.test(obj.version) || !parseVersion(obj.version)) return null;
+        !/^\d+\.\d+\.\d+$/.test(obj.version) || !parseVersion(obj.version)) return null;
     return compareVersions(obj.version, installed) > 0 ? obj.version : null;
   } catch { return null; }
 }
@@ -131,7 +131,7 @@ export function sanitizeUpdateState(raw, installed) {
     }
   }
   const developmentVersion = lastSuccessAt !== null && !release &&
-    typeof x.developmentVersion === 'string' && /^\d+\\.\d+\\.\d+$/.test(x.developmentVersion) &&
+    typeof x.developmentVersion === 'string' && /^\d+\.\d+\.\d+$/.test(x.developmentVersion) &&
     parseVersion(x.developmentVersion) && compareVersions(x.developmentVersion, installed) > 0 &&
     channel === 'stable' ? x.developmentVersion : null;
   let status = 'NOT_CHECKED';

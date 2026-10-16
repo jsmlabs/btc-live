@@ -16,9 +16,14 @@
 
 The panel shows the installed version, the available published release or development source, and one **Check now** action. When a published release exists, **Get update** opens its release page; when only newer source exists, **Get latest development source** opens the installation guide. Use **More options** for automatic-check settings, release channel, and direct archive/checksum links. The extension never overwrites itself. For Git-based Windows development installs use the `Update BTC Live.cmd` starter and click **Reload** at `chrome://extensions`.
 
-## One-click Windows source updates
+## Native Windows one-click updater
 
-For a Git-cloned unpacked development installation, double-click `Update BTC Live.cmd` in the root folder. Git for Windows must be installed. The updater requires a clean `main` checkout of the official `jsmlabs/btc-live` origin; it aborts on missing Git, an unexpected repository root or origin, local edits/untracked files, wrong branch, divergent history or failed fast-forward. It compares the resulting commit with the fetched target before reporting success. It reports the old and new Git commit and attempts to open Chrome's extension manager. **Click Reload** on BTC Live there; a successful Git update alone does not reload the running extension or prove its browser functionality. If Chrome is not found, open `chrome://extensions` yourself. The updater does not install Git, modify browser profiles, update Chrome Web Store installations or bypass release-acceptance gates.
+For a Git-cloned, unpacked development installation, double-click `Update BTC Live.cmd` at the checkout root. The small Windows PowerShell 5.1 / Windows Forms interface shows local and fetched manifest versions, the current Git operation, and a single **Update BTC Live** button. Git for Windows must already be installed; the updater needs no additional GUI framework or administrator permissions.
+
+The updater checks the repository root, branch `main`, official `origin`, and absence of local edits or untracked files. It downloads the remote commit without tags, verifies fast-forward ancestry, updates without a merge commit, and confirms that HEAD matches the fetched commit. It stops on errors, diverged history, or timeouts without intentionally resetting or stashing work. Progress remains indeterminate while work is ongoing because Git does not provide a reliable overall percentage.
+
+After successful source synchronization, choose **Open browser extensions** and manually click **Reload** for BTC Live in `chrome://extensions`. The updater cannot install a Chrome extension or prove that the browser reloaded. This development-source workflow is separate from approved Stable and optional experimental GitHub Releases. A ZIP-based installation requires a separate migration to a Git clone before using the updater.
+
 
 ## Explore the six workspaces
 

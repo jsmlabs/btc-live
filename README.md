@@ -61,9 +61,10 @@ BTC Live brings public Binance **USDⓈ-M Futures BTCUSDT** market observations 
 
 There is **no install/build requirement** for loading unpacked source. For a verified CI package instead, download the **`btc-live-candidate-zip` artifact** from [GitHub Actions](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml), verify the included `SHA256SUMS.txt`, extract the inner extension ZIP and load the extracted directory. **Do not submit that candidate ZIP to the store as a stable release.**
 
-### Update an unpacked Windows installation
+### One-click updater for Windows
 
-If BTC Live was cloned with Git, double-click **[Update BTC Live.cmd](Update%20BTC%20Live.cmd)** in that cloned folder. The updater checks the official origin, `main` branch and local changes before fetching `origin/main`, verifying its ancestry, and applying `git merge --ff-only FETCH_HEAD`. It never resets or stashes files. After the update, click **Reload** for BTC Live in `chrome://extensions`; the updater attempts to open Chrome's extensions page. Git for Windows must be installed and accessible on PATH. This updates **development source**, not an approved published Stable release. Existing ZIP-based installs must first be moved to a Git clone manually; do not overwrite an existing profile or installation without a migration plan.
+Double-click **[Update BTC Live.cmd](Update%20BTC%20Live.cmd)** in a Git-cloned BTC Live folder. Windows PowerShell 5.1 opens a compact native GUI with the local/available version, a single **Update BTC Live** action, and live progress without invented percentages. The bundled [PowerShell updater](scripts/update-btc-live.ps1) runs Git asynchronously, checks the official origin and clean `main` branch, and applies only a verified fast-forward from the fetched commit. Local edits and divergent branches cause a safe stop; there is no reset, stash, elevated permission or third-party GUI dependency. After success, click **Open browser extensions**, then **Reload** BTC Live in Chromium. The browser reload cannot be performed by this script. Git for Windows is required; an existing ZIP-based install must first be migrated manually to a Git clone.
+
 
 [Full installation and user guide →](docs/USAGE.md)
 

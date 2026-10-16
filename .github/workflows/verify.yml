@@ -67,3 +67,17 @@ jobs:
             dist/BUILD_INFO.json
             dist/SHA256SUMS.txt
           if-no-files-found: error
+
+  windows-updater:
+    runs-on: windows-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse native updater with Windows PowerShell
+        shell: powershell
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Join-Path $PWD 'scripts/update-btc-live.ps1'), [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) { $errors | Format-List; exit 1 }
+          if (-not (Test-Path 'Update BTC Live.cmd')) { throw 'Missing Windows entrypoint' }

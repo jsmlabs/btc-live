@@ -348,3 +348,40 @@ test('installed-ahead status survives trusted cache sanitization', () => {
  assert.equal(state.status,'INSTALLED_AHEAD');
  assert.equal(state.release.version,'1.24.1');
 });
+
+test('newer main manifest is separate from approved published releases', async () => {
+ let stored={},urls=[];
+ const api={runtime:{getManifest:()=>({version:'1.24.2'})},storage:{local:{
+   get:async()=>stored,set:async x=>{stored={...stored,...x}}
+ }}};
+ const payload={type:'file',path:'manifest.json',encoding:'base64',content:btoa(JSON.stringify({manifest_version:3,version:'1.25.0'}))};
+ const controller=createUpdateController({api,fetchFn:async url=>{
+   urls.push(url);
+   return {ok:true,status:200,json:async()=>url.includes('/contents/manifest.json')?payload:[]};
+ }});
+ const result=await controller.check({force:true});
+ assert.equal(result.status,'DEVELOPMENT_AVAILABLE');
+ assert.equal(result.developmentVersion,'1.25.0');
+ assert.equal(result.release,null);
+ assert.equal(urls.length,2);
+ assert.ok(urls[1].endsWith('/contents/manifest.json?ref=main'));
+ assert.equal((await controller.read()).status,'DEVELOPMENT_AVAILABLE');
+ const invalid=sanitizeUpdateState({...result,developmentVersion:'9.0.0<script>'},'1.24.2');
+ assert.equal(invalid.status,'NOT_CHECKED');
+});
+test('malformed development manifest never claims a software update', async () => {
+ for (const payload of [
+   {type:'file',path:'bad.json',encoding:'base64',content:btoa('{"manifest_version":3,"version":"9.0.0"}')},
+   {type:'file',path:'manifest.json',encoding:'base64',content:btoa('invalid')},
+   {type:'file',path:'manifest.json',encoding:'base64',content:btoa('{"manifest_version":2,"version":"9.0.0"}')}
+ ]) {
+   let stored={};
+   const api={runtime:{getManifest:()=>({version:'1.24.2'})},storage:{local:{
+     get:async()=>stored,set:async x=>{stored={...stored,...x}}
+   }}};
+   const controller=createUpdateController({api,fetchFn:async url=>({ok:true,status:200,json:async()=>url.includes('/contents/')?payload:[]})});
+   const result=await controller.check();
+   assert.equal(result.status,'UNSUPPORTED');
+   assert.equal(result.developmentVersion,null);
+ }
+});

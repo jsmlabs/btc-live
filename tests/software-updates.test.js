@@ -22,7 +22,7 @@ test('select only released eligible versions', () => {
  assert.equal(selectRelease([{...release('v9.0.0'),draft:true},release('v1.22.0')],'1.22.0').status,'UP_TO_DATE');
  assert.equal(selectRelease([release('v1.23.0')],'1.22.0').status,'UPDATE_AVAILABLE');
  assert.equal(selectRelease([release('v1.23.0-rc.1',true)],'1.22.0','preview').status,'PREVIEW_AVAILABLE');
- assert.equal(selectRelease([release('v1.21.0')],'1.22.0').status,'UP_TO_DATE');
+ assert.equal(selectRelease([release('v1.21.0')],'1.22.0').status,'INSTALLED_AHEAD');
  assert.equal(selectRelease([release('v1.23.0-rc.1',false)],'1.22.0').status,'UNSUPPORTED');
 });
 test('check deduplicates requests and persists latest result', async () => {
@@ -294,8 +294,8 @@ test('experimental preview is an optional same-manifest download, never a versio
  const result = selectRelease([experimental], '1.24.2', 'preview');
  assert.equal(result.status, 'EXPERIMENTAL_AVAILABLE');
  assert.equal(selectRelease([experimental], '1.24.1', 'preview').status, 'PREVIEW_AVAILABLE');
- assert.equal(selectRelease([release('v1.24.1-preview.5', true)], '1.24.2', 'preview').status, 'UP_TO_DATE');
- assert.equal(selectRelease([release('v1.24.2-rc.1', true)], '1.24.2', 'preview').status, 'UP_TO_DATE');
+ assert.equal(selectRelease([release('v1.24.1-preview.5', true)], '1.24.2', 'preview').status, 'INSTALLED_AHEAD');
+ assert.equal(selectRelease([release('v1.24.2-rc.1', true)], '1.24.2', 'preview').status, 'INSTALLED_AHEAD');
  const time = Date.now();
  const state = sanitizeUpdateState({ enabled: true, channel: 'preview', checkedInstalled: '1.24.2',
    status: 'EXPERIMENTAL_AVAILABLE', lastSuccessAt: time,
@@ -321,4 +321,12 @@ test('only official uploaded extension ZIP assets become download links', () => 
  assert.equal(sanitizeUpdateState(state,'1.24.2').release.downloadUrl,url);
  state.release={...good.release,downloadUrl:'javascript:alert(1)'};
  assert.equal(sanitizeUpdateState(state,'1.24.2').release.downloadUrl,null);
+});
+
+test('installed-ahead status survives trusted cache sanitization', () => {
+ const t=Date.now();
+ const release={version:'1.24.1',url:'https://github.com/jsmlabs/btc-live/releases/tag/v1.24.1',prerelease:false};
+ const state=sanitizeUpdateState({channel:'stable',checkedInstalled:'1.24.2',lastSuccessAt:t,release},'1.24.2');
+ assert.equal(state.status,'INSTALLED_AHEAD');
+ assert.equal(state.release.version,'1.24.1');
 });

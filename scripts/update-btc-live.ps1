@@ -60,6 +60,7 @@ $process=$null
 $outTask=$null
 $errTask=$null
 $watch=$null
+$timedOut=$false
 $oldCommit=''
 $targetCommit=''
 $targetVersion=''
@@ -127,6 +128,7 @@ function Start-Step{
  $script:outTask=$process.StandardOutput.ReadToEndAsync()
  $script:errTask=$process.StandardError.ReadToEndAsync()
  $script:watch=[Diagnostics.Stopwatch]::StartNew()
+ $script:timedOut=$false
 }
 function Check-Result([int]$exit,[string]$output){
  $value=$output.Trim()
@@ -158,12 +160,10 @@ function Check-Result([int]$exit,[string]$output){
 $timer.Add_Tick({
  if(-not $running -or $null -eq $process){return}
  if(-not $process.HasExited){
-   if([int]$steps[$step].Timeout -gt 0 -and $watch.ElapsedMilliseconds -gt [int]$steps[$step].Timeout){
-     try{$process.Kill();$process.WaitForExit(5000)}catch{}
-     if(-not $process.HasExited){Set-Status 'Waiting for timed-out Git operation to stop...' $true;return}
-     $process.Dispose()
-     $script:process=$null
-     Fail 'Git operation timed out. Check your connection and retry.'
+   if(-not $timedOut -and [int]$steps[$step].Timeout -gt 0 -and $watch.ElapsedMilliseconds -gt [int]$steps[$step].Timeout){
+     $script:timedOut=$true
+     Set-Status 'Stopping a timed-out Git operation...' $true
+     try{$process.Kill()}catch{}
    }
    return
  }
@@ -174,6 +174,7 @@ $timer.Add_Tick({
    $null=$errTask.GetAwaiter().GetResult()
    $process.Dispose()
    $script:process=$null
+   if($timedOut){Fail 'Git operation timed out. Check your connection and retry.';return}
    Check-Result $exit $output
  }catch{Fail ('Unable to verify result: '+$_.Exception.Message)}
 })

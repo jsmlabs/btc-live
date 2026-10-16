@@ -15,3 +15,21 @@ test('command matching is literal case insensitive and never executes commands',
   assert.equal(matchCommands(cmds,'').length,2);assert.equal(matchCommands(cmds,'<script>').length,0);
   assert.equal(invoked,0);
 });
+
+test('motion design contracts preserve reduced-motion and semantic selected state', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const { fileURLToPath } = await import('node:url');
+  const { resolve, dirname } = await import('node:path');
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+  const [theme, workspace, popup] = await Promise.all([
+    'ui/theme.css', 'dashboard/workspace.css', 'popup/experience.css'
+  ].map(path => readFile(resolve(root, path), 'utf8')));
+  assert.match(theme, /--motion-standard:\\s*180ms/);
+  assert.match(theme, /prefers-reduced-motion:\\s*reduce/);
+  assert.match(theme, /--motion-standard:\\s*0ms/);
+  assert.match(workspace, /\\.workspace-link\\[aria-pressed="true"\\]/);
+  assert.match(workspace, /prefers-reduced-motion:\\s*no-preference/);
+  assert.match(workspace, /prefers-reduced-motion:\\s*reduce/);
+  assert.match(popup, /\\.open-terminal-button:focus-visible/);
+  assert.match(popup, /prefers-reduced-motion:\\s*reduce/);
+});

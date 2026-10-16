@@ -2,7 +2,7 @@
  * This is not a substitute for live Binance, notification or release acceptance.
  */
 import assert from 'node:assert/strict';
-import {mkdtemp, rm, mkdir} from 'node:fs/promises';
+import {mkdtemp, rm, mkdir, readFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -26,7 +26,7 @@ try{
   assert.match(extensionId,/^[a-p]{32}$/);
   const manifest=await worker.evaluate(()=>chrome.runtime.getManifest());
   assert.equal(manifest.manifest_version,3);
-  assert.equal(manifest.version,'1.25.8');
+  assert.equal(manifest.version,JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8')).version);
   assert.equal(manifest.action.default_popup,'popup/popup.html');
   const errors=[];
   const page=await context.newPage();

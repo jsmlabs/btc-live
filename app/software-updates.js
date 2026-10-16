@@ -39,7 +39,7 @@ function releaseStatus(version, installed, prerelease) {
   const candidate = parseVersion(version);
   const current = parseVersion(installed);
   if (prerelease && candidate?.pre.length === 2 && candidate.pre[0] === 'preview' &&
-      /^\\d+$/.test(candidate.pre[1]) && current &&
+      /^\d+$/.test(candidate.pre[1]) && current &&
       candidate.numbers.every((part, index) => part === current.numbers[index])) {
     return 'EXPERIMENTAL_AVAILABLE';
   }

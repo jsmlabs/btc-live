@@ -165,6 +165,11 @@ function Check-Result([int]$exit,[string]$output){
    6 { if($value -notmatch '^[a-f0-9]{40,64}$'){Fail 'Invalid fetched commit.';return};$script:targetCommit=$value }
    7 { try{$remote=$value | ConvertFrom-Json
            if($remote.manifest_version -ne 3 -or $remote.version -notmatch '^\d+\.\d+\.\d+$'){throw 'Invalid manifest'}
+           # Refuse rollback even when the new commit is a Git fast-forward.
+           if($manifest.version -notmatch '^\d+\.\d+\.\d+$'){throw 'Invalid installed version'}
+           $installed=[version]::Parse([string]$manifest.version)
+           $available=[version]::Parse([string]$remote.version)
+           if($available -lt $installed){Fail 'Fetched source has an older version. No files changed.';return}
            $script:targetVersion=$remote.version
            $versions.Text="Installed: $($manifest.version)    |    Available: $targetVersion"
        }catch{Fail 'Downloaded manifest is invalid.';return} }

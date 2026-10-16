@@ -348,3 +348,42 @@ test('installed-ahead status survives trusted cache sanitization', () => {
  assert.equal(state.status,'INSTALLED_AHEAD');
  assert.equal(state.release.version,'1.24.1');
 });
+
+test('detects newer development source when no eligible GitHub Release exists', async () => {
+ let persisted={},calls=[];
+ const api={runtime:{getManifest:()=>({version:'1.24.2'})},storage:{local:{
+   get:async()=>persisted,set:async x=>{persisted={...persisted,...x}}
+ }}};
+ const manifest=JSON.stringify({manifest_version:3,version:'1.25.0'});
+ const fetchFn=async url=>{
+   calls.push(url);
+   return url.includes('/contents/manifest.json')
+     ? {ok:true,json:async()=>({type:'file',path:'manifest.json',encoding:'base64',content:btoa(manifest)})}
+     : {ok:true,status:200,json:async()=>[]};
+ };
+ const controller=createUpdateController({api,fetchFn});
+ const result=await controller.check();
+ assert.equal(result.status,'DEVELOPMENT_AVAILABLE');
+ assert.equal(result.developmentVersion,'1.25.0');
+ assert.equal(result.release,null);
+ assert.equal(calls.length,2);
+ assert.ok(calls[1].endsWith('/contents/manifest.json?ref=main'));
+ assert.equal((await controller.read()).status,'DEVELOPMENT_AVAILABLE');
+ assert.equal(sanitizeUpdateState({...result,developmentVersion:'1.24.2'},'1.24.2').status,'NOT_CHECKED');
+});
+test('missing or malformed development source cannot be claimed as a published update', async () => {
+ for (const source of [{type:'file',path:'manifest.json',encoding:'base64',content:btoa('{"version":"1.24.2"}')},
+   {type:'file',path:'manifest.json',encoding:'base64',content:btoa('bad json')},
+   {type:'file',path:'wrong.json',encoding:'base64',content:btoa('{"version":"9.0.0"}')}]) {
+   let state={};
+   const api={runtime:{getManifest:()=>({version:'1.24.2'})},storage:{local:{
+     get:async()=>state,set:async x=>{state={...state,...x}}
+   }}};
+   const controller=createUpdateController({api,fetchFn:async url=>({
+     ok:true,status:200,json:async()=>url.includes('/contents/')?source:[]
+   })});
+   const checked=await controller.check();
+   assert.equal(checked.status,'UNSUPPORTED');
+   assert.equal(checked.developmentVersion,null);
+ }
+});

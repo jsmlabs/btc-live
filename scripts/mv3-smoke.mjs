@@ -10,6 +10,7 @@ import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url);
 const {chromium}=require('playwright');
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const extensionRoot=process.env.MV3_EXTENSION_ROOT?path.resolve(root,process.env.MV3_EXTENSION_ROOT):root;
 const profile=await mkdtemp(path.join(tmpdir(),'btc-live-mv3-'));
 const screenshotDir=process.env.MV3_SCREENSHOT_DIR;
 let context;
@@ -18,13 +19,13 @@ try{
   context=await chromium.launchPersistentContext(profile,{
     channel:'chromium',headless:true,
     args:['--no-sandbox','--disable-dev-shm-usage',
-      `--disable-extensions-except=${root}`,`--load-extension=${root}`],
+      `--disable-extensions-except=${extensionRoot}`,`--load-extension=${extensionRoot}`],
     viewport:{width:1440,height:900}
   });
   const worker=context.serviceWorkers()[0]??await context.waitForEvent('serviceworker',{timeout:20000});
   const extensionId=new URL(worker.url()).hostname;
   assert.match(extensionId,/^[a-p]{32}$/);
-  const manifest=JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8'));
+  const manifest=JSON.parse(await readFile(path.join(extensionRoot,'manifest.json'),'utf8'));
   assert.equal(manifest.manifest_version,3);
   assert.equal(manifest.version,JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8')).version);
   assert.equal(manifest.action.default_popup,'popup/popup.html');

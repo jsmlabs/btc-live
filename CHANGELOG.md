@@ -2,6 +2,15 @@
 
 All notable changes to the BTC Live development candidate are recorded here. Entries are not evidence of an approved customer release.
 
+## [1.25.5] - 2026-10-16
+
+### Fixed
+- Guard the visual render scheduler against delayed callbacks from cancelled animation frames. Obsolete callbacks cannot consume a new pending redraw after a synchronous flush.
+- Add a deterministic regression test for stale frame callbacks following flush/reschedule.
+
+### Verification
+- Development candidate only. Automated CI and all seven manual customer-release gates remain independent.
+
 ## [1.25.4] - 2026-10-16
 
 ### Fixed

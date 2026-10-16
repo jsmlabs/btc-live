@@ -20,7 +20,7 @@ export function subscribeChartRedraw(svg, listener) {
     if (!listeners.size) chartRedrawListeners.delete(svg);
   };
 }
-function notifyChartRedraw(svg, model) {
+export function notifyChartRedraw(svg, model) {
   // Snapshot permits subscriptions to change during notification without skipping observers.
   for (const listener of [...(chartRedrawListeners.get(svg) ?? [])]) listener(model);
 }

@@ -132,8 +132,15 @@ jobs:
         run: |
           npm install --no-save --package-lock=false playwright@1.56.1
           npx playwright install --with-deps chromium
-      - name: Smoke test installed unpacked MV3 (no live acceptance)
+      - name: Package and unpack the exact distribution candidate
+        run: |
+          node scripts/package-extension.mjs --skip-verify
+          mkdir -p dist/mv3-installed
+          unzip -q dist/btc-live-chromium-v*-candidate.zip -d dist/mv3-installed
+          cmp manifest.json dist/mv3-installed/manifest.json
+      - name: Smoke test installed packaged MV3 (no live acceptance)
         env:
+          MV3_EXTENSION_ROOT: dist/mv3-installed
           MV3_SCREENSHOT_DIR: dist/installed-mv3-screenshots
         run: node scripts/mv3-smoke.mjs
       - name: Preserve MV3 browser evidence

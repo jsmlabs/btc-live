@@ -50,6 +50,21 @@ test('invalid nonpositive market references are omitted rather than charted', ()
   assert.ok(valid.maxPrice > baseline.maxPrice);
 });
 
+test('large chart windows calculate finite ranges without spread argument limits', () => {
+  const longHistory = Array.from({length: 100_000}, (_, i) => ({
+    openTime: i * 60_000, open: 100, high: i === 80_000 ? 220 : 110,
+    low: i === 20_000 ? 75 : 95, close: 105,
+    volume: i === 60_000 ? 250 : 10, closeTime: i * 60_000 + 59_999
+  }));
+  const model = buildChartModel(longHistory, {view:{start:99_990,end:100_000},currentPrice:120});
+  assert.ok(Number.isFinite(model.minPrice));
+  assert.ok(Number.isFinite(model.maxPrice));
+  assert.equal(model.candles.length,10);
+  const full = buildChartModel(longHistory,{view:{start:19_995,end:20_005}});
+  assert.ok(full.minPrice < 75);
+  assert.ok(full.maxPrice > 110);
+});
+
 test('chart model handles empty data explicitly', () => {
   assert.equal(buildChartModel([]), null);
   assert.equal(buildChartModel(null), null);

@@ -45,7 +45,8 @@ export function buildChartModel(candles, {
   showVolumeIntelligence = false
 } = {}) {
   const all = Array.isArray(candles)
-    ? candles.filter((candle) => candle && [candle.open, candle.high, candle.low, candle.close].every(Number.isFinite) &&
+    ? candles.filter((candle) => candle && Number.isFinite(candle.openTime) && candle.openTime >= 0 &&
+      [candle.open, candle.high, candle.low, candle.close].every(Number.isFinite) &&
       candle.low > 0 && candle.high >= Math.max(candle.open, candle.close) && candle.low <= Math.min(candle.open, candle.close))
     : [];
   const viewStart = Math.max(0, Math.min(view?.start ?? 0, all.length));

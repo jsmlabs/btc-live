@@ -122,6 +122,8 @@ Do not configure or trigger the workflow solely to make Software Updates display
 
 When a published eligible release contains exactly one uploaded, size-bounded archive named `btc-live-chromium-v<manifest-version>-candidate.zip` at its canonical GitHub Releases download URL, the panel displays **Download Extension ZIP** alongside release notes. An absent, duplicated, oversized, incomplete or foreign asset does not generate a download action. Downloading the ZIP never constitutes installation; checksum verification, extraction and manual loading remain the user's responsibility.
 
+When the installed manifest version exceeds the most recent eligible published release, the panel displays **Installed version is newer** rather than claiming a normal up-to-date published installation. This may occur for unpacked development builds.
+
 ## Software-update discovery
 
 The extension reads official published GitHub Releases; the `main` branch and candidate CI artifacts never imply release approval. Only after the existing manual acceptance process may a stable GitHub Release be published. Version tags must correspond to the actual installed manifest version. Discovery does not install software. The GitHub Releases API is a new declared read-only host permission.

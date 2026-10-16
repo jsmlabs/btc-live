@@ -43,7 +43,7 @@ function releaseStatus(version, installed, prerelease) {
       candidate.numbers.every((part, index) => part === current.numbers[index])) {
     return 'EXPERIMENTAL_AVAILABLE';
   }
-  return 'UP_TO_DATE';
+  return precedence < 0 ? 'INSTALLED_AHEAD' : 'UP_TO_DATE';
 }
 
 // Only advertise an archive when its asset URL and metadata match this repository.

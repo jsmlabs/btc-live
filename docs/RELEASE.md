@@ -130,6 +130,8 @@ When a published eligible release contains exactly one uploaded, size-bounded ar
 
 When the installed manifest version exceeds the most recent eligible published release, the panel displays **Installed version is newer** rather than claiming a normal up-to-date published installation. This may occur for unpacked development builds.
 
+When there is no eligible published release, the update service additionally reads the public `main` branch manifest through GitHub's read-only Contents API. If its numeric version exceeds the installed version, the panel reports **Newer development source available** with an official source/upgrade guide, explicitly not a published release or automatic installation. Failed or malformed optional source lookups do not falsely claim a release. Replacing local files and reloading the unpacked extension remains a separate manual step.
+
 ## Software-update discovery
 
 The extension reads official published GitHub Releases; the `main` branch and candidate CI artifacts never imply release approval. Only after the existing manual acceptance process may a stable GitHub Release be published. Version tags must correspond to the actual installed manifest version. Discovery does not install software. The GitHub Releases API is a new declared read-only host permission.

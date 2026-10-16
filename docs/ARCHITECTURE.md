@@ -1,6 +1,6 @@
 # Architecture and trust boundaries
 
-**Current implementation:** Chromium Manifest V3 candidate, `main`, manifest `1.25.3`. This describes the repository source; browser and live-feed acceptance are separate [release gates](ACCEPTANCE.md).
+**Current implementation:** Chromium Manifest V3 candidate, `main`, manifest `1.25.4`. This describes the repository source; browser and live-feed acceptance are separate [release gates](ACCEPTANCE.md).
 
 ## Components
 
@@ -32,7 +32,7 @@ utils/          Shared formatting, time and backoff primitives
 | `ui/analytics-views.js` | Focused Analytics context, keyboard selection and redraw scheduling | Filtering does not change feed subscriptions or metric definitions |
 | `ui/workspace.js`, `terminal-experience.js`, `disclosure-menus.js` | Workspace navigation, command palette and menu dismissal | Presentation preferences cannot bypass workspace presets or alter feed/alert state |
 | `ui/chart-expansion.js`, `notification-test.js` | Native chart modal and explicit notification-test feedback | Move the existing chart DOM without rebuilding its state; API acceptance is not delivery proof |
-| `ui/chart.js`, `render-scheduler.js` | Graphical display | Coalesce paint without delaying market state/alerts; only positive finite live/24h price references may be drawn |
+| `ui/chart.js`, `render-scheduler.js` | Graphical display | Coalesce paint without delaying market state/alerts; support independent per-SVG redraw subscriptions and positive finite live/24h price references |
 | `ui/event-replay.js`, `market-recorder.js` | Recorded-session playback | Replay must not mutate live market state or fire alerts |
 | `storage/replay-sessions.js` | IndexedDB session retention | Validate schemas/size and handle storage failure |
 | `background/service-worker.js` | MV3 sampled price checks | Suspension/alarms cannot promise continuous observation |

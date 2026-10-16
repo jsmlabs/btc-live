@@ -12,8 +12,17 @@ export function getChartRenderCounters(svg) { return { ...(renderCounters.get(sv
 const chartRedrawListeners = new WeakMap();
 export function subscribeChartRedraw(svg, listener) {
   if (typeof listener !== 'function') throw new TypeError('listener must be a function');
-  chartRedrawListeners.set(svg, listener);
-  return () => { if (chartRedrawListeners.get(svg) === listener) chartRedrawListeners.delete(svg); };
+  let listeners = chartRedrawListeners.get(svg);
+  if (!listeners) { listeners = new Set(); chartRedrawListeners.set(svg, listeners); }
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+    if (!listeners.size) chartRedrawListeners.delete(svg);
+  };
+}
+export function notifyChartRedraw(svg, model) {
+  // Snapshot permits subscriptions to change during notification without skipping observers.
+  for (const listener of [...(chartRedrawListeners.get(svg) ?? [])]) listener(model);
 }
 export function getRenderedChartModel(svg) { return renderedModels.get(svg) ?? null; }
 const VIEW_WIDTH = 1000;
@@ -249,7 +258,7 @@ export function renderBtcChart(chartSnapshot, marketState, now = Date.now(), vie
       const stats = renderCounters.get(svg) ?? { full: 0, incremental: 0 };
       stats.incremental++;
       renderCounters.set(svg, stats);
-      chartRedrawListeners.get(svg)?.(model);
+      notifyChartRedraw(svg, model);
       return;
     }
   }
@@ -290,7 +299,7 @@ export function renderBtcChart(chartSnapshot, marketState, now = Date.now(), vie
       const stats = renderCounters.get(svg) ?? { full: 0, incremental: 0 };
       stats.incremental++;
       renderCounters.set(svg, stats);
-      chartRedrawListeners.get(svg)?.(model);
+      notifyChartRedraw(svg, model);
       return;
     }
   }
@@ -311,7 +320,7 @@ export function renderBtcChart(chartSnapshot, marketState, now = Date.now(), vie
       : status === CHART_STATUS.PAUSED ? 'Bitcoin chart paused' : 'Bitcoin chart loading');
     renderEmpty(svg, emptyLabel, canvasWidth);
     renderedChartKeys.set(svg, chartKey);
-    chartRedrawListeners.get(svg)?.(null);
+    notifyChartRedraw(svg, null);
     return;
   }
 
@@ -327,7 +336,7 @@ export function renderBtcChart(chartSnapshot, marketState, now = Date.now(), vie
   renderIndicators(svg, model);
   renderAxes(svg, model);
   renderedChartKeys.set(svg, chartKey);
-  chartRedrawListeners.get(svg)?.(model);
+  notifyChartRedraw(svg, model);
 }
 
 function renderIndicators(svg, model) {

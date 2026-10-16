@@ -2,6 +2,15 @@
 
 All notable changes to the BTC Live development candidate are recorded here. Entries are not evidence of an approved customer release.
 
+## [1.25.8] - 2026-10-16
+
+### Fixed
+- Reject invalid candle opening timestamps before constructing time-axis ticks and overlay interaction geometry.
+- Add deterministic regression coverage for malformed timestamp types and values.
+
+### Verification
+- Development candidate only; seven manual release gates remain pending.
+
 ## [1.25.7] - 2026-10-16
 
 ### Performance

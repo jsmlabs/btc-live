@@ -187,8 +187,10 @@ $browser.Add_Click({
  $x86=[Environment]::GetEnvironmentVariable('ProgramFiles(x86)')
  if($x86){$candidates+=Join-Path $x86 'Google\Chrome\Application\chrome.exe'}
  $chrome=$candidates | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf } | Select-Object -First 1
- if($chrome){Start-Process -FilePath $chrome -ArgumentList 'chrome://extensions'}
- else{Set-Status 'Open chrome://extensions manually.'}
+ if($chrome){
+   try { Start-Process -FilePath $chrome -ArgumentList 'chrome://extensions' -ErrorAction Stop }
+   catch { Set-Status 'Open chrome://extensions manually.' }
+ } else { Set-Status 'Open chrome://extensions manually.' }
 })
 $form.Add_FormClosing({
  $timer.Stop()

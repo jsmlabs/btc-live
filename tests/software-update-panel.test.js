@@ -95,6 +95,14 @@ test('software update panel validates storage events and never exposes an untrus
   assert.equal(downloadLink.hidden,true);
   assert.equal(downloadLink.href,undefined);
 
+  const development = {...stored,status:'DEVELOPMENT_AVAILABLE',developmentVersion:'1.25.0'};
+  listener({btcLiveSoftwareUpdates:{newValue:development}},'local');
+  assert.match(status.textContent,/Newer development source available/);
+  assert.match(detail.textContent,/Development source: 1.25.0/);
+  assert.equal(sourceLink.hidden,false);
+  assert.equal(downloadLink.hidden,true);
+  assert.equal(link.hidden,true);
+
   const behind = {...valid, release:{...valid.release,version:'1.23.0',url:'https://github.com/jsmlabs/btc-live/releases/tag/v1.23.0'}};
   listener({btcLiveSoftwareUpdates:{newValue:behind}},'local');
   assert.match(status.textContent,/Installed version is newer/);

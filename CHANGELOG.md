@@ -52,6 +52,9 @@ All notable changes to the BTC Live development candidate are recorded here. Ent
 - Consolidate repeated design-token declarations and redundant popup/chart/navigation overrides without changing market rendering contracts.
 - Preserve existing reduced-motion behavior and validate the unchanged visuals through synthetic and installed-MV3 Chromium CI.
 
+### Installed responsive acceptance smoke
+- Exercise packaged Chromium MV3 popup and dashboard at representative narrow and desktop widths; assert the consolidated 24h strip remains contained and reduced-motion tokens are respected.
+
 ## [1.25.8] - 2026-10-16
 
 ### Fixed

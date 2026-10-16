@@ -70,7 +70,7 @@ test('switching release channels invalidates previous cached results', async () 
  assert.equal(preview.release,null);
  const checked=await controller.check();
  assert.equal(checked.status,'PREVIEW_AVAILABLE');
- assert.equal(calls,2);
+ assert.equal(calls,3);
 });
 test('failures are throttled but a manual retry still runs', async () => {
  let persisted={}, count=0;
@@ -127,7 +127,7 @@ test('stale installed-version cache cannot advertise a release for the previous 
  }}};
  const controller=createUpdateController({api,fetchFn:async()=>{requests++;return {ok:true,json:async()=>[]};}});
  const result=await controller.check();
- assert.equal(requests,1);
+ assert.equal(requests,2);
  assert.equal(result.status,'UNSUPPORTED');
  assert.equal(result.installed,'1.24.0');
 });
@@ -199,7 +199,7 @@ test('manual force can check when automatic daily checks are disabled', async ()
  const forced=await controller.check({force:true});
  assert.equal(forced.status,'UNSUPPORTED');
  assert.equal(forced.enabled,false);
- assert.equal(requests,1);
+ assert.equal(requests,2);
 });
 
 test('release discovery continues beyond the first page when previews hide a stable release', async () => {
@@ -347,4 +347,41 @@ test('installed-ahead status survives trusted cache sanitization', () => {
  const state=sanitizeUpdateState({channel:'stable',checkedInstalled:'1.24.2',lastSuccessAt:t,release},'1.24.2');
  assert.equal(state.status,'INSTALLED_AHEAD');
  assert.equal(state.release.version,'1.24.1');
+});
+
+test('newer main manifest is separate from approved published releases', async () => {
+ let stored={},urls=[];
+ const api={runtime:{getManifest:()=>({version:'1.24.2'})},storage:{local:{
+   get:async()=>stored,set:async x=>{stored={...stored,...x}}
+ }}};
+ const payload={type:'file',path:'manifest.json',encoding:'base64',content:btoa(JSON.stringify({manifest_version:3,version:'1.25.0'}))};
+ const controller=createUpdateController({api,fetchFn:async url=>{
+   urls.push(url);
+   return {ok:true,status:200,json:async()=>url.includes('/contents/manifest.json')?payload:[]};
+ }});
+ const result=await controller.check({force:true});
+ assert.equal(result.status,'DEVELOPMENT_AVAILABLE');
+ assert.equal(result.developmentVersion,'1.25.0');
+ assert.equal(result.release,null);
+ assert.equal(urls.length,2);
+ assert.ok(urls[1].endsWith('/contents/manifest.json?ref=main'));
+ assert.equal((await controller.read()).status,'DEVELOPMENT_AVAILABLE');
+ const invalid=sanitizeUpdateState({...result,developmentVersion:'9.0.0<script>'},'1.24.2');
+ assert.equal(invalid.status,'NOT_CHECKED');
+});
+test('malformed development manifest never claims a software update', async () => {
+ for (const payload of [
+   {type:'file',path:'bad.json',encoding:'base64',content:btoa('{"manifest_version":3,"version":"9.0.0"}')},
+   {type:'file',path:'manifest.json',encoding:'base64',content:btoa('invalid')},
+   {type:'file',path:'manifest.json',encoding:'base64',content:btoa('{"manifest_version":2,"version":"9.0.0"}')}
+ ]) {
+   let stored={};
+   const api={runtime:{getManifest:()=>({version:'1.24.2'})},storage:{local:{
+     get:async()=>stored,set:async x=>{stored={...stored,...x}}
+   }}};
+   const controller=createUpdateController({api,fetchFn:async url=>({ok:true,status:200,json:async()=>url.includes('/contents/')?payload:[]})});
+   const result=await controller.check();
+   assert.equal(result.status,'UNSUPPORTED');
+   assert.equal(result.developmentVersion,null);
+ }
 });

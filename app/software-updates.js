@@ -3,6 +3,7 @@ export const UPDATE_ALARM = 'btcLiveSoftwareUpdateCheck';
 export const UPDATE_MESSAGE = 'BTC_LIVE_UPDATE_CHECK';
 export const UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const RELEASES_API = 'https://api.github.com/repos/jsmlabs/btc-live/releases';
+const SOURCE_MANIFEST_API = 'https://api.github.com/repos/jsmlabs/btc-live/contents/manifest.json?ref=main';
 const RELEASE_BASE = 'https://github.com/jsmlabs/btc-live/releases/tag/';
 const RETRY_INTERVAL_MS = 15 * 60 * 1000;
 const VALID_VERSION = /^(?:v)?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/;
@@ -89,6 +90,19 @@ export function selectRelease(items, installed, channel = 'stable') {
   if (!best) return { status: 'UNSUPPORTED' };
   return { status: releaseStatus(best.version, installed, best.prerelease), release: best };
 }
+// Source manifests are informational; they never create an approved release.
+export function validateDevelopmentManifest(payload, installed) {
+  if (!payload || payload.type !== 'file' || payload.path !== 'manifest.json' || payload.encoding !== 'base64' ||
+      typeof payload.content !== 'string' || payload.content.length > 16384) return null;
+  try {
+    const decoded = atob(payload.content.replace(/\s/g, ''));
+    const obj = JSON.parse(decoded);
+    if (obj?.manifest_version !== 3 || typeof obj.version !== 'string' ||
+        !/^\d+\.\d+\.\d+$/.test(obj.version) || !parseVersion(obj.version)) return null;
+    return compareVersions(obj.version, installed) > 0 ? obj.version : null;
+  } catch { return null; }
+}
+
 export function sanitizeUpdateState(raw, installed) {
   const x = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
   const channel = x.channel === 'preview' ? 'preview' : 'stable';
@@ -116,14 +130,19 @@ export function sanitizeUpdateState(raw, installed) {
           ? candidate.checksumUrl : null };
     }
   }
+  const developmentVersion = lastSuccessAt !== null && !release &&
+    typeof x.developmentVersion === 'string' && /^\d+\.\d+\.\d+$/.test(x.developmentVersion) &&
+    parseVersion(x.developmentVersion) && compareVersions(x.developmentVersion, installed) > 0 &&
+    channel === 'stable' ? x.developmentVersion : null;
   let status = 'NOT_CHECKED';
   if (lastSuccessAt !== null) {
     if (release) {
       status = releaseStatus(release.version, installed, release.prerelease);
-    } else if (x.status === 'UNSUPPORTED') status = 'UNSUPPORTED';
+    } else if (developmentVersion) status = 'DEVELOPMENT_AVAILABLE';
+    else if (x.status === 'UNSUPPORTED') status = 'UNSUPPORTED';
   }
   return {
-    enabled: x.enabled !== false, channel, installed, status, release,
+    enabled: x.enabled !== false, channel, installed, status, release, developmentVersion,
     lastAttemptAt: sameInstall ? safeTime(x.lastAttemptAt) : null, lastSuccessAt,
     checkedInstalled: sameInstall ? installed : null,
     error: sameInstall && ['OFFLINE', 'CHECK_FAILED', 'RATE_LIMITED'].includes(x.error) ? x.error : null,
@@ -184,8 +203,21 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
         // Never claim UP_TO_DATE or UNSUPPORTED from a truncated release list.
         if (!complete) throw Error('GitHub release listing exceeded safe page limit');
         const result = selectRelease(releases, installed, state.channel);
-        if (result.status === 'UNSUPPORTED') return write({ ...state, status: 'UNSUPPORTED', release: null, checkedInstalled: installed, lastSuccessAt: time });
-        return write({ ...state, ...result, checkedInstalled: installed, lastSuccessAt: time });
+        if (result.status === 'UNSUPPORTED') {
+          let developmentVersion = null;
+          if (state.channel === 'stable') {
+            try {
+              const response = await fetchFn(SOURCE_MANIFEST_API, {
+                headers: { Accept: 'application/vnd.github+json' }, signal: controller.signal,
+                redirect: 'error', cache: 'no-store'
+              });
+              if (response.ok) developmentVersion = validateDevelopmentManifest(await response.json(), installed);
+            } catch { /* Optional lookup; never claim an approved release or fail a successful release query. */ }
+          }
+          return write({ ...state, status: developmentVersion ? 'DEVELOPMENT_AVAILABLE' : 'UNSUPPORTED',
+            developmentVersion, release: null, checkedInstalled: installed, lastSuccessAt: time });
+        }
+        return write({ ...state, ...result, developmentVersion: null, checkedInstalled: installed, lastSuccessAt: time });
       } catch {
         return write({ ...state, error: isOnline() === false ? 'OFFLINE' : 'CHECK_FAILED',
           retryAfter: time + RETRY_INTERVAL_MS });
@@ -203,6 +235,7 @@ export function createUpdateController({ api = globalThis.browser ?? globalThis.
       dismissed: typeof options.dismissed === 'string' && parseVersion(options.dismissed) ? options.dismissed : state.dismissed,
       status: changedChannel ? 'NOT_CHECKED' : state.status,
       release: changedChannel ? null : state.release,
+      developmentVersion: changedChannel ? null : state.developmentVersion,
       checkedInstalled: changedChannel ? null : state.checkedInstalled,
       lastSuccessAt: changedChannel ? null : state.lastSuccessAt,
       error: changedChannel ? null : state.error,

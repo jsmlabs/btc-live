@@ -42,6 +42,23 @@ try{
     if(view.startsWith('popup')){
       assert.equal(await page.locator('.stats-grid .metric-card').count(),3);
       assert.equal(await page.locator('#openTerminalButton').isVisible(),true);
+      // Confirm real extension storage round-trip across popup reload.
+      await page.locator('#settingsButton').click();
+      await page.locator('#settingCompact').check();
+      await page.waitForFunction(async()=>{
+        const data=await chrome.storage.local.get('btcLiveSettings');
+        return data.btcLiveSettings?.compactLayout===true;
+      });
+      await page.reload({waitUntil:'domcontentloaded'});
+      await page.locator('#settingsButton').click();
+      assert.equal(await page.locator('#settingCompact').isChecked(),true);
+      await page.locator('#settingCompact').uncheck();
+      await page.waitForFunction(async()=>{
+        const data=await chrome.storage.local.get('btcLiveSettings');
+        return data.btcLiveSettings?.compactLayout===false;
+      });
+      await page.locator('#closeSettingsButton').click();
+
     }else{
       assert.equal(await page.locator('.workspace-link').count(),6);
       assert.equal(await page.locator('.chart-toolbar > .segmented[aria-label="Chart navigation"]').count(),1);

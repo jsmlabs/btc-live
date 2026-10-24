@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "repository": "jsmlabs/btc-live",
+  "default_branch": "main",
+  "mode": "AUDIT",
+  "tagging_enabled": false,
+  "publish_github_releases": false,
+  "version_format": "semver",
+  "version_source": {
+    "path": "manifest.json",
+    "kind": "json",
+    "key": "version"
+  },
+  "additional_version_sources": [
+    {
+      "path": "package.json",
+      "kind": "json",
+      "key": "version"
+    }
+  ]
+}

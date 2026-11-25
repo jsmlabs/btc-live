@@ -86,7 +86,8 @@ jobs:
         run: ./tests/windows-updater-git.integration.ps1
 
   chromium-ui-dom:
-    runs-on: ubuntu-latest
+    # Playwright 1.56.1 supports Ubuntu 24.04, not ubuntu-latest (26.04).
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
       contents: read
@@ -119,7 +120,7 @@ jobs:
           retention-days: 14
 
   chromium-mv3-installed:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
       contents: read

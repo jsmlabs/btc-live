@@ -93,6 +93,7 @@ export function bindChartInteractions({ svg, tooltip, viewport, count, onChange 
     onChange();hide();
   }
   function keydown(e) {
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.isComposing) return;
     const model=getRenderedChartModel(svg);if (!model) return;
     if (['ArrowLeft','ArrowRight'].includes(e.key)) {
       e.preventDefault();keyboardIndex=Math.max(0,Math.min(model.candles.length-1,(keyboardIndex??model.candles.length-1)+(e.key==='ArrowLeft'?-1:1)));

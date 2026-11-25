@@ -27,6 +27,9 @@ export function createWorkspaceController({ root = document, onNavigate = () => 
   function render() {
     const allowed = allowedWorkspaceViews(preferences.preset);
     if (!allowed.includes(active)) active = 'live';
+    const focused = root.activeElement;
+    const focusWillBeHidden = links.some(link => link === focused && !allowed.includes(link.dataset.workspaceTarget)) ||
+      panels.some(panel => panel.dataset.workspacePanel !== active && panel.contains?.(focused));
     presetSelect.value = preferences.preset;
     landingSelect.value = preferences.landingView;
     for (const link of links) {
@@ -40,6 +43,7 @@ export function createWorkspaceController({ root = document, onNavigate = () => 
     context.textContent = descriptions[active];
     if (title) title.textContent = titles[active];
     onNavigate(active);
+    if (focusWillBeHidden) links.find(link => link.dataset.workspaceTarget === active)?.focus({ preventScroll: true });
   }
   function persist() { onPreferenceChange({ ...preferences }); }
   function navigate(view, { user = false } = {}) {
@@ -63,6 +67,7 @@ export function createWorkspaceController({ root = document, onNavigate = () => 
     if (link) navigate(link.dataset.workspaceTarget, { user: true });
   }
   function onNavKey(event) {
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key)) return;
     const available = links.filter(link => !link.hidden);
     const index = available.indexOf(event.target);
@@ -89,7 +94,11 @@ export function createWorkspaceController({ root = document, onNavigate = () => 
   return {
     navigate, restore, sync(value) {
       const next = sanitizeWorkspace(value);
-      if (next.preset !== preferences.preset || next.landingView !== preferences.landingView) setPreferences(next);
+      if (next.preset === preferences.preset && next.landingView === preferences.landingView) return;
+      preferences = next;
+      // Landing preferences apply on startup, not to an active browsing session.
+      if (!allowedWorkspaceViews(preferences.preset).includes(active)) active = initialWorkspaceView(preferences);
+      render();
     },
     active: () => active, available: () => allowedWorkspaceViews(preferences.preset), preferences: () => ({ ...preferences }),
     dispose() { nav.removeEventListener('click', onNavClick); nav.removeEventListener('keydown', onNavKey); presetSelect.removeEventListener('change', onPreset); landingSelect.removeEventListener('change', onLanding); }

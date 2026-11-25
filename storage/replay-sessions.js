@@ -93,9 +93,17 @@ async function openDatabase() {
     request.onupgradeneeded = () => {
       if (!request.result.objectStoreNames.contains(STORE)) request.result.createObjectStore(STORE, { keyPath: 'id' });
     };
-    request.onsuccess = () => resolve(request.result);
+    let blocked = false;
+    request.onsuccess = () => {
+      const db = request.result;
+      if (blocked) { db.close(); return; }
+      resolve(db);
+    };
     request.onerror = () => reject(request.error ?? new Error('Cannot open replay database'));
-    request.onblocked = () => reject(new Error('Replay database upgrade blocked by another tab'));
+    request.onblocked = () => {
+      blocked = true;
+      reject(new Error('Replay database upgrade blocked by another tab'));
+    };
   });
 }
 const metadata = (e) => ({ id: e.id, name: e.name, createdAt: e.createdAt, rawBytes: e.rawBytes, storedBytes: e.storedBytes, codec: e.codec });
@@ -105,7 +113,7 @@ export function createReplaySessionStore() {
   const open = () => (dbPromise ??= openDatabase().catch((error) => { dbPromise = null; throw error; }));
   async function list() {
     const db = await open(); const tx = db.transaction(STORE, 'readonly'); const done = transactionDone(tx);
-    const records = await requestResult(tx.objectStore(STORE).getAll()); await done;
+    const [records] = await Promise.all([requestResult(tx.objectStore(STORE).getAll()), done]);
     return records.map(metadata).sort((a, b) => b.createdAt - a.createdAt || a.id.localeCompare(b.id));
   }
   async function save(text, name = 'Futures event capture') {
@@ -124,7 +132,7 @@ export function createReplaySessionStore() {
   async function load(id) {
     if (!validId(id)) throw new Error('Invalid replay session ID');
     const db = await open(); const tx = db.transaction(STORE, 'readonly'); const done = transactionDone(tx);
-    const entry = await requestResult(tx.objectStore(STORE).get(id)); await done;
+    const [entry] = await Promise.all([requestResult(tx.objectStore(STORE).get(id)), done]);
     if (!entry) throw new Error('Saved session not found');
     return { metadata: metadata(entry), text: await decodeSession(entry) };
   }

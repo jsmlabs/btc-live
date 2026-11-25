@@ -79,7 +79,7 @@ export function mountSoftwareUpdates({ container, compact = false, indicator = n
     return reply.state;
   };
   function render(raw) {
-    if (disposed || !raw) return;
+    if (disposed) return;
     // Storage changes are untrusted; never use an unchecked cached release URL.
     const state = sanitizeUpdateState(raw, installed);
     latestState = state;

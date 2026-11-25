@@ -69,21 +69,21 @@ function stopEventPlayback() {
   eventTimer = null;
 }
 function drawEvents() {
-  const captured = eventRecorder.snapshot();
+  const captured = eventRecorder.state();
   eventById('Panel').dataset.replayState = captured.status.toLowerCase();
   eventView.render(eventFrames, eventPosition, `${eventPlaying ? 'PLAYBACK · ' : ''}${captured.status}${!captured.trustedCapture ? ' · UNVERIFIED IMPORT' : ''}`);
   eventById('Start').disabled = captured.status === 'RECORDING';
   eventById('Stop').disabled = captured.status !== 'RECORDING';
   eventById('Play').disabled = !eventFrames.length || captured.status === 'RECORDING';
   eventById('Play').textContent = eventPlaying ? 'Pause' : 'Play';
-  eventById('Export').disabled = !captured.events.length;
-  eventById('SaveSession').disabled = sessionBusy || !captured.events.length || captured.status === 'RECORDING';
+  eventById('Export').disabled = !captured.count;
+  eventById('SaveSession').disabled = sessionBusy || !captured.count || captured.status === 'RECORDING';
   drawEventResearch();
-  if (captured.status === 'RECORDING') eventById('Details').textContent = `Capturing ${captured.events.length} events · ${captured.bytes} bytes; no background capture`;
+  if (captured.status === 'RECORDING') eventById('Details').textContent = `Capturing ${captured.count} events · ${captured.bytes} bytes; no background capture`;
 }
 function rebuildEventFrames() {
-  const data = eventRecorder.snapshot();
-  try { eventFrames = data.events.length ? replayEventRecording(eventRecorder.exportJson(), 50) : []; }
+  const data = eventRecorder.state();
+  try { eventFrames = data.count ? replayEventRecording(eventRecorder.exportJson(), 50) : []; }
   catch (error) { eventFrames = []; eventById('Feedback').textContent = `Replay cannot be reconstructed: ${error.message}`; }
   eventPosition = Math.max(0, eventFrames.length - 1);
   clearEventResearch();
@@ -411,9 +411,10 @@ let flowPaintTimer = null;
 const flowPaint = createRenderScheduler(() => {
   if (workspaceController && !isWorkspaceVisible('analytics')) return;
   const now = Date.now();
+  const history = depthHistory.snapshot();
   flowView.render(flowAccumulator.snapshot(now, latestFlowFeed.status),
-    evaluateLiquidityBehavior(depthHistory.snapshot(), now), flowPreferences.enabled, latestDepth.status,
-    evaluateLiquidityPersistence(depthHistory.snapshot(), now));
+    evaluateLiquidityBehavior(history, now), flowPreferences.enabled, latestDepth.status,
+    evaluateLiquidityPersistence(history, now));
 });
 function queueFlowPaint() {
   if (flowPaintTimer !== null || cleanedUp) return;
@@ -441,7 +442,7 @@ const flowRuntime = createBinanceAggTradeRuntime({ onChange(feed, trade) {
   }
   queueFlowPaint();
   observeAdvancedAlerts();
-  if(trade && latestChart?.preferences.showTrades && (!workspaceController || isWorkspaceVisible('live')))drawChart();
+  if(trade && latestChart?.preferences.showTrades && (!workspaceController || isWorkspaceVisible('live')))renderer.schedule();
 } });
 const liquidityPaint = createRenderScheduler(() => {
   if (workspaceController && !isWorkspaceVisible('analytics')) return;
@@ -756,7 +757,7 @@ function bindUi() {
 }
 
 function handleVisibilityChange() {
-  if (document.visibilityState !== 'visible') { stopReplay(); stopEventPlayback(); if (recorder.snapshot().status === 'RECORDING') stopRecorder(); if (eventRecorder.snapshot().status === 'RECORDING') stopEventRecorder(); }
+  if (document.visibilityState !== 'visible') { stopReplay(); stopEventPlayback(); if (recorder.snapshot().status === 'RECORDING') stopRecorder(); if (eventRecorder.state().status === 'RECORDING') stopEventRecorder(); }
   if (document.visibilityState === 'visible') chartRuntime.handleVisible();
   else chartRuntime.handleHidden();
   flowRuntime.setEnabled(shouldStreamTrades());

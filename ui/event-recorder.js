@@ -9,13 +9,13 @@ const number = (x) => typeof x === 'number' && Number.isFinite(x) && x >= 0;
 const feeds = new Set(['depth', 'trades']);
 const gapStates = new Set(['PAUSED', 'RECONNECTING', 'STALE', 'CONNECTING', 'SYNCING', 'IDLE', 'UNAVAILABLE']);
 
-function levels(input, allowZero, limit = 4000) {
+function levels(input, allowZero, limit = 4000, allowRepeatedPrices = false) {
   if (!Array.isArray(input) || input.length > limit) throw new Error('Invalid depth levels');
   const found = new Set();
   return input.map((pair) => {
     if (!Array.isArray(pair) || pair.length !== 2 || !number(pair[0]) || pair[0] <= 0 ||
         !number(pair[1]) || (!allowZero && pair[1] === 0) || pair[1] > 1e10 || pair[0] > 1e9 ||
-        found.has(pair[0])) throw new Error('Invalid or duplicate depth level');
+        (!allowRepeatedPrices && found.has(pair[0]))) throw new Error('Invalid or duplicate depth level');
     found.add(pair[0]);
     return [pair[0], pair[1]];
   });
@@ -37,7 +37,7 @@ function cleanEvent(e, expectedSeq) {
   if (e.kind === 'depth.diff') {
     if (!integer(e.firstId) || !integer(e.finalId) || !integer(e.prevId) || e.finalId < e.firstId || !clock(e.eventAt) || Math.abs(e.eventAt-e.at)>15_000) throw new Error('Invalid depth diff sequence');
     return { ...base, kind: 'depth.diff', firstId: e.firstId, finalId: e.finalId, prevId: e.prevId, eventAt: e.eventAt,
-      bids: levels(e.bids, true, 2000), asks: levels(e.asks, true, 2000) };
+      bids: levels(e.bids, true, 2000, true), asks: levels(e.asks, true, 2000, true) };
   }
   if (e.kind === 'trade') {
     if (!integer(e.id) || !integer(e.segment) || !clock(e.eventAt) || !clock(e.tradeAt) ||
@@ -109,8 +109,14 @@ export function createEventRecorder({ maxCount = EVENT_MAX_COUNT, maxBytes = EVE
     try {
       event = cleanEvent({ ...data, kind, seq: events.length, at }, events.length);
       if (events.length && event.at < events.at(-1).at) throw new Error('Non-monotonic clock');
-      // Check against a disposable copy, so rejected imports/events never corrupt capture state.
-      const candidate = { ...sequence, bids: sequence.bids ? new Map(sequence.bids) : null, asks: sequence.asks ? new Map(sequence.asks) : null };
+      // Only diffs mutate existing maps. Trades change scalar state; snapshots and
+      // gaps replace map references. Keep transactional validation without copying
+      // the entire book on every execution.
+      const candidate = { ...sequence };
+      if (event.kind === 'depth.diff') {
+        candidate.bids = sequence.bids ? new Map(sequence.bids) : null;
+        candidate.asks = sequence.asks ? new Map(sequence.asks) : null;
+      }
       advanceSequence(candidate, event);
       sequence = candidate;
     } catch { status = 'INVALID'; return false; }

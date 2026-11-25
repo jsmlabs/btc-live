@@ -112,8 +112,7 @@ export function createBtcChartRuntime({
       };
       const lost = () => {
         if (generation !== socketGeneration || disposed) return;
-        socket = null;
-        try { stream.close(); } catch {}
+        closeStream();
         reconnect();
       };
       stream.onerror = lost;
@@ -165,7 +164,7 @@ export function createBtcChartRuntime({
     if (!background || !candles.length) { status = CHART_STATUS.LOADING; errorMessage = null; emit(); }
     try {
       const result = await fetchKlines({ interval, limit, signal:controller.signal });
-      if (disposed || requestController !== controller || generation !== requestGeneration || interval !== preferences.interval) return snapshot();
+      if (disposed || !visible || controller.signal.aborted || requestController !== controller || generation !== requestGeneration || interval !== preferences.interval) return snapshot();
       // In a racing REST/WebSocket response prefer the most recent authoritative stream candle.
       if (!Array.isArray(result) || !result.length) throw new Error('Empty Binance candle snapshot');
       const oldLast = candles.at(-1);
@@ -232,8 +231,9 @@ export function createBtcChartRuntime({
   async function updatePreferences(patch) {
     if (disposed) return preferences;
     const before = preferences.interval;
-    preferences = sanitizeChartPreferences({ ...preferences, ...patch }); emit();
+    preferences = sanitizeChartPreferences({ ...preferences, ...patch });
     if (before !== preferences.interval) changeInterval();
+    else emit();
     try { await persistPreferences(preferences); }
     catch (e) { onWarning('BTC Live chart preferences could not be saved', e); }
     return { ...preferences };
@@ -241,8 +241,9 @@ export function createBtcChartRuntime({
   function syncPreferences(value) {
     if (disposed) return preferences;
     const before = preferences.interval;
-    preferences = sanitizeChartPreferences(value); emit();
+    preferences = sanitizeChartPreferences(value);
     if (before !== preferences.interval) changeInterval();
+    else emit();
     return { ...preferences };
   }
   // Retained as an API compatibility hook; ticker trades must never modify exchange OHLCV.
@@ -269,6 +270,8 @@ export function createBtcChartRuntime({
   function handleOffline() {
     if (disposed || !started) return;
     closeStream();
+    lastStreamAt = null;
+    requestController?.abort();
     status = CHART_STATUS.OFFLINE;
     emit();
   }

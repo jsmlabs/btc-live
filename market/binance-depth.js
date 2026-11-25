@@ -17,6 +17,7 @@ function parseLevels(levels, maxSize = 2_000) {
     if (!Array.isArray(level) || level.length !== 2) return null;
     const [rawPrice, rawQuantity] = level;
     if (!['string', 'number'].includes(typeof rawPrice) || !['string', 'number'].includes(typeof rawQuantity)) return null;
+    if ([rawPrice, rawQuantity].some(value => typeof value === 'string' && value.trim() === '')) return null;
     const price = Number(rawPrice);
     const quantity = Number(rawQuantity);
     if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(quantity) || quantity < 0 || !Number.isFinite(price * quantity)) return null;
@@ -43,6 +44,7 @@ export function parseDepthSnapshot(value) {
   const asks = parseLevels(value.asks, 1_000);
   if (!bids?.length || !asks?.length) return null;
   if (bids.some(([, qty]) => qty === 0) || asks.some(([, qty]) => qty === 0)) return null;
+  if ([bids, asks].some(side => new Set(side.map(([price]) => price)).size !== side.length)) return null;
   if (Math.max(...bids.map(([price]) => price)) >= Math.min(...asks.map(([price]) => price))) return null;
   return { lastUpdateId: value.lastUpdateId, bids, asks };
 }

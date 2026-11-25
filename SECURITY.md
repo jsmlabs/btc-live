@@ -1,7 +1,7 @@
 # Security policy
 
 > [!IMPORTANT]
-> **Development-candidate scope.** Current source with manifest `1.24.2`. The automated checks enforce selected source and package constraints but are **not** evidence of a complete security audit or a production-approved release.
+> **Development-candidate scope.** Current source is a development candidate; see `manifest.json` for the version. The automated checks enforce selected source and package constraints but are **not** evidence of a complete security audit or a production-approved release.
 
 ## Security architecture
 
@@ -9,7 +9,7 @@ BTC Live is a read-only Chromium Manifest V3 extension that consumes **public** 
 
 | Boundary | Security objective |
 | --- | --- |
-| Host access | Restrict the manifest to `https://fapi.binance.com/*`; allow expected Futures WSS via CSP |
+| Host access | Restrict the manifest to `https://fapi.binance.com/*` and `https://api.github.com/*` (update discovery); allow expected Futures WSS via CSP |
 | Executable code | Local extension scripts; no remote executable JS or `eval` execution paths |
 | Browser permissions | `storage`, `notifications` and `alarms` only |
 | Market data | Treat REST/WS responses as untrusted; validate symbol, numbers, order/time/sequence validity |

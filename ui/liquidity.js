@@ -37,39 +37,49 @@ export function deriveLiquidityBands(book, referencePrice, bucketSize, count = V
   };
 }
 
-/** A fixed, descending ladder of half-open price bins; absent sides are unobserved. */
+/** Fixed descending price ladder: bids round down, asks round up. */
 export function deriveLiquidityRows(book, pivot, bucketSize, count = VISIBLE_PER_SIDE) {
   const empty = { rows: [], maxNotional: 0, bidNotional: 0, askNotional: 0 };
   if (!book || !Number.isFinite(pivot) || pivot <= 0 ||
       !Number.isFinite(bucketSize) || bucketSize <= 0 ||
-      !Number.isInteger(count) || count < 1 || count >= MAX_BANDS) return empty;
-  const center = Math.floor(pivot / bucketSize);
-  if (!Number.isSafeInteger(center + count)) return empty;
-  // Include the center bin in addition to the requested number on either side.
-  const { bands } = deriveLiquidityBands(book, pivot, bucketSize, count + 1);
-  if (!bands.length) return empty;
+      !Number.isInteger(count) || count < 1 || count > MAX_BANDS) return empty;
+  // At an exact grid boundary the midpoint itself is the separator, not a depth row.
+  const firstBid = Math.ceil(pivot / bucketSize) - 1;
+  const firstAsk = Math.floor(pivot / bucketSize) + 1;
+  if (!Number.isSafeInteger(firstAsk + count)) return empty;
   const byIndex = new Map();
-  for (let index = center + count; index >= Math.max(0, center - count); index--) {
-    byIndex.set(index, { lower: index * bucketSize, upper: (index + 1) * bucketSize,
-      containsPivot: index === center, bid: null, ask: null });
+  for (let index = firstAsk + count - 1; index >= firstAsk; index--) {
+    byIndex.set(index, { price: index * bucketSize, side: 'ask', bid: null, ask: null });
+  }
+  for (let index = firstBid; index >= Math.max(0, firstBid - count + 1); index--) {
+    byIndex.set(index, { price: index * bucketSize, side: 'bid', bid: null, ask: null });
   }
   let bidNotional = 0;
   let askNotional = 0;
   let maxNotional = 0;
-  for (const band of bands) {
-    const row = byIndex.get(Math.round(band.lower / bucketSize));
-    if (!row) continue;
-    row[band.side] = band;
-    maxNotional = Math.max(maxNotional, band.notional);
-    if (band.side === 'bid') bidNotional += band.notional;
-    else askNotional += band.notional;
+  for (const [side, levels] of [['bid', book.bids], ['ask', book.asks]]) {
+    for (const [price, quantity] of levels) {
+      const notional = price * quantity;
+      if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(quantity) || quantity <= 0 ||
+          !Number.isFinite(notional) || (side === 'bid' ? price >= pivot : price <= pivot)) continue;
+      const index = side === 'bid' ? Math.floor(price / bucketSize) : Math.ceil(price / bucketSize);
+      const row = byIndex.get(index);
+      if (!row || row.side !== side) continue;
+      const band = row[side] ?? { btc: 0, notional: 0, levels: 0 };
+      band.btc += quantity;
+      band.notional += notional;
+      band.levels++;
+      row[side] = band;
+      maxNotional = Math.max(maxNotional, band.notional);
+      if (side === 'bid') bidNotional += notional;
+      else askNotional += notional;
+    }
   }
   if (!maxNotional) return empty;
-  const rows = [...byIndex.values()].map((row) => ({
-    ...row,
-    bid: row.bid && { ...row.bid, intensity: row.bid.notional / maxNotional },
-    ask: row.ask && { ...row.ask, intensity: row.ask.notional / maxNotional }
-  }));
+  const rows = [...byIndex.values()];
+  for (const row of rows) {
+    if (row[row.side]) row[row.side].intensity = row[row.side].notional / maxNotional;
+  }
   return { rows, maxNotional, bidNotional, askNotional };
 }
 
@@ -118,7 +128,7 @@ export function createLiquidityRenderer({ doc = document } = {}) {
     statusNode.dataset.state = state.toLowerCase();
     panel.dataset.liquidityMode = mode;
     markerNode.textContent = 'REFERENCE —';
-    noteNode.textContent = fresh ? `Binance Futures · ${bucketSize} USDT bins · received ${Math.floor(age / 1000)}s ago · snapshot depth limited · fixed ±12 bins around midpoint · empty sides are unobserved`
+    noteNode.textContent = fresh ? `Binance Futures · ${bucketSize} USDT bins · received ${Math.floor(age / 1000)}s ago · snapshot depth limited · 12 bins per side · bids round down, asks round up · empty rows are unobserved`
       : !enabled ? 'Liquidity feed paused locally.' : snapshot.error || (state === 'STALE' ? 'Depth updates delayed. Data hidden.' : 'Synchronizing Binance order book…');
     if (!fresh || !snapshot.book) {
       emptyNode.hidden = false;
@@ -142,31 +152,40 @@ export function createLiquidityRenderer({ doc = document } = {}) {
       bidNode.textContent = askNode.textContent = '—';
       return;
     }
-    const center = view.rows.find((row) => row.containsPivot);
-    const alignedTrade = Number.isFinite(referencePrice) &&
-      referencePrice >= center.lower && referencePrice < center.upper;
-    markerNode.textContent = `MID ${formatPrice(pivot)}${alignedTrade ? ` · LAST ${formatPrice(referencePrice)}` : ''} · IN BIN BELOW`;
+    // LAST is contextual, not the separator; only show it within the nearest displayed bounds.
+    const nearestBid = view.rows.find((row) => row.side === 'bid');
+    const nearestAsk = view.rows.findLast((row) => row.side === 'ask');
+    const alignedTrade = Number.isFinite(referencePrice) && nearestBid && nearestAsk &&
+      referencePrice > nearestBid.price && referencePrice < nearestAsk.price;
+    markerNode.textContent = `MID ${formatPrice(pivot)}${alignedTrade ? ` · LAST ${formatPrice(referencePrice)}` : ''}`;
     emptyNode.hidden = true;
     rows.hidden = false;
     bidNode.textContent = notional(view.bidNotional);
     askNode.textContent = notional(view.askNotional);
     const seen = new Set();
     const orderedNodes = [];
+    let markerUsed = false;
     for (const band of view.rows) {
-      if (band.containsPivot) orderedNodes.push(markerNode);
-      const key = band.lower;
+      if (!markerUsed && band.side === 'bid') {
+        orderedNodes.push(markerNode);
+        markerUsed = true;
+      }
+      const key = band.price;
       seen.add(key);
       let node = liveRows.get(key);
       if (!node) { node = makeRow(); liveRows.set(key, node); }
-      node.row.dataset.side = band.bid && band.ask ? 'both' : band.bid ? 'bid' : band.ask ? 'ask' : 'unobserved';
+      node.row.dataset.side = band.side;
       node.row.dataset.cluster = Math.max(band.bid?.intensity ?? 0, band.ask?.intensity ?? 0) >= .78 ? 'strong' : 'normal';
-      node.price.textContent = formatPrice(band.lower);
+      node.price.textContent = formatPrice(band.price);
       const describe = (side) => {
         const level = band[side];
         return level ? `${side.toUpperCase()} · ${amount(level.btc)} BTC · ${notional(level.notional)} visible notional · ${Math.round(level.intensity * 100)}% relative intensity`
           : `${side.toUpperCase()} · no observed level`;
       };
-      const details = `[${formatPrice(band.lower)}, ${formatPrice(band.upper)}) USDT · ${describe('bid')} · ${describe('ask')} · ${Math.floor(age / 1000)}s old`;
+      const interval = band.side === 'bid'
+        ? `[${formatPrice(band.price)}, ${formatPrice(band.price + bucketSize)})`
+        : `(${formatPrice(band.price - bucketSize)}, ${formatPrice(band.price)}]`;
+      const details = `${interval} USDT · ${describe(band.side)} · ${Math.floor(age / 1000)}s old`;
       node.row.title = details;
       node.row.setAttribute('aria-label', details);
       for (const [side, bar] of [['bid', node.leftBar], ['ask', node.rightBar]]) {
@@ -176,6 +195,7 @@ export function createLiquidityRenderer({ doc = document } = {}) {
       }
       orderedNodes.push(node.row);
     }
+    if (!markerUsed) orderedNodes.push(markerNode);
     // Re-appending an existing hovered row detaches it and generates a synthetic
     // pointerleave/pointerenter sequence. Reorder only when the actual order changes.
     for (let index = 0; index < orderedNodes.length; index++) {

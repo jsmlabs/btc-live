@@ -8,32 +8,41 @@ const book = {
 };
 const pivot = 59328.5;
 
-test('one shared bin contains both sides; descending axis includes unobserved gaps', () => {
+test('side-specific rounding separates the sides and preserves actual notional', () => {
   const view = deriveLiquidityRows(book, pivot, 250, 3);
-  assert.deepEqual(view.rows.map(row => row.lower), [60000, 59750, 59500, 59250, 59000, 58750, 58500]);
-  const center = view.rows.filter(row => row.containsPivot);
-  assert.equal(center.length, 1);
-  assert.equal(center[0].bid.notional, 59328 + 59260 * 2);
-  assert.equal(center[0].ask.notional, 59329 * 3 + 59499);
-  assert.equal(center[0].upper, 59500);
-  assert.equal(view.rows[1].bid, null);
+  assert.deepEqual(view.rows.map(row => row.price), [60000, 59750, 59500, 59250, 59000, 58750]);
+  const bid = view.rows[3];
+  const ask = view.rows[2];
+  assert.equal(bid.bid.notional, 59328 + 59260 * 2);
+  assert.equal(ask.ask.notional, 59329 * 3 + 59499);
+  assert.equal(bid.ask, null);
+  assert.equal(ask.bid, null);
   assert.equal(view.rows[1].ask, null);
   assert.equal(view.bidNotional, 59328 + 59260 * 2 + 58750);
   assert.equal(view.askNotional, 59329 * 3 + 59499 + 60000 * 2);
-  assert.equal(view.maxNotional, center[0].ask.notional);
-  assert.equal(center[0].ask.intensity, 1);
-  assert.equal(center[0].bid.intensity, center[0].bid.notional / view.maxNotional);
+  assert.equal(view.maxNotional, ask.ask.notional);
+  assert.equal(ask.ask.intensity, 1);
+  assert.equal(bid.bid.intensity, bid.bid.notional / view.maxNotional);
+  // Existing history/analytics retain their original half-open bucket contract.
   assert.equal(deriveLiquidityBands(book, pivot, 250).bands.filter(band => band.lower === 59250).length, 2);
 });
 
-test('exact boundaries and all supported bin sizes preserve unique intervals', () => {
+test('exact midpoint and order boundaries work for all supported bin sizes', () => {
   for (const size of [25, 50, 100, 250]) {
     const p = 60000;
-    const view = deriveLiquidityRows({ bids: [[p - 1, 1]], asks: [[p + 1, 1]] }, p, size, 2);
-    assert.deepEqual(view.rows.map(row => row.lower), [p + 2 * size, p + size, p, p - size, p - 2 * size]);
-    assert.equal(view.rows[2].containsPivot, true);
-    assert.equal(view.rows[2].bid, null);
-    assert.equal(view.rows[3].ask, null);
+    for (const mid of [p, p + .5, p - .5]) {
+      const view = deriveLiquidityRows({ bids: [[p - size, 2], [mid - 1, 1]], asks: [[p + size, 3], [mid + 1, 1]] }, mid, size, 3);
+      assert.equal(view.rows.length, 6);
+      assert.equal(new Set(view.rows.map(row => row.price)).size, 6);
+      assert.ok(view.rows.every(row => row.side === 'bid' ? row.price < mid && row.ask === null : row.price > mid && row.bid === null));
+      assert.ok(view.rows.every((row, i) => i === 0 || view.rows[i - 1].price > row.price));
+      assert.equal(view.bidNotional, (p - size) * 2 + mid - 1);
+      assert.equal(view.askNotional, (p + size) * 3 + mid + 1);
+    }
+    const exact = deriveLiquidityRows({ bids: [[p - size, 2]], asks: [[p + size, 3]] }, p, size, 2);
+    assert.deepEqual(exact.rows.map(row => row.price), [p + 2 * size, p + size, p - size, p - 2 * size]);
+    assert.equal(exact.rows[1].ask.levels, 1);
+    assert.equal(exact.rows[2].bid.levels, 1);
   }
   assert.deepEqual(deriveLiquidityRows(book, null, 250).rows, []);
   assert.deepEqual(deriveLiquidityRows(book, pivot, 0).rows, []);
@@ -78,7 +87,7 @@ function fakeDocument() {
   return doc;
 }
 
-test('renderer shows both bars on one row, positions marker and clears missing sides', () => {
+test('renderer separates bars, positions marker and clears missing levels', () => {
   const doc = fakeDocument();
   const renderer = createLiquidityRenderer({ doc });
   const rows = doc.getElementById('dashboardLiquidityRows');
@@ -90,12 +99,16 @@ test('renderer shows both bars on one row, positions marker and clears missing s
   assert.equal(center.length, 1);
   const row = center[0];
   const [left, , right] = row.children;
-  assert.equal(row.dataset.side, 'both');
+  assert.equal(row.dataset.side, 'bid');
   assert.ok(parseFloat(left.children[0].style.width) > 0);
-  assert.equal(right.children[0].style.width, '100%');
+  assert.equal(right.children[0].style.width, '0%');
+  const askRow = rows.children.find(item => item.children[1]?.textContent === '59,500.00');
+  assert.equal(askRow.children[2].children[0].style.width, '100%');
+  assert.equal(askRow.children[0].children[0].style.width, '0%');
   assert.equal(rows.children[rows.children.indexOf(row) - 1], marker);
-  assert.match(marker.textContent, /MID 59,328.50 · LAST 59,328.10 · IN BIN BELOW/);
-  assert.equal(rows.children.length, 26);
+  assert.equal(rows.children[rows.children.indexOf(marker) - 1], askRow);
+  assert.match(marker.textContent, /MID 59,328.50 · LAST 59,328.10/);
+  assert.equal(rows.children.length, 25);
   const next = { ...snapshot, book: { bids: new Map([[59260, 1]]), asks: new Map([[59500, 1]]) } };
   renderer.render(next, { ...prefs, mode: 'heatmap' }, 60000, 1000);
   assert.equal(rows.children.find(item => item.children[1]?.textContent === '59,250.00'), row);
@@ -104,6 +117,12 @@ test('renderer shows both bars on one row, positions marker and clears missing s
   assert.equal(right.children[0].style.opacity, '0');
   assert.equal(left.children[0].style.width, '100%');
   assert.doesNotMatch(marker.textContent, /LAST/);
+  const shifted = { ...snapshot, book: { bids: new Map([[59501, 1]]), asks: new Map([[59502, 1]]) } };
+  renderer.render(shifted, prefs, 59501.5, 1000);
+  assert.equal(rows.children.find(item => item.children[1]?.textContent === '59,500.00'), askRow);
+  assert.equal(askRow.dataset.side, 'bid');
+  assert.equal(askRow.children[2].children[0].style.width, '0%');
+  assert.ok(parseFloat(askRow.children[0].children[0].style.width) > 0);
   renderer.render(snapshot, prefs, pivot, 8000);
   assert.equal(rows.hidden, true);
   renderer.dispose();

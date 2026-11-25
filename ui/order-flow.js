@@ -71,11 +71,10 @@ export function createOrderFlowAccumulator({ windowMs = FLOW_WINDOW_MS, bucketMs
       points.push({ at: i * bucketMs, buyBtc: b, sellBtc: s, deltaBtc: b - s });
     }
     const windows = Object.fromEntries(FLOW_WINDOWS_MS.filter(ms => ms <= windowMs).map(ms => {
-      const begin = at - ms + bucketMs;
+      const beginSlot = Math.floor((at - ms + bucketMs) / bucketMs);
       let wBuy = 0, wSell = 0, events = 0;
       for (const [slot, value] of buckets) {
-        const bucketAt = slot * bucketMs;
-        if (bucketAt < begin || bucketAt > at) continue;
+        if (slot < beginSlot || slot > to) continue;
         wBuy += value.buyBtc; wSell += value.sellBtc; events += value.count;
       }
       // No fabricated full-window confidence immediately after reconnect/reset.

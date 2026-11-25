@@ -181,6 +181,7 @@ export function createLiquidityHistoryRenderer({ doc = document } = {}) {
   }
 
   function handleKeys(event) {
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.isComposing) return;
     const delta = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[event.key];
     if (event.key === 'Escape') { pointerPosition = null; hideTooltip(); return; }
     if (!delta || !activeModel?.rows.length) return;

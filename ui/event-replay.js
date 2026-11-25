@@ -9,18 +9,19 @@ export function replayEventRecording(recording, bucketSize = 50) {
   let bids = null, asks = null, depthId = null, depthFrom = null, depthUpdatedAt = null;
   let segment = null, cvd = 0, tradeCount = 0, price = null, priceAt = null;
   const frames = [];
+  let cachedDepth = null;
   for (const event of events) {
     if (event.kind === 'gap') {
-      if (event.feed === 'depth') { bids = asks = null; depthId = depthFrom = depthUpdatedAt = null; }
+      if (event.feed === 'depth') { bids = asks = null; depthId = depthFrom = depthUpdatedAt = null; cachedDepth = null; }
       else { segment = null; cvd = 0; tradeCount = 0; price = priceAt = null; }
     } else if (event.kind === 'depth.snapshot') {
       bids = new Map(event.bids); asks = new Map(event.asks); depthId = event.updateId;
-      depthFrom = event.seq; depthUpdatedAt = event.at;
+      depthFrom = event.seq; depthUpdatedAt = event.at; cachedDepth = null;
     } else if (event.kind === 'depth.diff') {
       for (const [book, changes] of [[bids, event.bids], [asks, event.asks]]) {
         for (const [p,q] of changes) { if (q === 0) book.delete(p); else book.set(p,q); }
       }
-      depthId = event.finalId; depthUpdatedAt = event.at;
+      depthId = event.finalId; depthUpdatedAt = event.at; cachedDepth = null;
     } else if (event.kind === 'trade') {
       if (segment !== event.segment) { segment = event.segment; cvd = 0; tradeCount = 0; }
       cvd += (event.side === 'buy' ? 1 : -1) * event.quantity;
@@ -29,12 +30,21 @@ export function replayEventRecording(recording, bucketSize = 50) {
     }
     let bands = null, bidNotional = null, askNotional = null;
     if (bids && asks && bids.size && asks.size && depthUpdatedAt !== null && event.at - depthUpdatedAt <= 6_000) {
-      const bid = Math.max(...bids.keys()), ask = Math.min(...asks.keys());
-      const midpoint = (bid + ask) / 2;
-      if (bid < ask) {
-        bands = deriveLiquidityBands({bids, asks}, midpoint, bucketSize, 12).bands.map(({side,lower,notional}) => ({side,lower,notional}));
-        bidNotional = bands.filter((x)=>x.side==='bid').reduce((total,x)=>total+x.notional,0);
-        askNotional = bands.filter((x)=>x.side==='ask').reduce((total,x)=>total+x.notional,0);
+      if (cachedDepth === null) {
+        const bid = Math.max(...bids.keys()), ask = Math.min(...asks.keys());
+        if (bid < ask) {
+          const observed = deriveLiquidityBands({bids, asks}, (bid + ask) / 2, bucketSize, 12).bands
+            .map(({side,lower,notional}) => ({side,lower,notional}));
+          cachedDepth = { bands: observed,
+            bidNotional: observed.filter(x => x.side === 'bid').reduce((sum,x) => sum + x.notional,0),
+            askNotional: observed.filter(x => x.side === 'ask').reduce((sum,x) => sum + x.notional,0) };
+        }
+      }
+      if (cachedDepth !== null) {
+        // Keep frames independently mutable, without leaking cached band objects.
+        bands = cachedDepth.bands.map(band => ({...band}));
+        bidNotional = cachedDepth.bidNotional;
+        askNotional = cachedDepth.askNotional;
       }
     }
     frames.push({ seq:event.seq, at:event.at, kind:event.kind, depthId, depthFrom, depthReady:bands!==null,
@@ -58,7 +68,7 @@ export function evaluateEventConfluence(frames, index) {
   const recent = eligible < 0 ? [] : window.slice(eligible);
   const start = recent[0];
   if (!start || !start.depthReady || start.depthFrom!==current.depthFrom ||
-      start.flowSegment!==current.flowSegment || recent.some((f)=>!f.depthReady || f.flowSegment!==current.flowSegment)) return unavailable;
+      start.flowSegment!==current.flowSegment || recent.some((f)=>!f.depthReady || f.depthFrom!==current.depthFrom || f.flowSegment!==current.flowSegment)) return unavailable;
   const trades = recent.filter((f)=>f.tradeQuantity!==null);
   const prices = trades.map((f)=>f.tradePrice);
   const diffs = recent.filter((f)=>f.kind==='depth.diff');

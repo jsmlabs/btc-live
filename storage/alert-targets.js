@@ -79,7 +79,7 @@ export function legacyTargetsFromSettings(settings, { now = Date.now } = {}) {
   return targets.filter(Boolean);
 }
 
-export async function loadAlertTargets({ migrateLegacy = true } = {}) {
+async function loadAlertTargetsUnlocked({ migrateLegacy = true } = {}) {
   const api = extensionApi();
   if (!api?.storage?.local) return [];
   const result = await api.storage.local.get(ALERT_TARGETS_STORAGE_KEY);
@@ -92,6 +92,12 @@ export async function loadAlertTargets({ migrateLegacy = true } = {}) {
   return migrated;
 }
 
+// Migration writes must share the same lock as target mutations.
+export async function loadAlertTargets(options = {}) {
+  if (options.migrateLegacy === false) return loadAlertTargetsUnlocked(options);
+  return withAlertTargetLock(() => loadAlertTargetsUnlocked(options));
+}
+
 export async function saveAlertTargets(targets) {
   const sanitized = sanitizeAlertTargets(targets);
   const api = extensionApi();
@@ -102,7 +108,7 @@ export async function saveAlertTargets(targets) {
 
 export async function addAlertTarget({ direction, price, label = '', enabled = true } = {}) {
   return withAlertTargetLock(async () => {
-    const targets = await loadAlertTargets();
+    const targets = await loadAlertTargetsUnlocked();
     if (targets.length >= MAX_ALERT_TARGETS) throw new RangeError(`A maximum of ${MAX_ALERT_TARGETS} price targets is supported.`);
     const target = sanitizeAlertTarget({ direction, price, label, enabled });
     if (!target) throw new TypeError('A valid direction and BTC price are required.');
@@ -112,7 +118,7 @@ export async function addAlertTarget({ direction, price, label = '', enabled = t
 
 export async function updateAlertTarget(id, patch) {
   return withAlertTargetLock(async () => {
-    const targets = await loadAlertTargets();
+    const targets = await loadAlertTargetsUnlocked();
     let updated = null;
     const next = targets.map((target) => {
       if (target.id !== id) return target;
@@ -127,7 +133,7 @@ export async function updateAlertTarget(id, patch) {
 
 export async function removeAlertTarget(id) {
   return withAlertTargetLock(async () => {
-    const targets = await loadAlertTargets();
+    const targets = await loadAlertTargetsUnlocked();
     const next = targets.filter((target) => target.id !== id);
     if (next.length === targets.length) return false;
     await saveAlertTargets(next);

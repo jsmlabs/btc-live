@@ -10,7 +10,6 @@ export function evaluateLiquidityBehavior(history, now, maxAgeMs = 6_000) {
   const previous = valid.at(-2);
   if (!previous || current.at - previous.at !== history.stepMs) return { ...empty, status: 'INSUFFICIENT', sampleAt: current.at };
   const lastThree = valid.slice(-3);
-  const contiguous = lastThree.length === 3 && lastThree.every((v, i) => i === 0 || v.at - lastThree[i - 1].at === history.stepMs);
   const old = new Map(previous.bands.map(({ side, lower, notional }) => [`${side}:${lower}`, notional]));
   const recent = new Map(current.bands.map(({ side, lower, notional }) => [`${side}:${lower}`, notional]));
   let bidChange = 0, askChange = 0;
@@ -21,9 +20,15 @@ export function evaluateLiquidityBehavior(history, now, maxAgeMs = 6_000) {
   }
   const zones = [...current.bands].filter((band) => band.notional > 0).map((band) => {
     const key = `${band.side}:${band.lower}`;
+    let persistence = 0;
+    for (let index = lastThree.length - 1; index >= 0; index--) {
+      const entry = lastThree[index];
+      if (index < lastThree.length - 1 && lastThree[index + 1].at - entry.at !== history.stepMs) break;
+      if (!entry.bands.some(v => `${v.side}:${v.lower}` === key && v.notional > 0)) break;
+      persistence++;
+    }
     return {
-      side: band.side, lower: band.lower, notional: band.notional,
-      persistence: contiguous ? lastThree.filter((entry) => entry.bands.some((v) => `${v.side}:${v.lower}` === key && v.notional > 0)).length : 1
+      side: band.side, lower: band.lower, notional: band.notional, persistence
     };
   }).sort((a,b) => b.notional - a.notional).slice(0, 3);
   return {

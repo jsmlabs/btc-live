@@ -5,14 +5,13 @@ const MAX_WEBSOCKET_EVENT_AGE_MS = 30_000;
 const MAX_REST_EVENT_AGE_MS = 120_000;
 
 function toFiniteNumber(value) {
-  if (value === '' || value === null || value === undefined) return null;
+  if (typeof value !== 'number' && (typeof value !== 'string' || value.trim() === '')) return null;
   const number = typeof value === 'number' ? value : Number(value);
   return Number.isFinite(number) ? number : null;
 }
 
 function toSafeInteger(value) {
-  if (value === '' || value === null || value === undefined) return null;
-  const number = typeof value === 'number' ? value : Number(value);
+  const number = toFiniteNumber(value);
   return Number.isSafeInteger(number) ? number : null;
 }
 

@@ -41,6 +41,16 @@ export function validateReleaseAcceptance(record, { commit, version }) {
   return failures;
 }
 
+// The packager walks the runtime tree, including files ignored by Git.
+export function assertReleaseTreeClean(root, runGit = execFileSync) {
+  const status = runGit('git', ['status', '--porcelain', '--untracked-files=no'], { cwd: root, encoding: 'utf8' }).trim();
+  if (status) throw Error('Source checkout has uncommitted tracked changes');
+  // Deliberately omit --exclude-standard: ignored runtime files can enter the ZIP too.
+  const runtimePaths = ['manifest.json', 'app', 'background', 'dashboard', 'icons', 'market', 'popup', 'storage', 'ui', 'utils'];
+  const extra = runGit('git', ['ls-files', '--others', '-z', '--', ...runtimePaths], { cwd: root, encoding: 'utf8' });
+  if (extra.length) throw Error('Source checkout contains untracked runtime files; release artifact would differ from the approved commit');
+}
+
 const isCli = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isCli) {
   try {
@@ -53,8 +63,7 @@ if (isCli) {
     const approvalPath = process.env.RELEASE_ACCEPTANCE_FILE
       ? path.resolve(process.env.RELEASE_ACCEPTANCE_FILE)
       : path.join(root, 'docs/release-acceptance.json');
-    const status = execFileSync('git', ['status', '--porcelain', '--untracked-files=no'], { cwd: root, encoding: 'utf8' }).trim();
-    if (status) throw Error('Source checkout has uncommitted tracked changes');
+    assertReleaseTreeClean(root);
     const record = JSON.parse(readFileSync(approvalPath, 'utf8'));
     const failures = validateReleaseAcceptance(record, { commit, version: manifest.version });
     if (failures.length) {

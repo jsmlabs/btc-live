@@ -109,8 +109,14 @@ export function createEventRecorder({ maxCount = EVENT_MAX_COUNT, maxBytes = EVE
     try {
       event = cleanEvent({ ...data, kind, seq: events.length, at }, events.length);
       if (events.length && event.at < events.at(-1).at) throw new Error('Non-monotonic clock');
-      // Check against a disposable copy, so rejected imports/events never corrupt capture state.
-      const candidate = { ...sequence, bids: sequence.bids ? new Map(sequence.bids) : null, asks: sequence.asks ? new Map(sequence.asks) : null };
+      // Only diffs mutate existing maps. Trades change scalar state; snapshots and
+      // gaps replace map references. Keep transactional validation without copying
+      // the entire book on every execution.
+      const candidate = { ...sequence };
+      if (event.kind === 'depth.diff') {
+        candidate.bids = sequence.bids ? new Map(sequence.bids) : null;
+        candidate.asks = sequence.asks ? new Map(sequence.asks) : null;
+      }
       advanceSequence(candidate, event);
       sequence = candidate;
     } catch { status = 'INVALID'; return false; }

@@ -26,7 +26,12 @@ export function createDepthHistory({ stepMs = HISTORY_STEP_MS, capacity = HISTOR
   function gap(at) {
     if (!Number.isSafeInteger(at) || at < 0) return false;
     const slot = Math.floor(at / stepMs);
-    if (lastSlot === null || slot <= lastSlot) return false;
+    if (lastSlot === null || slot < lastSlot) return false;
+    if (slot === lastSlot) {
+      if (samples.at(-1)?.bands === null) return false;
+      samples[samples.length - 1] = { at: slot * stepMs, bands: null };
+      return true;
+    }
     // Bound gap materialization even after hours of suspension.
     const start = Math.max(lastSlot + 1, slot - capacity + 1);
     for (let i = start; i <= slot; i++) push({ at: i * stepMs, bands: null });
@@ -39,7 +44,7 @@ export function createDepthHistory({ stepMs = HISTORY_STEP_MS, capacity = HISTOR
     if (lastBucket !== null && lastBucket !== bucketSize) clear();
     lastBucket = bucketSize;
     const slot = Math.floor(at / stepMs);
-    if (status !== 'LIVE' || !book || updatedAt === null || at - updatedAt > 6_000 || at < updatedAt) {
+    if (status !== 'LIVE' || !book || !Number.isSafeInteger(updatedAt) || updatedAt < 0 || at - updatedAt > 6_000 || at < updatedAt) {
       return gap(at);
     }
     if (lastSlot !== null && slot <= lastSlot) return false;

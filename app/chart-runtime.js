@@ -112,8 +112,7 @@ export function createBtcChartRuntime({
       };
       const lost = () => {
         if (generation !== socketGeneration || disposed) return;
-        socket = null;
-        try { stream.close(); } catch {}
+        closeStream();
         reconnect();
       };
       stream.onerror = lost;
@@ -165,7 +164,7 @@ export function createBtcChartRuntime({
     if (!background || !candles.length) { status = CHART_STATUS.LOADING; errorMessage = null; emit(); }
     try {
       const result = await fetchKlines({ interval, limit, signal:controller.signal });
-      if (disposed || requestController !== controller || generation !== requestGeneration || interval !== preferences.interval) return snapshot();
+      if (disposed || !visible || controller.signal.aborted || requestController !== controller || generation !== requestGeneration || interval !== preferences.interval) return snapshot();
       // In a racing REST/WebSocket response prefer the most recent authoritative stream candle.
       if (!Array.isArray(result) || !result.length) throw new Error('Empty Binance candle snapshot');
       const oldLast = candles.at(-1);
@@ -269,6 +268,8 @@ export function createBtcChartRuntime({
   function handleOffline() {
     if (disposed || !started) return;
     closeStream();
+    lastStreamAt = null;
+    requestController?.abort();
     status = CHART_STATUS.OFFLINE;
     emit();
   }

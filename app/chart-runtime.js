@@ -232,8 +232,9 @@ export function createBtcChartRuntime({
   async function updatePreferences(patch) {
     if (disposed) return preferences;
     const before = preferences.interval;
-    preferences = sanitizeChartPreferences({ ...preferences, ...patch }); emit();
+    preferences = sanitizeChartPreferences({ ...preferences, ...patch });
     if (before !== preferences.interval) changeInterval();
+    else emit();
     try { await persistPreferences(preferences); }
     catch (e) { onWarning('BTC Live chart preferences could not be saved', e); }
     return { ...preferences };
@@ -241,8 +242,9 @@ export function createBtcChartRuntime({
   function syncPreferences(value) {
     if (disposed) return preferences;
     const before = preferences.interval;
-    preferences = sanitizeChartPreferences(value); emit();
+    preferences = sanitizeChartPreferences(value);
     if (before !== preferences.interval) changeInterval();
+    else emit();
     return { ...preferences };
   }
   // Retained as an API compatibility hook; ticker trades must never modify exchange OHLCV.

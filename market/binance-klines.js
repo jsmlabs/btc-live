@@ -16,13 +16,16 @@ const INTERVAL_MS = Object.freeze({
 });
 
 export function intervalMs(interval) {
-  const value = INTERVAL_MS[interval];
-  if (!value) throw new RangeError(`Unsupported kline interval: ${interval}`);
-  return value;
+  if (!KLINE_INTERVALS.includes(interval)) throw new RangeError(`Unsupported kline interval: ${String(interval)}`);
+  return INTERVAL_MS[interval];
 }
 
 export function normalizeKlineRow(row) {
   if (!Array.isArray(row) || row.length < 7) return null;
+  for (let i = 0; i < 7; i++) {
+    const field = row[i];
+    if (typeof field !== 'number' && (typeof field !== 'string' || field.trim() === '')) return null;
+  }
   const openTime = Number(row[0]);
   const open = Number(row[1]);
   const high = Number(row[2]);
@@ -31,7 +34,7 @@ export function normalizeKlineRow(row) {
   const volume = Number(row[5]);
   const closeTime = Number(row[6]);
 
-  if (!Number.isSafeInteger(openTime) || !Number.isSafeInteger(closeTime) || closeTime < openTime) return null;
+  if (!Number.isSafeInteger(openTime) || !Number.isSafeInteger(closeTime) || openTime < 0 || closeTime < openTime) return null;
   if (![open, high, low, close].every((value) => Number.isFinite(value) && value > 0)) return null;
   if (!Number.isFinite(volume) || volume < 0) return null;
   if (high < Math.max(open, close) || low > Math.min(open, close) || low > high) return null;

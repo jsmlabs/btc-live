@@ -58,7 +58,7 @@ export function evaluateEventConfluence(frames, index) {
   const recent = eligible < 0 ? [] : window.slice(eligible);
   const start = recent[0];
   if (!start || !start.depthReady || start.depthFrom!==current.depthFrom ||
-      start.flowSegment!==current.flowSegment || recent.some((f)=>!f.depthReady || f.flowSegment!==current.flowSegment)) return unavailable;
+      start.flowSegment!==current.flowSegment || recent.some((f)=>!f.depthReady || f.depthFrom!==current.depthFrom || f.flowSegment!==current.flowSegment)) return unavailable;
   const trades = recent.filter((f)=>f.tradeQuantity!==null);
   const prices = trades.map((f)=>f.tradePrice);
   const diffs = recent.filter((f)=>f.kind==='depth.diff');

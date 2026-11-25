@@ -140,7 +140,11 @@ try {
   assert.equal(await nav('settings').getAttribute('aria-pressed'), 'true');
   await page.keyboard.press('Home');
   assert.equal(await nav('live').getAttribute('aria-pressed'), 'true');
-  results.push('workspace keyboard navigation');
+  // Modified arrows must not be captured as workspace navigation.
+  const modifiedNav = await nav('live').evaluate(node => node.dispatchEvent(new KeyboardEvent('keydown', {key:'ArrowRight', altKey:true, bubbles:true, cancelable:true})));
+  assert.equal(modifiedNav, true);
+  assert.equal(await nav('live').getAttribute('aria-pressed'), 'true');
+  results.push('workspace keyboard navigation preserves modified browser shortcuts');
   await nav('analytics').click();
   await page.locator('[data-analytics-view="orderflow"]').click();
   assert.equal(await page.locator('#analytics-liquidity').isVisible(), false);
@@ -214,7 +218,14 @@ try {
   await nav('analytics').click();
   assert.equal(await page.locator('#dashboardShell').getAttribute('data-terminal-focus'), 'false');
   await nav('live').click();
-  await page.locator('#terminalFocus').click(); await page.keyboard.press('Escape');
+  await page.locator('#terminalFocus').click();
+  const appearance = page.locator('details.chart-menu[aria-label="Chart appearance options"]');
+  await appearance.locator('summary').click();
+  await appearance.locator('summary').focus();
+  await page.keyboard.press('Escape');
+  assert.equal(await appearance.evaluate(node => node.open), false);
+  assert.equal(await page.locator('#terminalFocus').getAttribute('aria-pressed'), 'true', 'Escape dismisses the menu before focus mode');
+  await page.keyboard.press('Escape');
   assert.equal(await page.locator('#terminalFocus').getAttribute('aria-pressed'), 'false');
   await page.locator('#dashboardChartFocus').click();
   assert.equal(await page.locator('.chart-panel').evaluate(node => node.classList.contains('chart-focus')), true);

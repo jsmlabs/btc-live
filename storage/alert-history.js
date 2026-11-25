@@ -58,7 +58,7 @@ export async function appendAlertHistory(entry) {
 export async function clearAlertHistory() {
   const api = extensionApi();
   if (!api?.storage?.local) return;
-  await api.storage.local.set({ [ALERT_HISTORY_STORAGE_KEY]: [] });
+  await withHistoryLock(() => api.storage.local.set({ [ALERT_HISTORY_STORAGE_KEY]: [] }));
 }
 
 async function withHistoryLock(task) {

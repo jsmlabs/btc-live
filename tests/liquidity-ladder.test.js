@@ -128,3 +128,24 @@ test('renderer separates bars, positions marker and clears missing levels', () =
   renderer.dispose();
   assert.deepEqual(rows.children, [marker]);
 });
+
+test('liquidity hover details survive redraws without resetting native tooltips', () => {
+  const doc = fakeDocument();
+  const renderer = createLiquidityRenderer({ doc });
+  const rows = doc.getElementById('dashboardLiquidityRows');
+  const prefs = { enabled: true, bucketSize: 250, mode: 'bars' };
+  const snapshot = { status: 'LIVE', updatedAt: 1000, book };
+  renderer.render(snapshot, prefs, 59328.1, 1000);
+  const hovered = rows.children.find(row => row.children[1]?.textContent === '59,250.00');
+  assert.ok(hovered);
+  assert.match(hovered.dataset.tooltip, /BID.*0s old/);
+  assert.equal(hovered.title, undefined, 'native title must not reset on live updates');
+  renderer.render(snapshot, prefs, 59328.1, 2500);
+  assert.equal(rows.children.find(row => row.children[1]?.textContent === '59,250.00'), hovered);
+  assert.match(hovered.dataset.tooltip, /BID.*1s old/);
+  assert.equal(hovered.title, undefined);
+  renderer.render(snapshot, { ...prefs, mode: 'heatmap' }, 59328.1, 2500);
+  assert.equal(rows.children.find(row => row.children[1]?.textContent === '59,250.00'), hovered);
+  assert.match(hovered.getAttribute?.('aria-label') ?? hovered['aria-label'], /BID.*1s old/);
+  renderer.dispose();
+});

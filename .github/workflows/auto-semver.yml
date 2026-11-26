@@ -1,0 +1,55 @@
+name: Automatic SemVer on main
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: btc-live-semver-main
+  cancel-in-progress: false
+jobs:
+  bump:
+    if: github.repository == 'jsmlabs/btc-live'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Derive SemVer from Conventional Commits
+        run: npm run version:auto
+      - id: version_change
+        name: Detect version metadata changes
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Verify versioned candidate before commit
+        if: steps.version_change.outputs.changed == 'true'
+        run: |
+          npm run verify
+          npm run docs:check
+          npm run release:check
+          node scripts/package-extension.mjs --skip-verify
+      - name: Commit automatic version and verify exact new SHA
+        if: steps.version_change.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add manifest.json package.json README.md CHANGELOG.md docs/ARCHITECTURE.md docs/USAGE.md docs/RELEASE.md docs/release-acceptance.json
+          version="$(node -p "JSON.parse(require('fs').readFileSync('manifest.json','utf8')).version")"
+          git commit -m "chore(release): auto-bump to v${version}"
+          git push origin HEAD:main
+          gh workflow run verify.yml --ref main

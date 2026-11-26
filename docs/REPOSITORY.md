@@ -12,6 +12,10 @@
 
 `main` is the only intended long-lived integration branch. Temporary review branches are not permanent maintenance channels.
 
+## Automated Semantic Versioning
+
+On pushes to `main`, `.github/workflows/auto-semver.yml` examines Conventional Commits since the last change to `manifest.json`. `fix`, `perf` and `revert` raise PATCH; `feat` raises MINOR; `!` or a `BREAKING CHANGE:` footer raises MAJOR; documentation, tests and chores alone do not bump the version. The highest eligible level wins. The workflow updates the manifest, package metadata and maintained version references, runs candidate checks, commits the bump and explicitly dispatches full verification for the new SHA. Stable releases remain subject to all seven manual acceptance gates; an automatic development-version bump is not a publication.
+
 ## Change procedure
 
 1. Resolve the current `main` SHA, task requirements, affected files and existing behavior.

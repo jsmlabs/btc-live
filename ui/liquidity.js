@@ -186,7 +186,7 @@ export function createLiquidityRenderer({ doc = document } = {}) {
         ? `[${formatPrice(band.price)}, ${formatPrice(band.price + bucketSize)})`
         : `(${formatPrice(band.price - bucketSize)}, ${formatPrice(band.price)}]`;
       const details = `${interval} USDT · ${describe(band.side)} · ${Math.floor(age / 1000)}s old`;
-      node.row.title = details;
+      node.row.dataset.tooltip = details;
       node.row.setAttribute('aria-label', details);
       for (const [side, bar] of [['bid', node.leftBar], ['ask', node.rightBar]]) {
         const level = band[side];

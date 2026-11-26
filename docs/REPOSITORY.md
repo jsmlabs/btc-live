@@ -6,7 +6,7 @@
 | --- | --- |
 | Default maintained branch | **`main`** |
 | Current integration | **Development candidate**, pending real-browser approval |
-| Manifest version | `1.22.0` (not proof of store publication) |
+| Manifest version | Read manifest.json (not proof of store publication) |
 | Automated validation | [GitHub Actions for main](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml) |
 | Customer release | Blocked until the [acceptance matrix](ACCEPTANCE.md) passes |
 

@@ -5,7 +5,7 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const manifest=JSON.parse(await readFile(path.join(root,'manifest.json'),'utf8'));
 const assert=(ok,msg)=>{if(!ok)throw Error(msg)};
 assert(manifest.manifest_version===3,'Manifest V3 required');
-assert(manifest.version==='1.25.8','Unexpected manifest version, review release metadata');
+assert(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(manifest.version),'Invalid SemVer manifest version');
 const packageInfo=JSON.parse(await readFile(path.join(root,'package.json'),'utf8'));
 assert(packageInfo.private===true && packageInfo.name==='btc-live' && packageInfo.version===manifest.version,'Package and manifest version drift');
 const allowedPermissions=new Set(['storage','notifications','alarms']);

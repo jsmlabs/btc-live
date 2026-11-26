@@ -10,7 +10,8 @@
     "release:check": "node scripts/release-check.mjs",
     "docs:check": "node scripts/check-docs.mjs",
     "package:metadata": "node scripts/build-metadata.mjs",
-    "release:gate": "node scripts/release-gate.mjs"
+    "release:gate": "node scripts/release-gate.mjs",
+    "version:auto": "node scripts/version-auto.mjs"
   },
   "engines": {
     "node": ">=20"

@@ -5,6 +5,21 @@ All notable changes to the BTC Live development candidate are recorded here. Ent
 
 ## Unreleased
 
+## [1.26.0] - 2026-11-26
+
+### Conventional Commits
+- fix(liquidity): keep hover details visible during live updates (#70)
+- fix: serialize storage migration and history clear, close orphan replay connections
+- fix: preserve workspace navigation and keyboard interaction semantics
+- perf: avoid redundant capture copies and replay depth aggregation
+- fix: harden release provenance and restore Chromium CI compatibility
+- fix: harden chart recovery and depth observation integrity
+- fix: resolve first engineering audit findings with regression coverage
+- fix: separate bid and ask ladder with directional price rounding
+- fix: render liquidity on a shared contiguous price ladder
+- feat(ui): clarify chart toolbar hierarchy and accessible controls (#56)
+- fix(ui): display installed version and improve workspace layout resilience (#51)
+
 ### Premium visual polish
 - Refine popup price hero, consolidated metric strip, range, order quote row and primary terminal action with consistent shape, rhythm and narrow-window safeguards.
 - Unify dashboard workspace heading, active navigation, chart-toolbar wrapping, key-value typography and settings/replay panel details.

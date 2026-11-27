@@ -5,6 +5,11 @@ All notable changes to the BTC Live development candidate are recorded here. Ent
 
 ## Unreleased
 
+## [1.27.0] - 2026-11-27
+
+### Conventional Commits
+- feat(support): add optional USDC Solana donations (#71)
+
 ## [1.26.0] - 2026-11-26
 
 ### Conventional Commits

@@ -7,6 +7,7 @@
   <title>BTC Live Dashboard</title>
   <link rel="stylesheet" href="dashboard.css">
   <link rel="stylesheet" href="../ui/theme.css">
+  <link rel="stylesheet" href="../ui/support-donations.css">
   <link rel="stylesheet" href="workspace.css">
 </head>
 <body>
@@ -43,6 +44,7 @@
         <button class="workspace-link" type="button" data-workspace-target="settings" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/></svg><span>Settings</span></button>
       </div>
       <div class="nav-note"><span class="nav-note-mark" aria-hidden="true"></span><strong>Local by design</strong><span>Public market data.<br>No account required.</span></div>
+      <div class="support-nav"><button class="support-trigger" type="button" data-support-open aria-haspopup="dialog" aria-controls="supportDialog">♡ Support BTC Live</button></div>
     </nav>
     <div class="workspace-content">
     <div class="workspace-heading">
@@ -530,6 +532,7 @@
           <label class="setting-row"><span><strong>Price Animation</strong><small>Flash when a newer price arrives.</small></span><input id="dashboardSettingAnimation" type="checkbox"></label>
         </div>
         <div class="settings-actions-inline"><button id="dashboardResetSettings" class="button tertiary" type="button" aria-describedby="dashboardResetScope">Reset app settings</button></div>
+        <div class="support-settings"><button class="support-trigger" type="button" data-support-open aria-haspopup="dialog" aria-controls="supportDialog">♡ Support BTC Live (optional)</button></div>
         <p id="dashboardResetScope" class="settings-scope-note">Resets display and notification settings. Saved targets, replay sessions and dashboard layout are retained.</p>
         <section class="keyboard-reference" aria-labelledby="keyboardReferenceTitle">
           <div class="panel-header"><div><div class="eyebrow muted">KEYBOARD</div><h3 id="keyboardReferenceTitle">Shortcut reference</h3></div></div>
@@ -559,6 +562,23 @@
     </div>
     </div>
   </main>
+  <dialog id="supportDialog" class="support-dialog" aria-labelledby="supportTitle" aria-describedby="supportDescription">
+    <div class="support-dialog-header">
+      <div><span class="support-dialog-eyebrow">SUPPORT BTC LIVE</span><h2 id="supportTitle">Support BTC Live</h2></div>
+      <button id="supportClose" class="support-dialog-close" type="button" aria-label="Close support dialog">×</button>
+    </div>
+    <p id="supportDescription" class="support-dialog-description">BTC Live is free to use. If you find it useful, you can make an entirely optional donation. No features are locked.</p>
+    <div class="support-payment">
+      <div class="support-network"><strong>USDC</strong><span>Solana network</span></div>
+      <div class="support-qr-frame"><img src="../ui/usdc-solana-qr.png" width="144" height="144" alt="QR code for the USDC receiving address on Solana. Verify the address before sending."></div>
+      <label class="support-address-label" for="supportAddress">Receiving address</label>
+      <textarea id="supportAddress" rows="2" readonly spellcheck="false" aria-label="USDC receiving address on Solana">7CPrqUu3ioFtdiPrx7APLvpf6if2P4ZZiLKPrJAUyKu3</textarea>
+      <button id="supportCopy" class="support-dialog-copy" type="button">Copy address</button>
+      <p id="supportCopyFeedback" class="support-copy-feedback" role="status" aria-live="polite"></p>
+    </div>
+    <p class="support-warning"><strong>Important:</strong> Send only <strong>USDC on the Solana network</strong>. This is a Binance deposit address. Verify current deposit support, minimums and the address before transferring. Transactions are irreversible.</p>
+    <button id="supportDone" class="support-dialog-done" type="button">Done</button>
+  </dialog>
   <script type="module" src="dashboard.js"></script>
 </body>
 </html>

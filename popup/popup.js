@@ -1,6 +1,8 @@
 import { displayExtensionVersion } from '../ui/version-label.js';
+import { mountSupportDialog } from '../ui/support-donations.js';
 import { mountSoftwareUpdates } from '../ui/software-update-panel.js';
 let updatePanelDispose = () => {};
+let supportDialogDispose = () => {};
 import { createBtcLiveRuntime } from '../app/runtime.js';
 import { createNotificationManager } from '../app/notifications.js';
 import { ALERT_HISTORY_STORAGE_KEY } from '../storage/alert-history.js';
@@ -75,6 +77,7 @@ function handleStorageChange(changes, areaName) {
 }
 
 function bindUi() {
+  supportDialogDispose = mountSupportDialog();
   const updateIndicator = document.createElement('button');
   updateIndicator.type = 'button';
   updateIndicator.className = 'software-update-indicator';
@@ -92,7 +95,7 @@ function bindUi() {
   document.getElementById('retryButton').addEventListener('click', () => runtime.retryNow());
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeSettings();
+    if (event.key === 'Escape' && !document.getElementById('supportDialog').open) closeSettings();
   });
 
   for (const [id, key] of [
@@ -134,6 +137,7 @@ function bindUi() {
 function cleanup() {
   if (cleanedUp) return;
   cleanedUp = true;
+  supportDialogDispose();
   window.removeEventListener('offline', runtime.handleOffline);
   window.removeEventListener('online', runtime.handleOnline);
   api?.storage?.onChanged?.removeListener(handleStorageChange);

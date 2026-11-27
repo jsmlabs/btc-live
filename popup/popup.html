@@ -7,6 +7,7 @@
   <title>BTC Live</title>
   <link rel="stylesheet" href="popup.css">
   <link rel="stylesheet" href="../ui/theme.css">
+  <link rel="stylesheet" href="../ui/support-donations.css">
   <link rel="stylesheet" href="experience.css">
 </head>
 <body>
@@ -117,6 +118,7 @@
         <span id="dataSource">BINANCE FUTURES</span>
         <span id="lastUpdate">Waiting for data</span>
       </footer>
+      <div class="support-launch"><button class="support-trigger" type="button" data-support-open aria-haspopup="dialog" aria-controls="supportDialog">♡ Support BTC Live</button></div>
     </section>
 
     <section id="settingsView" class="view settings-view" hidden aria-label="Settings">
@@ -281,6 +283,23 @@
     </section>
   </main>
 
+  <dialog id="supportDialog" class="support-dialog" aria-labelledby="supportTitle" aria-describedby="supportDescription">
+    <div class="support-dialog-header">
+      <div><span class="support-dialog-eyebrow">SUPPORT BTC LIVE</span><h2 id="supportTitle">Support BTC Live</h2></div>
+      <button id="supportClose" class="support-dialog-close" type="button" aria-label="Close support dialog">×</button>
+    </div>
+    <p id="supportDescription" class="support-dialog-description">BTC Live is free to use. If you find it useful, you can make an entirely optional donation. No features are locked.</p>
+    <div class="support-payment">
+      <div class="support-network"><strong>USDC</strong><span>Solana network</span></div>
+      <div class="support-qr-frame"><img src="../ui/usdc-solana-qr.png" width="144" height="144" alt="QR code for the USDC receiving address on Solana. Verify the address before sending."></div>
+      <label class="support-address-label" for="supportAddress">Receiving address</label>
+      <textarea id="supportAddress" rows="2" readonly spellcheck="false" aria-label="USDC receiving address on Solana">7CPrqUu3ioFtdiPrx7APLvpf6if2P4ZZiLKPrJAUyKu3</textarea>
+      <button id="supportCopy" class="support-dialog-copy" type="button">Copy address</button>
+      <p id="supportCopyFeedback" class="support-copy-feedback" role="status" aria-live="polite"></p>
+    </div>
+    <p class="support-warning"><strong>Important:</strong> Send only <strong>USDC on the Solana network</strong>. This is a Binance deposit address. Verify current deposit support, minimums and the address before transferring. Transactions are irreversible.</p>
+    <button id="supportDone" class="support-dialog-done" type="button">Done</button>
+  </dialog>
   <script type="module" src="popup.js"></script>
 </body>
 </html>

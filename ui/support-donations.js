@@ -58,6 +58,9 @@ export function mountSupportDialog({ doc = document, clipboard = globalThis.navi
       if (!disposed && current === session && dialog.open) copy.disabled = false;
     }
   }
+  // Keep terminal-wide keyboard shortcuts from handling input inside a modal.
+  function isolateModalKeys(event) { event.stopPropagation(); }
+  dialog.addEventListener('keydown', isolateModalKeys);
   for (const trigger of triggers) trigger.addEventListener('click', open);
   close.addEventListener('click', requestClose);
   done.addEventListener('click', requestClose);
@@ -72,6 +75,7 @@ export function mountSupportDialog({ doc = document, clipboard = globalThis.navi
     done.removeEventListener('click', requestClose);
     copy.removeEventListener('click', onCopy);
     dialog.removeEventListener('close', onClose);
+    dialog.removeEventListener('keydown', isolateModalKeys);
     if (dialog.open) dialog.close();
   };
 }

@@ -14,7 +14,7 @@
     "version:auto": "node scripts/version-auto.mjs"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "version": "1.27.0"
 }

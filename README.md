@@ -132,13 +132,13 @@ flowchart TD
 
 The data pipeline is observation-only. Data validation, feed synchronization, browser lifecycle and notification permissions determine which views and alerts are actionable.
 
-The runtime is self-contained and uses no remote executable JavaScript. The manifest requests `storage`, `notifications`, `alarms` and host access to `https://fapi.binance.com/*`; its CSP permits public Futures WebSocket connectivity to `wss://fstream.binance.com`. [Technical architecture →](docs/ARCHITECTURE.md)
+The runtime is self-contained and uses no remote executable JavaScript. The manifest requests `storage`, `notifications`, `alarms` and read-only host access to `https://fapi.binance.com/*` and `https://api.github.com/*` (software-update discovery); its CSP permits public Futures WebSocket connectivity to `wss://fstream.binance.com`. [Technical architecture →](docs/ARCHITECTURE.md)
 
 ## Build and verify
 
 Automated checks cover source and packaging contracts; they do **not** replace hands-on browser acceptance or real exchange-feed testing.
 
-**Node.js 20+** and npm are needed for developer checks; GitHub Actions runs with Node.js 22.
+**Node.js 22+** and npm are needed for developer checks; GitHub Actions runs with Node.js 26 LTS.
 
 ```bash
 npm run verify
@@ -150,7 +150,7 @@ npm run package:metadata
 
 | Output | Meaning |
 | :-- | :-- |
-| `dist/btc-live-chromium-v1.25.0-candidate.zip` | Reproducible Chromium candidate package |
+| `dist/btc-live-chromium-v1.27.0-candidate.zip` | Reproducible Chromium candidate package |
 | `dist/SHA256SUMS.txt` | Artifact checksum |
 | `dist/BUILD_INFO.json` | Candidate status, version, source commit and artifact metadata |
 | [CI workflow](https://github.com/jsmlabs/btc-live/actions/workflows/verify.yml) | Automated syntax/tests, documentation/release checks, archive integrity and reproducibility |

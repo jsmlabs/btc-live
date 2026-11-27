@@ -1,6 +1,6 @@
 # BTC Live privacy policy
 
-**Applicable scope:** The current development candidate on `main` (manifest `1.24.2`). This policy must be rechecked against the **actual approved package** before store publication. A GitHub manifest version is not proof of an installed store release.
+**Applicable scope:** The current development candidate on `main` (see `manifest.json` for the current version). This policy must be rechecked against the **actual approved package** before store publication. A GitHub manifest version is not proof of an installed store release.
 
 ## What BTC Live does
 
@@ -30,9 +30,14 @@ The current Manifest V3 source requests:
 | `notifications` | Native browser/OS alerts after user permission |
 | `alarms` | Browser-scheduled sampled price checks |
 | `https://fapi.binance.com/*` | Read-only public Futures REST endpoints |
+| `https://api.github.com/*` | Read-only software-update discovery from the official repository |
 | `wss://fstream.binance.com` | Futures live data endpoint allowed by extension CSP |
 
 The reviewed candidate has **no extension permission** to read page contents, browser history or cookies, and declares no project-operated remote account or analytics service. Public Binance endpoints receive necessary network connections; the provider and network intermediaries may observe normal connection metadata. Do not interpret the lack of a developer-operated account as absolute anonymity.
+
+## Optional support
+
+The support dialog contains a bundled QR image and a public USDC-on-Solana receiving address. Opening it performs no payment or external request; choosing Copy writes the address to the device clipboard. BTC Live does not connect a wallet, collect donor information or verify transfers. Any transfer is initiated independently by the donor through their own provider.
 
 ## Notifications and risk limitations
 

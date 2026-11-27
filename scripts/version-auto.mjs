@@ -14,10 +14,11 @@ const raw = execFileSync('git', ['log','--no-merges','--format=%B%x1e',baseline+
 const commits = raw.split('\x1e').map(item => item.trim()).filter(Boolean);
 const next = nextSemver(version, commits);
 if (!next) { console.log('SemVer: no relevant Conventional Commits; unchanged.'); process.exit(0); }
+const pendingWrites = new Map();
 async function update(file, transform) {
   const old = await read(file), updated = transform(old);
   if (old === updated) throw Error('Version metadata not found: ' + file);
-  await write(file, updated);
+  pendingWrites.set(file, updated);
 }
 async function jsonVersion(file,key) {
   const escaped=version.replace(/\./g,'\\.');
@@ -50,4 +51,5 @@ await update('CHANGELOG.md',text=>{
     ...(pending?['',pending]:[]),''].join('\n');
   return text.slice(0,at)+entry+text.slice(after);
 });
+for (const [file, contents] of pendingWrites) await write(file, contents);
 console.log('SemVer '+version+' -> '+next+' ('+commits.length+' commits since '+baseline.slice(0,7)+').');

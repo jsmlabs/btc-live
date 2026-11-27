@@ -8,6 +8,15 @@ assert(manifest.manifest_version===3,'Manifest V3 required');
 assert(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(manifest.version),'Invalid SemVer manifest version');
 const packageInfo=JSON.parse(await readFile(path.join(root,'package.json'),'utf8'));
 assert(packageInfo.private===true && packageInfo.name==='btc-live' && packageInfo.version===manifest.version,'Package and manifest version drift');
+const acceptance=JSON.parse(await readFile(path.join(root,'docs/release-acceptance.json'),'utf8'));
+assert(acceptance.manifest_version===manifest.version,'Release acceptance template version drift');
+const readme=await readFile(path.join(root,'README.md'),'utf8');
+assert(readme.includes('manifest-'+manifest.version+'-'),'README badge version drift');
+assert(readme.includes('btc-live-chromium-v'+manifest.version+'-candidate.zip'),'README package version drift');
+for(const file of ['docs/ARCHITECTURE.md','docs/USAGE.md','docs/RELEASE.md']){
+ const doc=await readFile(path.join(root,file),'utf8');
+ assert(doc.includes('`'+manifest.version+'`'),'Current version missing from '+file);
+}
 const allowedPermissions=new Set(['storage','notifications','alarms']);
 assert(Array.isArray(manifest.permissions)&&manifest.permissions.length===allowedPermissions.size&&new Set(manifest.permissions).size===allowedPermissions.size&&manifest.permissions.every(x=>allowedPermissions.has(x)),'Unexpected or missing extension permission');
 assert(JSON.stringify(manifest.host_permissions)==='["https://fapi.binance.com/*","https://api.github.com/*"]','Host permission drift');

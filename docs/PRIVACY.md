@@ -27,9 +27,14 @@ Market connectivity uses public exchange endpoints and does not require authenti
 | `notifications` | Native alert display when allowed |
 | `alarms` | Sampled background checks subject to Chromium scheduling |
 | `https://fapi.binance.com/*` | Binance USDⓈ-M Futures REST |
+| `https://api.github.com/*` | Read-only software-update discovery |
 | CSP `wss://fstream.binance.com` | Futures WebSocket |
 
 There is no content-script or page-content-reading permission in the reviewed manifest. Do not expand endpoint, execution or storage permissions without recording the change, reviewing data disclosure and validating the final package.
+
+## Voluntary support
+
+The support modal uses a packaged QR code, a static public receiving address and the browser clipboard on explicit request. It does not execute payments, contact a wallet provider or store donor records.
 
 ## Retention, integrity and disclosure
 

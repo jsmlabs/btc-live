@@ -72,7 +72,7 @@ The structured [acceptance checklist](ACCEPTANCE.md) is the source for **manual*
 
 ## Build a candidate
 
-**Requirements:** Node.js 20+ and npm. CI runs Node.js 22.
+**Requirements:** Node.js 22+ and npm. CI runs Node.js 26 LTS.
 
 ```bash
 npm run verify

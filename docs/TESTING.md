@@ -4,7 +4,7 @@ BTC Live verification has **three independent tiers**. A green result at a lower
 
 | Tier | Test environment | Covered | Not covered |
 | --- | --- | --- | --- |
-| 1. Static and Node | GitHub Actions / local Node 20+ | Syntax, modules, deterministic behavior, docs links, manifest constraints | Real browser behavior |
+| 1. Static and Node | GitHub Actions / local Node 22+ | Syntax, modules, deterministic behavior, docs links, manifest constraints | Real browser behavior |
 | 2. Optional DOM smoke | Python Playwright + Chromium, mocked WebSocket | Selected chart rendering, UI and simulated reconnection | Extension MV3 lifecycle, live exchange |
 | 3. Real acceptance | Unpacked built extension in real Chromium, live Binance and prior installed version | User-facing behavior, connectivity, MV3 races and migration | Only the recorded scenarios/platforms |
 
@@ -39,7 +39,7 @@ Requires separately installed Python Playwright and Chromium. The test uses an *
 
 ```bash
 # Optional local developer dependency; not included in the extension runtime.
-npm install --no-save --package-lock=false playwright
+npm install --no-save --package-lock=false playwright@1.65.1
 npx playwright install chromium
 npm run test:ui
 ```

@@ -53,3 +53,17 @@ test('experimental preview publication cannot become a stable release or run aut
  assert.match(stable,/release:gate/);
  assert.match(stable,/environment: production-release/);
 });
+
+test('candidate version is consistent across the maintained public metadata', async () => {
+ const acceptance=JSON.parse(await readFile(path.join(root,'docs/release-acceptance.json'),'utf8'));
+ assert.equal(acceptance.manifest_version,manifest.version);
+ const readme=await readFile(path.join(root,'README.md'),'utf8');
+ assert.ok(readme.includes('manifest-'+manifest.version+'-'));
+ assert.ok(readme.includes('btc-live-chromium-v'+manifest.version+'-candidate.zip'));
+ for(const file of ['docs/ARCHITECTURE.md','docs/USAGE.md','docs/RELEASE.md']){
+  const contents=await readFile(path.join(root,file),'utf8');
+  assert.ok(contents.includes(String.fromCharCode(96)+manifest.version+String.fromCharCode(96)),file);
+ }
+ const workflow=await readFile(path.join(root,'.github/workflows/auto-semver.yml'),'utf8');
+ assert.match(workflow,/ref: main\s+fetch-depth: 0/);
+});

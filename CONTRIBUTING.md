@@ -1,6 +1,6 @@
 # Contributing to BTC Live
 
-BTC Live is a local-first Chromium Manifest V3 application consuming public BTCUSDT Binance Futures data. The maintained integration branch is **`main`**. Current source is a **development candidate** (manifest `1.22.0`) and has not completed customer-release approval.
+BTC Live is a local-first Chromium Manifest V3 application consuming public BTCUSDT Binance Futures data. The maintained integration branch is **`main`**. Current source is a **development candidate** (see `manifest.json` for its current version) and has not completed customer-release approval.
 
 ## Prepare a change
 
@@ -12,7 +12,7 @@ BTC Live is a local-first Chromium Manifest V3 application consuming public BTCU
 
 ## Verify locally
 
-Requires **Node.js 20+** and npm. From the root:
+Requires **Node.js 22+** and npm. From the root:
 
 ```bash
 npm run verify
@@ -26,7 +26,7 @@ Review the entire Git diff before committing. Ensure the package contains only i
 
 ## Keep documents in sync
 
-Update README/user steps for visible behavior, architecture for interface/data-flow changes, security/privacy for altered permissions/storage/networks, and release documentation for material changes. Do not change extension semver, create tags or claim customer readiness without the [release procedure](docs/RELEASE.md).
+Update README/user steps for visible behavior, architecture for interface/data-flow changes, security/privacy for altered permissions/storage/networks, and release documentation for material changes. Conventional Commits drive automated development SemVer on `main`; do not manually bump versions, create stable tags or claim customer readiness outside the [release procedure](docs/RELEASE.md).
 
 ## Review and maintainership
 

@@ -14,7 +14,7 @@
 
 ## Automated Semantic Versioning
 
-On pushes to `main`, `.github/workflows/auto-semver.yml` examines Conventional Commits since the last change to `manifest.json`. `fix`, `perf` and `revert` raise PATCH; `feat` raises MINOR; `!` or a `BREAKING CHANGE:` footer raises MAJOR; documentation, tests and chores alone do not bump the version. The highest eligible level wins. The workflow updates the manifest, package metadata and maintained version references, runs candidate checks, commits the bump and explicitly dispatches full verification for the new SHA. Stable releases remain subject to all seven manual acceptance gates; an automatic development-version bump is not a publication.
+.github/workflows/verify.yml uses current supported development tooling, with browser testing on an explicit runner OS. On pushes to `main`, `.github/workflows/auto-semver.yml` examines Conventional Commits since the last change to `manifest.json`. `fix`, `perf` and `revert` raise PATCH; `feat` raises MINOR; `!` or a `BREAKING CHANGE:` footer raises MAJOR; documentation, tests and chores alone do not bump the version. The highest eligible level wins. The workflow updates the manifest, package metadata and maintained version references, runs candidate checks, commits the bump and explicitly dispatches full verification for the new SHA. Stable releases remain subject to all seven manual acceptance gates; an automatic development-version bump is not a publication.
 
 ## Change procedure
 
@@ -23,8 +23,9 @@ On pushes to `main`, `.github/workflows/auto-semver.yml` examines Conventional C
 3. Add/repair deterministic tests for expected, malformed, stale, retry and regression scenarios.
 4. Update affected README, architecture, user steps, privacy/security disclosures, scripts and release metadata **when behavior changes**.
 5. Run `npm run verify`, `npm run docs:check`, `npm run release:check`, `npm run package:extension` and `npm run package:metadata`; inspect the package.
-6. Review the final diff and only commit scoped changes; verify CI on that exact commit.
-7. Do not create stable tags, publish ZIPs to customers or modify the Chrome Web Store until [manual release acceptance](ACCEPTANCE.md) is independently approved.
+6. Review the complete project for stale dependencies, supported toolchain versions, permissions, security issues, documentation and version metadata. Update relevant compatible components; preserve runtime contracts and avoid speculative migrations.
+7. Review the final diff and only commit scoped changes; verify CI on that exact commit. Remove integrated temporary branches.
+8. Do not create stable tags, publish ZIPs to customers or modify the Chrome Web Store until [manual release acceptance](ACCEPTANCE.md) is independently approved.
 
 Use only the maintained scripts listed in [Release](RELEASE.md) for candidate verification and packaging. Current topics are organized in the [documentation index](INDEX.md).
 

@@ -5,6 +5,11 @@ All notable changes to the BTC Live development candidate are recorded here. Ent
 
 ## Unreleased
 
+## [1.27.1] - 2026-11-27
+
+### Conventional Commits
+- fix(release): prevent metadata drift and refresh supported development tooling
+
 ## [1.27.0] - 2026-11-27
 
 ### Conventional Commits

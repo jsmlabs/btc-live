@@ -1,6 +1,8 @@
 import { displayExtensionVersion } from '../ui/version-label.js';
+import { mountSupportDialog } from '../ui/support-donations.js';
 import { mountSoftwareUpdates } from '../ui/software-update-panel.js';
 let updatePanelDispose = () => {};
+let supportDialogDispose = () => {};
 import {createAdvancedAlertCenter} from '../ui/advanced-alert-center.js';
 import { clampReplayPosition, addReplayBookmark, compareReplaySessions } from '../ui/replay-research.js';
 import { createTerminalExperience } from '../ui/terminal-experience.js';
@@ -713,6 +715,7 @@ function handleStorageChange(changes, areaName) {
 }
 
 function bindUi() {
+  supportDialogDispose = mountSupportDialog();
   document.getElementById('dashboardRetryButton').addEventListener('click', () => runtime.retryNow());
   document.getElementById('dashboardResetSettings').addEventListener('click', () => runtime.resetSettings());
   bindSettings();
@@ -797,6 +800,7 @@ function handleOnline() {
 function cleanup() {
   if (cleanedUp) return;
   cleanedUp = true;
+  supportDialogDispose();
   stopReplay();
   stopRecorder();
   stopEventPlayback();

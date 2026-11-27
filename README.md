@@ -43,6 +43,12 @@ BTC Live brings public Binance **USDⓈ-M Futures BTCUSDT** market observations 
 | **Runtime dependencies** | No npm packages or remote executable code |
 | **Trading** | **No exchange-account access and no order execution** |
 
+## Support BTC Live
+
+BTC Live is free. An optional **Support BTC Live** action in the popup and terminal opens a locally rendered USDC-on-Solana donation dialog with a bundled QR code and a selectable, copyable address. Donating is entirely optional; all features remain available. This requires no wallet connection, payment execution, third-party services, telemetry or additional browser permissions.
+
+**Important:** The destination is a Binance USDC/Solana deposit address. Verify that Binance still supports deposits to that exact address and check any minimum amount before transferring. Send only **USDC on Solana**; transfers may be irreversible. The extension cannot verify deposit status or receipt.
+
 ## Get started
 
 **No build step is required to load the source as an unpacked extension.** Use a **separate browser profile** for candidate evaluation. Migration from an existing installed version is not yet accepted.

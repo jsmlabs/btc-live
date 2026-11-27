@@ -71,7 +71,7 @@ try{
     assert.equal(await page.locator('#supportAddress').inputValue(),'7CPrqUu3ioFtdiPrx7APLvpf6if2P4ZZiLKPrJAUyKu3');
     assert.equal(await page.locator('.support-qr-frame img').evaluate(image => image.complete && image.naturalWidth > 0),true);
     await page.locator('#supportCopy').click();
-    assert.match(await page.locator('#supportCopyFeedback').textContent(),/copied|manual/i);
+    await page.locator('#supportCopyFeedback').filter({hasText:/copied|manual/i}).waitFor({timeout:5000});
     const dialogBounds = await page.locator('#supportDialog').boundingBox();
     assert.ok(dialogBounds && dialogBounds.y >= 0 && dialogBounds.y + dialogBounds.height <= 901);
     await page.keyboard.press('Escape');

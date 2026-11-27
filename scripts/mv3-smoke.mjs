@@ -63,6 +63,19 @@ try{
       assert.equal(await page.locator('.workspace-link').count(),6);
       assert.equal(await page.locator('.chart-toolbar > .segmented[aria-label="Chart navigation"]').count(),1);
     }
+    // Exercise the local support modal on the installed, packaged MV3 origin.
+    const supportEntry = page.locator(view.startsWith('popup') ?
+      '.support-launch [data-support-open]' : '.support-nav [data-support-open]');
+    await supportEntry.click();
+    assert.equal(await page.locator('#supportDialog').evaluate(node => node.open && node.matches(':modal')),true);
+    assert.equal(await page.locator('#supportAddress').inputValue(),'7CPrqUu3ioFtdiPrx7APLvpf6if2P4ZZiLKPrJAUyKu3');
+    assert.equal(await page.locator('.support-qr-frame img').evaluate(image => image.complete && image.naturalWidth > 0),true);
+    await page.locator('#supportCopy').click();
+    assert.match(await page.locator('#supportCopyFeedback').textContent(),/copied|manual/i);
+    const dialogBounds = await page.locator('#supportDialog').boundingBox();
+    assert.ok(dialogBounds && dialogBounds.y >= 0 && dialogBounds.y + dialogBounds.height <= 901);
+    await page.keyboard.press('Escape');
+    assert.equal(await page.locator('#supportDialog').evaluate(node => node.open),false);
     const nav=await page.evaluate(()=>{
       const entry=performance.getEntriesByType('navigation')[0];
       return {domContentLoadedMs:Math.round(entry.domContentLoadedEventEnd-entry.startTime),loadMs:Math.round(entry.loadEventEnd-entry.startTime)};
